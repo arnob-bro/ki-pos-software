@@ -1,17 +1,61 @@
-//sample code for now
+const ProductService = require('../services/productService');
+const ProductController = require('../controllers/productController');
 
 module.exports = function registerProductHandlers(ipcMain, db) {
-  ipcMain.handle('products:list', () => {
-    return db.prepare('SELECT * FROM products').all();
+  const productService = new ProductService(db);
+  const productController = new ProductController(productService);
+
+  ipcMain.handle('products:list', async (event, page = 1, limit = 20) => {
+    try {
+      return await productService.listProducts(page, limit);
+    } catch (error) {
+      console.error('Error listing products:', error.message);
+      throw error;
+    }
   });
-  ipcMain.handle('products:add', (event, product) => {
-    const stmt = db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
-    const info = stmt.run(product.name, product.price, product.stock);
-    return { id: info.lastInsertRowid, ...product };
+
+  ipcMain.handle('products:search', async (event, query, limit = 20) => {
+    try {
+      return await productService.searchProducts(query, limit);
+    } catch (error) {
+      console.error('Error searching products:', error.message);
+      throw error;
+    }
   });
-  ipcMain.handle('products:update', (event, product) => {
-    const stmt = db.prepare('UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?');
-    stmt.run(product.name, product.price, product.stock, product.id);
-    return product;
+
+  ipcMain.handle('products:add', async (event, product) => {
+    try {
+      return await productController.addProduct(product);
+    } catch (error) {
+      console.error('Error adding product:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('products:update', async (event, product) => {
+    try {
+      return await productController.updateProduct(product);
+    } catch (error) {
+      console.error('Error updating product:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('products:get', async (event, id) => {
+    try {
+      return await productController.getProductById(id);
+    } catch (error) {
+      console.error('Error getting product:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('products:getLowStock', async (event, threshold = 5) => {
+    try {
+      return await productService.getLowStockProducts(threshold);
+    } catch (error) {
+      console.error('Error getting low stock products:', error.message);
+      throw error;
+    }
   });
 }; 
