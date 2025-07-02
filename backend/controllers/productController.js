@@ -21,7 +21,7 @@ class ProductController {
       const product = {
         name: productData.name.trim(),
         price: parseFloat(productData.price),
-        stock: parseInt(productData.stock, 10)
+        stock_quantity: parseInt(productData.stock_quantity, 10)
       };
 
       return await this.productService.addProduct(product);
@@ -41,10 +41,10 @@ class ProductController {
       }
 
       const product = {
-        id: parseInt(productData.id, 10),
+        id: productData.id, // keep as string if that's your schema
         name: productData.name.trim(),
         price: parseFloat(productData.price),
-        stock: parseInt(productData.stock, 10)
+        stock_quantity: parseInt(productData.stock_quantity, 10)
       };
 
       return await this.productService.updateProduct(product);
@@ -55,12 +55,8 @@ class ProductController {
 
   async getProductById(id) {
     try {
-      const productId = parseInt(id, 10);
-      if (isNaN(productId)) {
-        throw new Error('Invalid product ID');
-      }
-
-      return await this.productService.getProductById(productId);
+      // id is string in your schema
+      return await this.productService.getProductById(id);
     } catch (error) {
       throw new Error(`Failed to get product: ${error.message}`);
     }

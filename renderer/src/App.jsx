@@ -24,24 +24,24 @@ function App() {
   // Product state with pagination
   const [products, setProducts] = useState([]);
   const [productPagination, setProductPagination] = useState({ page: 1, total: 0, totalPages: 0 });
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock_quantity: '0' });
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300); // 300ms debounce
 
   // Cart state
   const [cart, setCart] = useState([]);
   
-  // Sales history with pagination
-  const [sales, setSales] = useState([]);
-  const [salesPagination, setSalesPagination] = useState({ page: 1, total: 0, totalPages: 0 });
+  // Transactions (was sales) history with pagination
+  const [transactions, setTransactions] = useState([]);
+  const [transactionsPagination, setTransactionsPagination] = useState({ page: 1, total: 0, totalPages: 0 });
   
   // Loading states
-  const [loading, setLoading] = useState({ products: false, sales: false });
+  const [loading, setLoading] = useState({ products: false, transactions: false });
 
-  // Load products and sales on mount
+  // Load products and transactions on mount
   useEffect(() => {
     refreshProducts();
-    refreshSales();
+    refreshTransactions();
   }, []);
 
   // Debounced search effect
@@ -83,33 +83,36 @@ function App() {
     }
   };
 
-  const refreshSales = async (page = 1) => {
+  const refreshTransactions = async (page = 1) => {
     try {
-      setLoading(prev => ({ ...prev, sales: true }));
-      const result = await window.posAPI.listSales(page, 20); // Limit to 20 items
-      setSales(result.sales || result);
-      if (result.pagination) {
-        setSalesPagination(result.pagination);
-      }
+      setLoading(prev => ({ ...prev, transactions: true }));
+      const result = await window.posAPI.listTransactions(page, 20); // Limit to 20 items
+      setTransactions(result);
+      // Pagination can be added if backend supports it
     } catch (error) {
-      console.error('Error loading sales:', error);
+      console.error('Error loading transactions:', error);
     } finally {
-      setLoading(prev => ({ ...prev, sales: false }));
+      setLoading(prev => ({ ...prev, transactions: false }));
     }
   };
 
   // Memoized product add handler
   const handleAddProduct = useCallback(async (e) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price || !newProduct.stock) return;
-    
+    if (!newProduct.name || !newProduct.price || newProduct.stock_quantity === '') return;
+    const stockQty = parseInt(newProduct.stock_quantity, 10);
+    console.log('Submitting stock_quantity:', stockQty, typeof stockQty);
+    if (isNaN(stockQty) || stockQty < 0) {
+      alert('Stock quantity must be a non-negative number');
+      return;
+    }
     try {
       await window.posAPI.addProduct({
         name: newProduct.name,
         price: parseFloat(newProduct.price),
-        stock: parseInt(newProduct.stock, 10),
+        stock_quantity: stockQty,
       });
-      setNewProduct({ name: '', price: '', stock: '' });
+      setNewProduct({ name: '', price: '', stock_quantity: '0' });
       refreshProducts(1); // Reset to first page
     } catch (error) {
       console.error('Error adding product:', error);
@@ -123,7 +126,7 @@ function App() {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id && item.qty < product.stock
+          item.id === product.id && item.qty < product.stock_quantity
             ? { ...item, qty: item.qty + 1 }
             : item
         );
@@ -137,10 +140,10 @@ function App() {
     setCart((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
-  const updateCartQty = useCallback((id, qty, stock) => {
+  const updateCartQty = useCallback((id, qty, stock_quantity) => {
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, qty: Math.max(1, Math.min(qty, stock)) } : item
+        item.id === id ? { ...item, qty: Math.max(1, Math.min(qty, stock_quantity)) } : item
       )
     );
   }, []);
@@ -150,18 +153,29 @@ function App() {
     return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   }, [cart]);
 
-  // Memoized checkout handler
+  // Memoized checkout handler (addTransaction)
   const handleCheckout = useCallback(async () => {
     if (cart.length === 0) return;
-    
     try {
-      await window.posAPI.addSale({
-        items: cart.map(({ id, name, price, qty }) => ({ id, name, price, qty })),
-        total: cartTotal,
-      });
+      // You may want to get user_id, payment_method, etc. from context or UI
+      const transaction = {
+        user_id: 'user-1', // Using the seeded user ID
+        payment_method: 'cash', // Replace with actual payment method
+        total_amount: cartTotal,
+        vat_amount: 0,
+        discount_amount: 0,
+        items: cart.map(({ id, name, price, qty }) => ({
+          product_id: id,
+          quantity: qty,
+          unit_price: price,
+          vat_amount: 0,
+          discount_applied: 0,
+        })),
+      };
+      await window.posAPI.addTransaction(transaction);
       setCart([]);
       refreshProducts(1);
-      refreshSales(1);
+      refreshTransactions(1);
     } catch (error) {
       console.error('Error during checkout:', error);
       alert(`Checkout failed: ${error.message}`);
@@ -212,10 +226,12 @@ function App() {
               required
             />
             <input
-              name="stock"
+              name="stock_quantity"
               type="number"
+              min="0"
+              step="1"
               placeholder="Stock"
-              value={newProduct.stock}
+              value={newProduct.stock_quantity}
               onChange={handleProductChange}
               required
             />
@@ -243,11 +259,11 @@ function App() {
                     <tr key={p.id}>
                       <td>{p.name}</td>
                       <td>${p.price.toFixed(2)}</td>
-                      <td>{p.stock}</td>
+                      <td>{p.stock_quantity}</td>
                       <td>
                         <button 
                           onClick={() => addToCart(p)} 
-                          disabled={p.stock === 0}
+                          disabled={p.stock_quantity === 0}
                           className="add-to-cart-btn"
                         >
                           Add to Cart
@@ -308,9 +324,9 @@ function App() {
                         <input
                           type="number"
                           min="1"
-                          max={item.stock}
+                          max={item.stock_quantity}
                           value={item.qty}
-                          onChange={(e) => updateCartQty(item.id, parseInt(e.target.value, 10), item.stock)}
+                          onChange={(e) => updateCartQty(item.id, parseInt(e.target.value, 10), item.stock_quantity)}
                           style={{ width: '3em' }}
                         />
                       </td>
@@ -334,13 +350,13 @@ function App() {
           )}
         </section>
 
-        {/* Sales History */}
+        {/* Transactions History */}
         <section>
-          <h2>Sales History</h2>
-          {loading.sales ? (
-            <div className="loading">Loading sales...</div>
-          ) : sales.length === 0 ? (
-            <p>No sales yet.</p>
+          <h2>Transactions History</h2>
+          {loading.transactions ? (
+            <div className="loading">Loading transactions...</div>
+          ) : transactions.length === 0 ? (
+            <p>No transactions yet.</p>
           ) : (
             <>
               <table className="sales-table">
@@ -352,42 +368,22 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sales.map((sale) => (
-                    <tr key={sale.id}>
-                      <td>{new Date(sale.created_at).toLocaleString()}</td>
+                  {transactions.map((tx) => (
+                    <tr key={tx.id}>
+                      <td>{new Date(tx.timestamp).toLocaleString()}</td>
                       <td>
-                        {sale.items.map((item) => (
+                        {tx.items.map((item) => (
                           <div key={item.id}>
-                            {item.name} x{item.qty} @ ${item.price.toFixed(2)}
+                            Product: {item.product_id} x{item.quantity} @ ${item.unit_price.toFixed(2)}
                           </div>
                         ))}
                       </td>
-                      <td>${sale.total.toFixed(2)}</td>
+                      <td>${parseFloat(tx.total_amount).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-
-              {/* Sales Pagination */}
-              {salesPagination.totalPages > 1 && (
-                <div className="pagination">
-                  <button 
-                    onClick={() => refreshSales(salesPagination.page - 1)}
-                    disabled={salesPagination.page <= 1}
-                  >
-                    Previous
-                  </button>
-                  <span>
-                    Page {salesPagination.page} of {salesPagination.totalPages}
-                  </span>
-                  <button 
-                    onClick={() => refreshSales(salesPagination.page + 1)}
-                    disabled={salesPagination.page >= salesPagination.totalPages}
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
+              {/* Pagination can be added here if backend supports it */}
             </>
           )}
         </section>
