@@ -8,7 +8,7 @@
   
   body, html {
     height: 100%;
-    background: linear-gradient(to right, #74ebd5, #acb6e5);
+    background: white;
   }
   
   .login-container {
@@ -21,7 +21,7 @@
   }
   
   .login-form {
-    background: white;
+    background: rgb(15, 15, 15);
     padding: 2rem 2.5rem;
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
@@ -33,7 +33,7 @@
     text-align: center;
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
-    color: #333;
+    color: #f8f3f3;
   }
   
   .login-form input {
@@ -54,7 +54,7 @@
   
   .login-form button {
     padding: 0.75rem;
-    background: #007bff;
+    background: #0c850a;
     color: white;
     border: none;
     border-radius: 8px;
@@ -65,7 +65,7 @@
   }
   
   .login-form button:hover {
-    background: #0056b3;
+    background: #167b0b;
   }
   
   .error {
