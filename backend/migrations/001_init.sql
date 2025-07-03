@@ -159,7 +159,7 @@ CREATE TABLE generated_reports (
 );
 
 -- Table: languages
-CREATE TABLE languages (
+CREATE TABLE IF NOT EXISTS languages (
   id INTEGER PRIMARY KEY,
   code VARCHAR UNIQUE NOT NULL,
   label VARCHAR NOT NULL,

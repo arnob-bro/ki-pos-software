@@ -1,64 +1,57 @@
 import "./pos.css";
-import { useState, useEffect } from "react";
-
-const PRODUCTS = [
-	{ id: 1, name: "Bread", price: 2.0 },
-	{ id: 2, name: "Apples", price: 5.0 },
-	{ id: 3, name: "Orange Juice", price: 6.0 },
-	{ id: 4, name: "Detergent", price: 9.0 },
-	{ id: 5, name: "Milk", price: 3.5 },
-	{ id: 6, name: "Eggs (dozen)", price: 4.0 },
-	{ id: 7, name: "Butter", price: 2.5 },
-	{ id: 8, name: "Cheddar Cheese", price: 4.5 },
-	{ id: 9, name: "Bananas", price: 3.0 },
-	{ id: 10, name: "Tomatoes", price: 2.5 },
-	{ id: 11, name: "Potatoes (5kg)", price: 7.0 },
-	{ id: 12, name: "Onions (1kg)", price: 2.0 },
-	{ id: 13, name: "Carrots (1kg)", price: 2.0 },
-	{ id: 14, name: "Chicken Breast (1kg)", price: 8.0 },
-	{ id: 15, name: "Ground Beef (1kg)", price: 10.0 },
-	{ id: 16, name: "Rice (5kg)", price: 12.0 },
-	{ id: 17, name: "Pasta", price: 2.0 },
-	{ id: 18, name: "Tomato Sauce", price: 1.5 },
-	{ id: 19, name: "Canned Tuna", price: 2.0 },
-	{ id: 20, name: "Cooking Oil (1L)", price: 5.0 },
-	{ id: 21, name: "Salt (1kg)", price: 1.0 },
-	{ id: 22, name: "Black Pepper", price: 1.5 },
-	{ id: 23, name: "Sugar (1kg)", price: 2.0 },
-	{ id: 24, name: "Flour (1kg)", price: 2.5 },
-	{ id: 25, name: "Yogurt", price: 3.0 },
-	{ id: 26, name: "Cereal", price: 4.0 },
-	{ id: 27, name: "Biscuits", price: 1.5 },
-	{ id: 28, name: "Chocolate Bar", price: 1.0 },
-	{ id: 29, name: "Chips", price: 2.0 },
-	{ id: 30, name: "Soda (2L)", price: 3.0 },
-	{ id: 31, name: "Coffee (200g)", price: 6.0 },
-	{ id: 32, name: "Tea (100 bags)", price: 5.0 },
-	{ id: 33, name: "Honey (500g)", price: 7.0 },
-	{ id: 34, name: "Jam", price: 3.0 },
-	{ id: 35, name: "Peanut Butter", price: 4.0 },
-	{ id: 36, name: "Frozen Peas", price: 3.0 },
-	{ id: 37, name: "Frozen Pizza", price: 5.0 },
-	{ id: 38, name: "Ice Cream", price: 4.5 },
-	{ id: 39, name: "Shampoo", price: 5.0 },
-	{ id: 40, name: "Toothpaste", price: 2.5 },
-	{ id: 41, name: "Toilet Paper (pack)", price: 6.0 },
-	{ id: 42, name: "Soap Bar", price: 1.0 },
-	{ id: 43, name: "Hand Sanitizer", price: 3.0 },
-	{ id: 44, name: "Bleach", price: 3.5 },
-	{ id: 45, name: "Glass Cleaner", price: 4.0 },
-	{ id: 46, name: "Sponges (pack)", price: 2.0 },
-	{ id: 47, name: "Aluminum Foil", price: 3.0 },
-	{ id: 48, name: "Cling Wrap", price: 2.5 },
-	{ id: 49, name: "Paper Towels", price: 4.0 },
-	{ id: 50, name: "Trash Bags (pack)", price: 5.0 },
-];
+import { useState, useEffect, useCallback } from "react";
 
 function POS() {
-	const [cart, setCart] = useState({});
+	const [products, setProducts] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filteredProducts, setFilteredProducts] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [cart, setCart] = useState({});
+	const [paidAmount, setPaidAmount] = useState(0);
+	const [change, setChange] = useState(0);
+
+	// Fetch products from backend
+	const fetchProducts = useCallback(async () => {
+		setLoading(true);
+		try {
+			const result = await window.posAPI.listProducts(1, 50);
+			setProducts(result.products || result);
+			setFilteredProducts(result.products || result);
+		} catch (e) {
+			setProducts([]);
+			setFilteredProducts([]);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	// Search products from backend
+	const searchProducts = useCallback(async (term) => {
+		if (!term.trim()) {
+			setFilteredProducts(products);
+			return;
+		}
+		setLoading(true);
+		try {
+			const result = await window.posAPI.searchProducts(term, 50);
+			setFilteredProducts(result.products || []);
+		} catch (e) {
+			setFilteredProducts([]);
+		} finally {
+			setLoading(false);
+		}
+	}, [products]);
+
+	useEffect(() => {
+		fetchProducts();
+	}, [fetchProducts]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			searchProducts(searchTerm);
+		}, 400);
+		return () => clearTimeout(timer);
+	}, [searchTerm, searchProducts]);
 
 	const updateCart = (product, change) => {
 		setCart((prev) => {
@@ -68,6 +61,10 @@ function POS() {
 				delete newCart[product.id];
 				return newCart;
 			}
+			// Prevent adding more than stock_quantity
+			if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
+				return prev;
+			}
 			return {
 				...prev,
 				[product.id]: { ...product, quantity },
@@ -75,30 +72,43 @@ function POS() {
 		});
 	};
 
-	useEffect(() => {
-		if (searchTerm.trim() === "") {
-			setFilteredProducts([]);
-			return;
-		}
-
-		setLoading(true);
-		const timer = setTimeout(() => {
-			const results = PRODUCTS.filter((p) =>
-				p.name.toLowerCase().includes(searchTerm.toLowerCase())
-			);
-			setFilteredProducts(results);
-			setLoading(false);
-		}, 500); // simulate server delay
-
-		return () => clearTimeout(timer);
-	}, [searchTerm]);
-
 	const subtotal = Object.values(cart).reduce(
 		(sum, item) => sum + item.price * item.quantity,
 		0
 	);
 	const tax = +(subtotal * 0.05).toFixed(2);
 	const total = +(subtotal + tax).toFixed(2);
+
+	useEffect(() => {
+		setChange(Math.max(0, paidAmount - total));
+	}, [paidAmount, total]);
+
+	const handleCheckout = async (payment_method = "cash") => {
+		if (Object.keys(cart).length === 0) return;
+		try {
+			await window.posAPI.addTransaction({
+				user_id: "user-1", // TODO: Replace with real user context
+				payment_method,
+				total_amount: total,
+				vat_amount: tax,
+				discount_amount: 0,
+				items: Object.values(cart).map((item) => ({
+					product_id: item.id,
+					quantity: item.quantity,
+					unit_price: item.price,
+					vat_amount: 0,
+					discount_applied: 0,
+				})),
+			});
+			setCart({});
+			setPaidAmount(0);
+			setChange(0);
+			fetchProducts();
+			alert("Transaction successful!");
+		} catch (e) {
+			alert("Checkout failed: " + (e.message || e));
+		}
+	};
 
 	return (
 		<div className='pos'>
@@ -141,11 +151,12 @@ function POS() {
 								<div>
 									<strong>{p.name}</strong>
 									<div>Price: ${p.price.toFixed(2)}</div>
+									<div>Stock: {p.stock_quantity}</div>
 								</div>
 								<div className='qty-controls'>
-									<button onClick={() => updateCart(p, -1)}>-</button>
+									<button onClick={() => updateCart(p, -1)} disabled={!cart[p.id]}>-</button>
 									<span>{cart[p.id]?.quantity || 0}</span>
-									<button onClick={() => updateCart(p, 1)}>+</button>
+									<button onClick={() => updateCart(p, 1)} disabled={cart[p.id]?.quantity >= p.stock_quantity}>+</button>
 								</div>
 							</div>
 						))}
@@ -157,10 +168,10 @@ function POS() {
 								Total: <span className='total-value'>${total}</span>
 							</div>
 							<div className='colored-box'>
-								Paid Amount: <span className='payment-value'>$0.00</span>
+								Paid Amount: <span className='payment-value'>${paidAmount.toFixed(2)}</span>
 							</div>
 							<div className='colored-box'>
-								Change: <span className='change-value'>$0.00</span>
+								Change: <span className='change-value'>${change.toFixed(2)}</span>
 							</div>
 						</div>
 
@@ -196,11 +207,11 @@ function POS() {
 							<strong>Total: ${total}</strong>
 						</div>
 						<div className='pay-buttons'>
-							<button>Cash</button>
-							<button>Card</button>
-							<button>Voucher</button>
+							<button onClick={() => handleCheckout("cash")}>Cash</button>
+							<button onClick={() => handleCheckout("card")}>Card</button>
+							<button onClick={() => handleCheckout("voucher")}>Voucher</button>
 						</div>
-						<button className='print-btn'>Print Invoice</button>
+						<button className='print-btn' disabled>Print Invoice</button>
 					</div>
 				</div>
 			</div>

@@ -16,7 +16,19 @@ INSERT OR IGNORE INTO categories (id, name, description) VALUES (1, 'Default', '
 
 -- Products
 INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
-VALUES ('prod-1', 'Sample Product', 1, '0000000000000', 10.00, 5.00, 100);
+VALUES ('prod-1', 'Protein Powder', 1, '1000000000000', 10.00, 5.00, 100);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-2', 'Bread', 1, '1000000000001', 2.00, 5.00, 50);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-3', 'Milk', 1, '1000000000002', 3.50, 5.00, 30);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-4', 'Eggs (dozen)', 1, '1000000000003', 4.00, 5.00, 40);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-5', 'Butter', 1, '1000000000004', 2.50, 5.00, 25);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-6', 'Apples', 1, '1000000000005', 5.00, 5.00, 60);
+INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity)
+VALUES ('prod-7', 'Orange Juice', 1, '1000000000006', 6.00, 5.00, 20);
 
 -- Customers
 INSERT OR IGNORE INTO customers (id, name) VALUES ('cust-1', 'Default Customer');
