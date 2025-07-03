@@ -1,0 +1,225 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.pos {
+	display: flex;
+	height: 100vh;
+	font-family: sans-serif;
+}
+
+.sidebar {
+	background: #f8f9fa;
+	width: 200px;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	border-right: 1px solid #ddd;
+}
+
+.logo {
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+
+.nav-btn {
+	background: none;
+	border: none;
+	padding: 10px;
+	text-align: left;
+	cursor: pointer;
+}
+
+.nav-btn.active {
+	background: #ddd;
+	border-radius: 5px;
+}
+
+.main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.topbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 20px;
+}
+
+/* TOPBAR INPUT FIELDS CSS */
+.input-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	width: 60%;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+}
+
+label {
+	font-weight: bold;
+}
+
+/* TOPBAR INPUT FIELDS CSS ends */
+
+.search {
+	flex: 1;
+	padding: 8px;
+	margin-right: 10px;
+}
+
+.content {
+	display: flex;
+	flex: 1;
+}
+
+.product-grid {
+	flex: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 10px; /* space between list items */
+	padding: 20px;
+
+	max-height: 100vh; /* Limit to viewport height */
+	overflow-y: auto;
+}
+
+.product-card {
+	background: #dad8e7;
+	border: 1px solid #ddd;
+	padding: 10px;
+	border-radius: 8px;
+	height: fit-content;
+
+	width: 50%;
+	display: flex;
+	justify-content: space-between;
+	flex-direction: row;
+	gap: 5px;
+}
+
+.qty-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.qty-controls button {
+	padding: 2px 6px;
+	background: #f9fafb;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	cursor: pointer;
+
+	font-weight: bold;
+}
+
+.cart-summary {
+	flex: 1;
+	background: #f9fafb;
+	padding: 20px;
+	border-left: 1px solid #ddd;
+
+	overflow: hidden;
+
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.cart-summary ul {
+	list-style: none;
+}
+
+.pay-buttons {
+	display: flex;
+	gap: 10px;
+}
+
+.pay-buttons button {
+	flex: 1;
+	padding: 5px;
+}
+
+.print-btn {
+	padding: 15px;
+	background: #000000;
+	color: #fff;
+	border: none;
+	border-radius: 10px;
+	margin-top: auto;
+	cursor: pointer;
+
+	font-size: 25px;
+}
+
+.cashier-section {
+	display: flex;
+	flex-direction: row;
+	gap: 20px;
+	align-items: center;
+	justify-content: end;
+}
+
+.cashier-name {
+	font-weight: bold;
+}
+
+.payment-and-change {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.colored-box {
+	background: #000;
+	color: greenyellow;
+	font-size: 24px;
+	border-radius: 5px;
+	padding: 5px 13px;
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+/* CART TABLE */
+
+.cart-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 1rem;
+	font-family: sans-serif;
+}
+
+.cart-table th,
+.cart-table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: center;
+}
+
+.cart-table th {
+	background-color: #f4f4f4;
+	font-weight: bold;
+}
+
+.cart-table tr:nth-child(even) {
+	background-color: #f9f9f9;
+}
+
+.cart-table tr:hover {
+	background-color: #eaeaea;
+}
