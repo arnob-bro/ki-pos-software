@@ -9,3 +9,8 @@ createRoot(document.getElementById("root")).render(
 		<App />
 	</HashRouter>
 );
+createRoot(document.getElementById("root")).render(
+	<Router>
+		<App />
+	</Router>
+);

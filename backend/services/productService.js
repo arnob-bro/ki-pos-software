@@ -66,41 +66,37 @@ class ProductService {
 
   // Optimized add with minimal validation
   async addProduct(product) {
-    const { name, price, stock } = product;
-    
-    // Quick validation
-    if (!name?.trim() || price <= 0 || stock < 0) {
-      throw new Error('Invalid product data');
-    }
-
-    const stmt = this.db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
-    const info = stmt.run(name.trim(), price, stock);
-    
-    // Invalidate cache
+    console.log('DEBUG: Received product for addProduct:', product);
+    // Inline validation with coercion
+    const stockQty = Number(product.stock_quantity);
+    const price = Number(product.price);
+    if (typeof product.name !== 'string' || !product.name.trim()) throw new Error('Invalid name');
+    if (isNaN(price) || price <= 0) throw new Error('Invalid price');
+    if (isNaN(stockQty) || stockQty < 0) throw new Error('Invalid stock_quantity');
+    const { v4: uuidv4 } = require('uuid');
+    const stmt = this.db.prepare('INSERT INTO products (id, name, price, stock_quantity) VALUES (?, ?, ?, ?)');
+    const id = product.id || uuidv4();
+    stmt.run(id, product.name.trim(), price, stockQty);
     this.cache.delete('products');
-    
-    return { id: info.lastInsertRowid, name: name.trim(), price, stock };
+    return { id, name: product.name.trim(), price, stock_quantity: stockQty };
   }
 
   // Optimized update
   async updateProduct(product) {
-    const { id, name, price, stock } = product;
-    
-    if (!id || !name?.trim() || price <= 0 || stock < 0) {
-      throw new Error('Invalid product data');
-    }
-
-    const stmt = this.db.prepare('UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?');
-    const result = stmt.run(name.trim(), price, stock, id);
-    
+    // Inline validation with coercion
+    const stockQty = Number(product.stock_quantity);
+    const price = Number(product.price);
+    if (typeof product.id !== 'string' || !product.id) throw new Error('Invalid id');
+    if (typeof product.name !== 'string' || !product.name.trim()) throw new Error('Invalid name');
+    if (isNaN(price) || price <= 0) throw new Error('Invalid price');
+    if (isNaN(stockQty) || stockQty < 0) throw new Error('Invalid stock_quantity');
+    const stmt = this.db.prepare('UPDATE products SET name = ?, price = ?, stock_quantity = ? WHERE id = ?');
+    const result = stmt.run(product.name.trim(), price, stockQty, product.id);
     if (result.changes === 0) {
       throw new Error('Product not found');
     }
-    
-    // Invalidate cache
     this.cache.delete('products');
-    
-    return { id, name: name.trim(), price, stock };
+    return { id: product.id, name: product.name.trim(), price, stock_quantity: stockQty };
   }
 
   // Optimized get by ID with caching
@@ -131,7 +127,7 @@ class ProductService {
     }
     
     const transaction = this.db.transaction(() => {
-      const stmt = this.db.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
+      const stmt = this.db.prepare('UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?');
       
       for (const { id, qty } of updates) {
         const result = stmt.run(qty, id, qty);
@@ -157,7 +153,7 @@ class ProductService {
 
   // Get low stock products for alerts
   async getLowStockProducts(threshold = 5) {
-    const stmt = this.db.prepare('SELECT * FROM products WHERE stock <= ? ORDER BY stock ASC');
+    const stmt = this.db.prepare('SELECT * FROM products WHERE stock_quantity <= ? ORDER BY stock_quantity ASC');
     return stmt.all(threshold);
   }
 }

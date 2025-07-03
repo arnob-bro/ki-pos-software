@@ -1,16 +1,27 @@
+import { Routes, Route, Link } from "react-router-dom";
+// import Settings from "./pages/Settings";
+import POS from "./pages/POS/POS";
+
+import "./App.css";
 //sample code for now
 
 //import { useEffect, useState, useCallback, useMemo } from 'react';
 //import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';  
 //import Login from './pages/Login/Login';
-import './App.css';
-import { Routes, Route, Link } from "react-router-dom";
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import ProductManagement from './pages/ProductManagement/ProductManagement';
 
 function App() {
+	return (
+		<Routes>
+			<Route path='/' element={<POS />} />
+		</Routes>
+	);
+}
+
+export default App;
 	return (
 		<Routes>
 			<Route path='/' element={<Login />} />

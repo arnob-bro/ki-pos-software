@@ -7,48 +7,33 @@ class SaleService {
 
   // Optimized add sale with batch operations
   async addSale(sale) {
-    const { items, total } = sale;
-    
-    // Quick validation
-    if (!items?.length || total <= 0) {
-      throw new Error('Invalid sale data');
+    // Inline validation
+    if (!Array.isArray(sale.items) || sale.items.length === 0) throw new Error('Invalid items');
+    if (typeof sale.total !== 'number' || sale.total <= 0) throw new Error('Invalid total');
+    for (const item of sale.items) {
+      if (typeof item.id !== 'number' || item.id <= 0) throw new Error('Invalid item id');
+      if (typeof item.name !== 'string' || !item.name.trim()) throw new Error('Invalid item name');
+      if (typeof item.price !== 'number' || item.price <= 0) throw new Error('Invalid item price');
+      if (typeof item.qty !== 'number' || item.qty <= 0) throw new Error('Invalid item qty');
     }
-
-    // Validate items quickly
-    for (const item of items) {
-      if (!item.id || !item.name || item.price <= 0 || item.qty <= 0) {
-        throw new Error('Invalid item data');
-      }
-    }
-
-    // Calculate total to verify
-    const calculatedTotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    if (Math.abs(calculatedTotal - total) > 0.01) {
+    const calculatedTotal = sale.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    if (Math.abs(calculatedTotal - sale.total) > 0.01) {
       throw new Error('Total mismatch');
     }
-
-    // Optimized transaction
     const transaction = this.db.transaction(() => {
-      // Insert sale
       const stmt = this.db.prepare('INSERT INTO sales (items, total) VALUES (?, ?)');
-      const info = stmt.run(JSON.stringify(items), total);
-      
-      // Batch stock update
+      const info = stmt.run(JSON.stringify(sale.items), sale.total);
       const updateStock = this.db.prepare('UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?');
-      
-      for (const item of items) {
+      for (const item of sale.items) {
         const result = updateStock.run(item.qty, item.id, item.qty);
         if (result.changes === 0) {
           throw new Error(`Insufficient stock for ${item.name}`);
         }
       }
-      
-      return { id: info.lastInsertRowid, items, total };
+      return { id: info.lastInsertRowid, items: sale.items, total: sale.total };
     });
-
     try {
       const result = transaction();
-      // Clear sales cache
       this.cache.delete('sales_list');
       return result;
     } catch (error) {
