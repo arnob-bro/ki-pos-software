@@ -1,9 +1,12 @@
-//sample code for now
-
+// preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('posAPI', {
-  // Products
+  // 🔐 Auth
+  login: (userId, password) => ipcRenderer.invoke('login', userId, password),
+  // Optionally add logout, getCurrentUser in future
+
+  // 📦 Products
   listProducts: (page, limit) => ipcRenderer.invoke('products:list', page, limit),
   searchProducts: (query, limit) => ipcRenderer.invoke('products:search', query, limit),
   addProduct: (product) => ipcRenderer.invoke('products:add', product),
@@ -11,7 +14,7 @@ contextBridge.exposeInMainWorld('posAPI', {
   getProduct: (id) => ipcRenderer.invoke('products:get', id),
   getLowStockProducts: (threshold) => ipcRenderer.invoke('products:getLowStock', threshold),
   
-  // Sales
+  // 💰 Sales
   addSale: (sale) => ipcRenderer.invoke('sales:add', sale),
   listSales: (page, limit) => ipcRenderer.invoke('sales:list', page, limit),
   getSale: (id) => ipcRenderer.invoke('sales:get', id),
@@ -19,4 +22,4 @@ contextBridge.exposeInMainWorld('posAPI', {
   getSalesSummary: () => ipcRenderer.invoke('sales:getSummary'),
   getRecentSales: (limit) => ipcRenderer.invoke('sales:getRecent', limit),
   getTopSellingProducts: (limit) => ipcRenderer.invoke('sales:getTopSelling', limit),
-}); 
+});
