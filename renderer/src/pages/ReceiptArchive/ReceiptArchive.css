@@ -1,11 +1,12 @@
 .receipt-archive {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    font-family: 'Segoe UI', sans-serif;
-    
-  }
-  .back-btn {
+  display: flex;
+  /* gap: 20px; */
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  /* background-color: #f7f7f7; Optional: light background behind cards */
+}
+
+  /* .back-btn {
     background-color: #f0f0f0;
     border: none;
     color: #333;
@@ -15,12 +16,12 @@
     margin-bottom: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
-  }
+  } */
   
-  .back-btn:hover {
+  /* .back-btn:hover {
     background-color: #ddd;
   }
-  
+   */
   .receipt-list-section {
     flex: 2;
     background: #fff;

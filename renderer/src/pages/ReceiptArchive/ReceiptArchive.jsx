@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ReceiptArchive.css";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar";
 
 const sampleReceipts = [
   {
@@ -27,6 +28,17 @@ const sampleReceipts = [
   },
   {
     id: 3,
+    date: "2025-06-02",
+    operator: "Admin",
+    total: 150,
+    tax: 22.5,
+    items: [
+      { name: "Bread", qty: 1, price: 2.0 },
+      { name: "Apples", qty: 3, price: 5.0 },
+    ],
+  },
+  {
+    id: 4,
     date: "2025-06-02",
     operator: "Admin",
     total: 150,
@@ -65,8 +77,9 @@ const ReceiptArchive = () => {
   }
   return (
     <div className="receipt-archive">
+      <Sidebar />
       <div className="receipt-list-section">
-        <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button>
+        {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button> */}
         <h2>🧾 Receipt Archive</h2>
 
         <div className="filters">

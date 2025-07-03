@@ -1,5 +1,6 @@
 import "./pos.css";
 import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function POS() {
 	const [products, setProducts] = useState([]);
@@ -9,6 +10,8 @@ function POS() {
 	const [cart, setCart] = useState({});
 	const [paidAmount, setPaidAmount] = useState(0);
 	const [change, setChange] = useState(0);
+	const location = useLocation();
+	const navigate = useNavigate();
 
 	// Fetch products from backend
 	const fetchProducts = useCallback(async () => {
@@ -114,8 +117,24 @@ function POS() {
 		<div className='pos'>
 			<aside className='sidebar'>
 				<div className='logo'>Point of Sale</div>
-				<button className='nav-btn active'>🛒 POS</button>
-				<button className='nav-btn'>📄 Receipt Archive</button>
+				<button
+					className={`nav-btn${location.pathname === '/sales-interface' ? ' active' : ''}`}
+					onClick={() => navigate('/sales-interface')}
+				>
+					🛒 POS
+				</button>
+				<button
+					className={`nav-btn${location.pathname === '/receipt-archive' ? ' active' : ''}`}
+					onClick={() => navigate('/receipt-archive')}
+				>
+					📄 Receipt Archive
+				</button>
+				<button
+					className={`nav-btn${location.pathname === '/product-management' ? ' active' : ''}`}
+					onClick={() => navigate('/product-management')}
+				>
+					📄 Product Management
+				</button>
 			</aside>
 
 			<div className='main'>

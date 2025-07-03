@@ -3,6 +3,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('posAPI', {
+   // 🔐 Auth
+   login: (userId, password) => ipcRenderer.invoke('login', userId, password),
   // Products
   listProducts: (page, limit) => ipcRenderer.invoke('products:list', page, limit),
   searchProducts: (query, limit) => ipcRenderer.invoke('products:search', query, limit),
