@@ -1,5 +1,4 @@
-//sample code for now
-
+// preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('posAPI', {

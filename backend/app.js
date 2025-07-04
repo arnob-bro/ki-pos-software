@@ -6,13 +6,13 @@ const { runMigrations } = require('./migrations/runner');
 const { hashPassword } = require("./utils/hash");
 
 // Initialize SQLite database
-const db = new Database(path.join(__dirname, 'pos.db'));
+const db = new Database(path.join(__dirname, "pos.db"));
 
 // Enable WAL mode for better concurrent performance
-db.pragma('journal_mode = WAL');
-db.pragma('synchronous = NORMAL');
-db.pragma('cache_size = 10000'); // 10MB cache
-db.pragma('temp_store = MEMORY');
+db.pragma("journal_mode = WAL");
+db.pragma("synchronous = NORMAL");
+db.pragma("cache_size = 10000"); // 10MB cache
+db.pragma("temp_store = MEMORY");
 
 // Ensure migrations directory exists
 const migrationsDir = path.join(__dirname, 'migrations');
@@ -40,4 +40,4 @@ require("./ipcHandlers/products")(ipcMain, db);
 require("./ipcHandlers/transactions")(ipcMain, db);
 require("./ipcHandlers/auth")(ipcMain, db); // ← Add auth IPC handler
 
-module.exports = { db }; 
+module.exports = { db };
