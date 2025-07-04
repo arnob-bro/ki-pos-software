@@ -26,6 +26,7 @@ const Login = () => {
       
       if (result.success) {
         localStorage.setItem('userInfo', JSON.stringify(result.user));
+        // console.log(result.user);
         localStorage.setItem('accessToken', result.tokens?.accessToken || '');
         
         navigate("/sales-interface");

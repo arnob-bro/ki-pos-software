@@ -75,6 +75,7 @@ function POS() {
 		});
 	};
 
+
 	const subtotal = Object.values(cart).reduce(
 		(sum, item) => sum + item.price * item.quantity,
 		0
@@ -113,6 +114,12 @@ function POS() {
 		}
 	};
 
+	const handleLogout = () => {
+		localStorage.removeItem('userInfo');
+		localStorage.removeItem('accessToken');
+		navigate('/');
+	};
+
 	return (
 		<div className='pos'>
 			<aside className='sidebar'>
@@ -122,6 +129,12 @@ function POS() {
 					onClick={() => navigate('/sales-interface')}
 				>
 					🛒 POS
+				</button>
+				<button
+					className={`nav-btn${location.pathname === '/dashboard' ? ' active' : ''}`}
+					onClick={() => navigate('/dashboard')}
+				>
+					📋Dashboard
 				</button>
 				<button
 					className={`nav-btn${location.pathname === '/receipt-archive' ? ' active' : ''}`}
@@ -134,6 +147,11 @@ function POS() {
 					onClick={() => navigate('/product-management')}
 				>
 					📄 Product Management
+				</button>
+				<button style={{ marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',borderRadius: '6px',
+                    cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease', }}
+                   onClick={handleLogout} onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
+                   onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
 				</button>
 			</aside>
 
@@ -155,7 +173,7 @@ function POS() {
 						<div>
 							Cashier: <span className='cashier-name'>John Doe</span>
 						</div>
-						<button>logout</button>
+						
 					</div>
 				</div>
 
