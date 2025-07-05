@@ -1,6 +1,7 @@
 import "./pos.css";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar";
 
 function POS() {
 	const [products, setProducts] = useState([]);
@@ -115,7 +116,9 @@ function POS() {
 
 	return (
 		<div className='pos'>
-			<aside className='sidebar'>
+			 <Sidebar />
+			
+			{/* <aside className='sidebar'>
 				<div className='logo'>Point of Sale</div>
 				<button
 					className={`nav-btn${location.pathname === '/sales-interface' ? ' active' : ''}`}
@@ -135,7 +138,7 @@ function POS() {
 				>
 					📄 Product Management
 				</button>
-			</aside>
+			</aside> */}
 
 			<div className='main'>
 				<div className='topbar'>
