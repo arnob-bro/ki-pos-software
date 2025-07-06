@@ -62,6 +62,24 @@ class ReportController {
   }
 
   /**
+   * Check if Z report exists for a given date
+   * @param {string} date - Date in YYYY-MM-DD format
+   * @param {string} userId - User ID
+   * @returns {Object} Check result
+   */
+  async checkZReportExists(date, userId) {
+    try {
+      const result = await this.reportService.checkZReportExists(date, userId);
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+  }
+
+  /**
    * Get all generated reports
    * @param {number} page - Page number
    * @param {number} limit - Items per page

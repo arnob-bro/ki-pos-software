@@ -35,6 +35,11 @@ module.exports = function registerReportHandlers(ipcMain, db) {
     }
   });
 
+  // Check if Z report exists
+  ipcMain.handle('reports:checkZReportExists', async (event, date, userId) => {
+    return await reportController.checkZReportExists(date, userId);
+  });
+
   // Export GoBD data
   ipcMain.handle('reports:exportGoBD', async (event, startDate, endDate) => {
     try {

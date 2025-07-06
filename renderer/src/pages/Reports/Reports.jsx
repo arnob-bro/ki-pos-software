@@ -16,11 +16,23 @@ const Reports = () => {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
   });
+  const [zReportExists, setZReportExists] = useState(false);
 
   useEffect(() => {
     loadReports();
     loadStats();
-  }, []);
+    checkZReportExists();
+  }, [selectedDate]);
+
+  const checkZReportExists = async () => {
+    try {
+      const result = await window.posAPI.checkZReportExists(selectedDate, 'current-user');
+      setZReportExists(result.exists);
+    } catch (error) {
+      console.error('Error checking Z report existence:', error);
+      setZReportExists(false);
+    }
+  };
 
   const loadReports = async () => {
     try {
@@ -81,7 +93,12 @@ const Reports = () => {
         setMessage('Error: ' + result.message);
       }
     } catch (error) {
-      setMessage('Error generating Z report: ' + error.message);
+      // Handle specific error for duplicate Z report
+      if (error.message.includes('already exists for this date')) {
+        setMessage('Z Report already exists for this date. Z reports can only be generated once per day.');
+      } else {
+        setMessage('Error generating Z report: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -184,11 +201,11 @@ const Reports = () => {
               {loading ? 'Generating...' : 'Generate X Report'}
             </button>
             <button 
-              className="reports-button" 
+              className={`reports-button ${zReportExists ? 'disabled' : ''}`}
               onClick={generateZReport}
-              disabled={loading}
+              disabled={loading || zReportExists}
             >
-              {loading ? 'Generating...' : 'Generate Z Report'}
+              {loading ? 'Generating...' : zReportExists ? 'Z Report Already Generated' : 'Generate Z Report'}
             </button>
           </div>
         </div>

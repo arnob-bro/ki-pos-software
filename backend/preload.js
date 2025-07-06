@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('posAPI', {
   // Reports
   generateXReport: (date, userId) => ipcRenderer.invoke('reports:generateX', date, userId),
   generateZReport: (date, userId) => ipcRenderer.invoke('reports:generateZ', date, userId),
+  checkZReportExists: (date, userId) => ipcRenderer.invoke('reports:checkZReportExists', date, userId),
   listReports: (page, limit) => ipcRenderer.invoke('reports:list', page, limit),
   exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
   generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),

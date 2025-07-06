@@ -79,7 +79,7 @@ class ReportService {
       `);
       
       const reportId = `x-report-${date}-${Date.now()}`;
-      insertStmt.run(reportId, 'daily', userId, JSON.stringify(xReport));
+      insertStmt.run(reportId, 'x_report', userId, JSON.stringify(xReport));
       
       return xReport;
     } catch (error) {
@@ -95,6 +95,17 @@ class ReportService {
    */
   async generateZReport(date, userId) {
     try {
+      // Check if Z report already exists for this date
+      const existingStmt = this.db.prepare(`
+        SELECT id FROM generated_reports 
+        WHERE type = 'z_report' AND DATE(generated_at) = ? AND user_id = ?
+      `);
+      const existing = existingStmt.get(date, userId);
+      
+      if (existing) {
+        throw new Error('Z report already exists for this date. Z reports can only be generated once per day.');
+      }
+      
       // Get X report data for the day
       const xReport = await this.generateXReport(date, userId);
       
@@ -145,18 +156,41 @@ class ReportService {
         top_products: xReport.top_products
       };
       
-      // Save to generated_reports table
+      // Save to generated_reports table with proper type identification
       const insertStmt = this.db.prepare(`
         INSERT INTO generated_reports (id, type, user_id, data_blob)
         VALUES (?, ?, ?, ?)
       `);
       
-      const reportId = `z-report-${date}-${Date.now()}`;
-      insertStmt.run(reportId, 'daily', userId, JSON.stringify(zReport));
+      const reportId = `z-report-${date}`;
+      insertStmt.run(reportId, 'z_report', userId, JSON.stringify(zReport));
       
       return zReport;
     } catch (error) {
       throw new Error(`Failed to generate Z report: ${error.message}`);
+    }
+  }
+
+  /**
+   * Check if Z report exists for a given date
+   * @param {string} date - Date in YYYY-MM-DD format
+   * @param {string} userId - User ID
+   * @returns {Object} Check result
+   */
+  async checkZReportExists(date, userId) {
+    try {
+      const stmt = this.db.prepare(`
+        SELECT id FROM generated_reports 
+        WHERE type = 'z_report' AND DATE(generated_at) = ? AND user_id = ?
+      `);
+      const existing = stmt.get(date, userId);
+      
+      return {
+        success: true,
+        exists: !!existing
+      };
+    } catch (error) {
+      throw new Error(`Failed to check Z report existence: ${error.message}`);
     }
   }
 
