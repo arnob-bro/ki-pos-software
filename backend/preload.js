@@ -10,9 +10,10 @@ contextBridge.exposeInMainWorld('posAPI', {
   searchProducts: (query, limit) => ipcRenderer.invoke('products:search', query, limit),
   addProduct: (product) => ipcRenderer.invoke('products:add', product),
   updateProduct: (product) => ipcRenderer.invoke('products:update', product),
+  deleteProduct: (id) => ipcRenderer.invoke('products:delete', id),
   getProduct: (id) => ipcRenderer.invoke('products:get', id),
   getLowStockProducts: (threshold) => ipcRenderer.invoke('products:getLowStock', threshold),
-
+  listProductCategories: () => ipcRenderer.invoke('productCategories:list'),
   // Transactions
   addTransaction: (data) => ipcRenderer.invoke('transactions:add', data),
   listTransactions: (page, limit) => ipcRenderer.invoke('transactions:list', page, limit),
