@@ -124,4 +124,18 @@
   .summary button:hover {
     background: #0056b3;
   }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
+
+  .no-receipts {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
   
