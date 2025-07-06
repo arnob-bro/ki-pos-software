@@ -29,6 +29,17 @@ class ProductService {
     };
   }
 
+  // list of categories
+  async listProductCategories() {
+    // Use prepared statements for better performance
+    const stmt = this.db.prepare('SELECT * FROM categories ORDER BY id');
+    const categories = stmt.all();
+    
+    return {
+      categories
+    };
+  }
+
   // Cached product list for frequently accessed data
   async getCachedProducts() {
     const now = Date.now();
@@ -68,35 +79,61 @@ class ProductService {
   async addProduct(product) {
     console.log('DEBUG: Received product for addProduct:', product);
     // Inline validation with coercion
-    const stockQty = Number(product.stock_quantity);
+    const stockQty = Number(product.stock_quantity || 0);
     const price = Number(product.price);
+    const vatRate = Number(product.vat_rate || 0);
+    const categoryId = product.category_id ? Number(product.category_id) : null;
+    
     if (typeof product.name !== 'string' || !product.name.trim()) throw new Error('Invalid name');
     if (isNaN(price) || price <= 0) throw new Error('Invalid price');
     if (isNaN(stockQty) || stockQty < 0) throw new Error('Invalid stock_quantity');
+    if (isNaN(vatRate) || vatRate < 0) throw new Error('Invalid vat_rate');
+    
     const { v4: uuidv4 } = require('uuid');
-    const stmt = this.db.prepare('INSERT INTO products (id, name, price, stock_quantity) VALUES (?, ?, ?, ?)');
+    const stmt = this.db.prepare('INSERT INTO products (id, name, category_id, barcode, price, vat_rate, stock_quantity) VALUES (?, ?, ?, ?, ?, ?, ?)');
     const id = product.id || uuidv4();
-    stmt.run(id, product.name.trim(), price, stockQty);
+    stmt.run(id, product.name.trim(), categoryId, product.barcode || null, price, vatRate, stockQty);
     this.cache.delete('products');
-    return { id, name: product.name.trim(), price, stock_quantity: stockQty };
+    return { 
+      id, 
+      name: product.name.trim(), 
+      category_id: categoryId,
+      barcode: product.barcode || null,
+      price, 
+      vat_rate: vatRate,
+      stock_quantity: stockQty 
+    };
   }
 
   // Optimized update
   async updateProduct(product) {
     // Inline validation with coercion
-    const stockQty = Number(product.stock_quantity);
+    const stockQty = Number(product.stock_quantity || 0);
     const price = Number(product.price);
+    const vatRate = Number(product.vat_rate || 0);
+    const categoryId = product.category_id ? Number(product.category_id) : null;
+    
     if (typeof product.id !== 'string' || !product.id) throw new Error('Invalid id');
     if (typeof product.name !== 'string' || !product.name.trim()) throw new Error('Invalid name');
     if (isNaN(price) || price <= 0) throw new Error('Invalid price');
     if (isNaN(stockQty) || stockQty < 0) throw new Error('Invalid stock_quantity');
-    const stmt = this.db.prepare('UPDATE products SET name = ?, price = ?, stock_quantity = ? WHERE id = ?');
-    const result = stmt.run(product.name.trim(), price, stockQty, product.id);
+    if (isNaN(vatRate) || vatRate < 0) throw new Error('Invalid vat_rate');
+    
+    const stmt = this.db.prepare('UPDATE products SET name = ?, category_id = ?, barcode = ?, price = ?, vat_rate = ?, stock_quantity = ? WHERE id = ?');
+    const result = stmt.run(product.name.trim(), categoryId, product.barcode || null, price, vatRate, stockQty, product.id);
     if (result.changes === 0) {
       throw new Error('Product not found');
     }
     this.cache.delete('products');
-    return { id: product.id, name: product.name.trim(), price, stock_quantity: stockQty };
+    return { 
+      id: product.id, 
+      name: product.name.trim(), 
+      category_id: categoryId,
+      barcode: product.barcode || null,
+      price, 
+      vat_rate: vatRate,
+      stock_quantity: stockQty 
+    };
   }
 
   // Optimized get by ID with caching
@@ -155,6 +192,26 @@ class ProductService {
   async getLowStockProducts(threshold = 5) {
     const stmt = this.db.prepare('SELECT * FROM products WHERE stock_quantity <= ? ORDER BY stock_quantity ASC');
     return stmt.all(threshold);
+  }
+
+  // Delete product
+  async deleteProduct(id) {
+    if (typeof id !== 'string' || !id) {
+      throw new Error('Invalid product ID');
+    }
+    
+    const stmt = this.db.prepare('DELETE FROM products WHERE id = ?');
+    const result = stmt.run(id);
+    
+    if (result.changes === 0) {
+      throw new Error('Product not found');
+    }
+    
+    // Clear cache
+    this.cache.delete('products');
+    this.cache.delete(`product_${id}`);
+    
+    return { success: true, message: 'Product deleted successfully' };
   }
 }
 

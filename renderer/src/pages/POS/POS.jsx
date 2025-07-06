@@ -1,6 +1,7 @@
-import "./pos.css";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar";
+import "./pos.css";
 
 function POS() {
 	const [products, setProducts] = useState([]);
@@ -115,6 +116,7 @@ function POS() {
 		});
 	};
 
+
 	const subtotal = Object.values(cart).reduce(
 		(sum, item) => sum + item.price * item.quantity,
 		0
@@ -128,21 +130,27 @@ function POS() {
 
 	const handleCheckout = async (payment_method = "cash") => {
 		if (Object.keys(cart).length === 0) return;
+		
+		const transactionData = {
+			user_id: "user-1", // TODO: Replace with real user context
+			payment_method,
+			total_amount: total,
+			vat_amount: tax,
+			discount_amount: 0,
+			items: Object.values(cart).map((item) => ({
+				product_id: item.id,
+				quantity: item.quantity,
+				unit_price: item.price,
+				vat_amount: 0,
+				discount_applied: 0,
+			})),
+		};
+		
+		console.log('DEBUG: Sending transaction data:', JSON.stringify(transactionData, null, 2));
+		
 		try {
-			await window.posAPI.addTransaction({
-				user_id: "user-1", // TODO: Replace with real user context
-				payment_method,
-				total_amount: total,
-				vat_amount: tax,
-				discount_amount: 0,
-				items: Object.values(cart).map((item) => ({
-					product_id: item.id,
-					quantity: item.quantity,
-					unit_price: item.price,
-					vat_amount: 0,
-					discount_applied: 0,
-				})),
-			});
+			const result = await window.posAPI.addTransaction(transactionData);
+			console.log('DEBUG: Transaction result:', result);
 			setCart({});
 			setPaidAmount(0);
 			setChange(0);
@@ -150,8 +158,17 @@ function POS() {
 			fetchProducts();
 			alert("Transaction successful!");
 		} catch (e) {
+			console.error('DEBUG: Checkout error:', e);
+			console.error('DEBUG: Error message:', e.message);
+			console.error('DEBUG: Error stack:', e.stack);
 			alert("Checkout failed: " + (e.message || e));
 		}
+	};
+
+	const handleLogout = () => {
+		localStorage.removeItem('userInfo');
+		localStorage.removeItem('accessToken');
+		navigate('/');
 	};
 
 	// Add to queue handler
@@ -200,7 +217,9 @@ function POS() {
 
 	return (
 		<div className='pos'>
-			<aside className='sidebar'>
+			 <Sidebar />
+			
+			{/* <aside className='sidebar'>
 				<div className='logo'>Point of Sale</div>
 				<button
 					className={`nav-btn${
@@ -211,10 +230,8 @@ function POS() {
 					🛒 POS
 				</button>
 				<button
-					className={`nav-btn${
-						location.pathname === "/receipt-archive" ? " active" : ""
-					}`}
-					onClick={() => navigate("/receipt-archive")}
+					className={`nav-btn${location.pathname === '/receipt-archive' ? ' active' : ''}`}
+					onClick={() => navigate('/receipt-archive')}
 				>
 					📄 Receipt Archive
 				</button>
@@ -226,7 +243,19 @@ function POS() {
 				>
 					📄 Product Management
 				</button>
-			</aside>
+				<button
+					className={`nav-btn${location.pathname === '/reports' ? ' active' : ''}`}
+					onClick={() => navigate('/reports')}
+				>
+					📄 Reports
+				</button>
+
+				<button style={{ marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',borderRadius: '6px',
+                    cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease', }}
+                   onClick={handleLogout} onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
+                   onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
+				</button>
+			</aside> */}
 
 			<div className='main'>
 				<div className='topbar'>
