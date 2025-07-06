@@ -7,7 +7,7 @@ const { hashPassword } = require("./utils/hash");
 
 // Initialize SQLite database
 const dbPath = path.join(__dirname, "pos.db");
-console.log("Initializing database at:", dbPath);
+console.log('Initializing database at:', dbPath);
 const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrent performance
@@ -15,7 +15,7 @@ db.pragma("journal_mode = WAL");
 db.pragma("synchronous = NORMAL");
 db.pragma("cache_size = 10000"); // 10MB cache
 db.pragma("temp_store = MEMORY");
-console.log("Database initialized successfully");
+console.log('Database initialized successfully');
 
 // Ensure migrations directory exists
 const migrationsDir = path.join(__dirname, "migrations");
@@ -47,6 +47,6 @@ require("./ipcHandlers/transactions")(ipcMain, db);
 require("./ipcHandlers/employee")(ipcMain, db);
 require("./ipcHandlers/auth")(ipcMain, db);
 require("./ipcHandlers/report")(ipcMain, db); // ← Add report IPC handler
-console.log("IPC handlers registered successfully");
+console.log('IPC handlers registered successfully');
 
 module.exports = { db };

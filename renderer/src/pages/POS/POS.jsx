@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import "./pos.css";
+import "./pos.css";
 
 function POS() {
   const [products, setProducts] = useState([]);
@@ -180,28 +181,34 @@ function POS() {
 					📄 Reports
 				</button>
 
+				<button style={{ marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',borderRadius: '6px',
+                    cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease', }}
+                   onClick={handleLogout} onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
+                   onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
+				</button>
 			</aside> */}
 
-      <div className="main">
-        <div className="topbar">
-          <div className="input-fields">
-            <div className="input-group">
-              <label htmlFor="search">Product Name</label>
-              <input
-                id="search"
-                className="search"
-                placeholder="Search by product name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="cashier-section">
-            <div>
-              Cashier: <span className="cashier-name">John Doe</span>
-            </div>
-          </div>
-        </div>
+			<div className='main'>
+				<div className='topbar'>
+					<div className='input-fields'>
+						<div className='input-group'>
+							<label htmlFor='search'>Product Name</label>
+							<input
+								id='search'
+								className='search'
+								placeholder='Search by product name'
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</div>
+					</div>
+					<div className='cashier-section'>
+						<div>
+							Cashier: <span className='cashier-name'>John Doe</span>
+						</div>
+						
+					</div>
+				</div>
 
         <div className="content">
           <div className="product-grid">
