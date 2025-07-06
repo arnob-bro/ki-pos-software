@@ -70,30 +70,6 @@ const Sidebar = () => {
         📄 Reports
       </button>
       
-      <button
-        style={{
-          marginTop: "auto",
-          backgroundColor: "#dc3545",
-          color: "#fff",
-          border: "none",
-          padding: "5px",
-          borderRadius: "6px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          transition: "background-color 0.3s ease",
-        }}
-        onClick={handleLogout}
-        onMouseEnter={(e) => (e.target.style.backgroundColor = "#c82333")}
-        onMouseLeave={(e) => (e.target.style.backgroundColor = "#dc3545")}
-      >
-        Logout
-      </button>
-      <button
-        className={`nav-btn${location.pathname === '/reports' ? ' active' : ''}`}
-        onClick={() => navigate('/reports')}
-      >
-        📄 Reports
-      </button>
       <button style={{marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',
           borderRadius: '6px',cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease',}}
           onClick={handleLogout}onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
