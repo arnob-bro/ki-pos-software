@@ -84,4 +84,34 @@ module.exports = function registerEmployeeHandlers(ipcMain, db) {
       throw error;
     }
   });
+
+  // List all permissions
+  ipcMain.handle('employees:listPermissions', async (event) => {
+    try {
+      return await employeeController.listPermissions();
+    } catch (error) {
+      console.error('Error listing permissions:', error.message);
+      throw error;
+    }
+  });
+
+  // Get employee permissions
+  ipcMain.handle('employees:getEmployeePermissions', async (event, employeeId) => {
+    try {
+      return await employeeController.getEmployeePermissions(employeeId);
+    } catch (error) {
+      console.error('Error getting employee permissions:', error.message);
+      throw error;
+    }
+  });
+
+  // Update employee permissions
+  ipcMain.handle('employees:updateEmployeePermissions', async (event, employeeId, permissionCodes) => {
+    try {
+      return await employeeController.updateEmployeePermissions(employeeId, permissionCodes);
+    } catch (error) {
+      console.error('Error updating employee permissions:', error.message);
+      throw error;
+    }
+  });
 };

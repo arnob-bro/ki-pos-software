@@ -28,4 +28,8 @@ contextBridge.exposeInMainWorld('posAPI', {
   updateEmployeeStatus: (id, status) => ipcRenderer.invoke('employees:updateStatus', id, status),
   listRoles: () => ipcRenderer.invoke('employees:listRoles'),
   getEmployeeStats: () => ipcRenderer.invoke('employees:getStats'),
+  // Permissions
+  listPermissions: () => ipcRenderer.invoke('employees:listPermissions'),
+  getEmployeePermissions: (employeeId) => ipcRenderer.invoke('employees:getEmployeePermissions', employeeId),
+  updateEmployeePermissions: (employeeId, permissionCodes) => ipcRenderer.invoke('employees:updateEmployeePermissions', employeeId, permissionCodes),
 }); 

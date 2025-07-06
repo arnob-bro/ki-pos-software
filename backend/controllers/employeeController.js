@@ -100,6 +100,30 @@ class EmployeeController {
       throw new Error(`Failed to get employee statistics: ${error.message}`);
     }
   }
+
+  async listPermissions() {
+    try {
+      return await this.employeeService.listPermissions();
+    } catch (error) {
+      throw new Error(`Failed to list permissions: ${error.message}`);
+    }
+  }
+
+  async getEmployeePermissions(employeeId) {
+    try {
+      return await this.employeeService.getEmployeePermissions(employeeId);
+    } catch (error) {
+      throw new Error(`Failed to get employee permissions: ${error.message}`);
+    }
+  }
+
+  async updateEmployeePermissions(employeeId, permissionCodes) {
+    try {
+      return await this.employeeService.updateEmployeePermissions(employeeId, permissionCodes);
+    } catch (error) {
+      throw new Error(`Failed to update employee permissions: ${error.message}`);
+    }
+  }
 }
 
 module.exports = EmployeeController;
