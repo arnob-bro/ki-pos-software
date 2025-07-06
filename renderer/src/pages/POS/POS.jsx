@@ -385,7 +385,7 @@ function POS() {
 								</div>
 							)}
 						</div>
-						<button className="logout-btn">logout</button>
+						
 					</div>
 				</div>
 
