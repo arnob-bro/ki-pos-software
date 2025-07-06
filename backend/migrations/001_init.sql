@@ -205,9 +205,17 @@ CREATE TABLE login_attempts (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_timestamp ON transactions(timestamp);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(DATE(timestamp));
+CREATE INDEX IF NOT EXISTS idx_transactions_payment_method ON transactions(payment_method);
+CREATE INDEX IF NOT EXISTS idx_transactions_total_amount ON transactions(total_amount);
 CREATE INDEX IF NOT EXISTS idx_transaction_items_transaction_id ON transaction_items(transaction_id);
 CREATE INDEX IF NOT EXISTS idx_transaction_items_product_id ON transaction_items(product_id);
 CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
 CREATE INDEX IF NOT EXISTS idx_products_stock ON products(stock_quantity);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_name ON users(name);
 CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
+
+-- Composite indexes for common query patterns
+CREATE INDEX IF NOT EXISTS idx_transactions_user_timestamp ON transactions(user_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_date_timestamp ON transactions(DATE(timestamp), timestamp DESC);

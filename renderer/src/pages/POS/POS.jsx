@@ -89,27 +89,36 @@ function POS() {
 
 	const handleCheckout = async (payment_method = "cash") => {
 		if (Object.keys(cart).length === 0) return;
+		
+		const transactionData = {
+			user_id: "user-1", // TODO: Replace with real user context
+			payment_method,
+			total_amount: total,
+			vat_amount: tax,
+			discount_amount: 0,
+			items: Object.values(cart).map((item) => ({
+				product_id: item.id,
+				quantity: item.quantity,
+				unit_price: item.price,
+				vat_amount: 0,
+				discount_applied: 0,
+			})),
+		};
+		
+		console.log('DEBUG: Sending transaction data:', JSON.stringify(transactionData, null, 2));
+		
 		try {
-			await window.posAPI.addTransaction({
-				user_id: "user-1", // TODO: Replace with real user context
-				payment_method,
-				total_amount: total,
-				vat_amount: tax,
-				discount_amount: 0,
-				items: Object.values(cart).map((item) => ({
-					product_id: item.id,
-					quantity: item.quantity,
-					unit_price: item.price,
-					vat_amount: 0,
-					discount_applied: 0,
-				})),
-			});
+			const result = await window.posAPI.addTransaction(transactionData);
+			console.log('DEBUG: Transaction result:', result);
 			setCart({});
 			setPaidAmount(0);
 			setChange(0);
 			fetchProducts();
 			alert("Transaction successful!");
 		} catch (e) {
+			console.error('DEBUG: Checkout error:', e);
+			console.error('DEBUG: Error message:', e.message);
+			console.error('DEBUG: Error stack:', e.stack);
 			alert("Checkout failed: " + (e.message || e));
 		}
 	};

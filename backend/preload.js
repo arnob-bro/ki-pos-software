@@ -18,4 +18,14 @@ contextBridge.exposeInMainWorld('posAPI', {
   addTransaction: (data) => ipcRenderer.invoke('transactions:add', data),
   listTransactions: (page, limit) => ipcRenderer.invoke('transactions:list', page, limit),
   getTransaction: (id) => ipcRenderer.invoke('transactions:get', id),
+  getReceipts: (filters) => ipcRenderer.invoke('transactions:getReceipts', filters),
+  // Employees
+  listEmployees: (page, limit, filters) => ipcRenderer.invoke('employees:list', page, limit, filters),
+  getEmployee: (id) => ipcRenderer.invoke('employees:get', id),
+  addEmployee: (employeeData) => ipcRenderer.invoke('employees:add', employeeData),
+  updateEmployee: (id, employeeData) => ipcRenderer.invoke('employees:update', id, employeeData),
+  deleteEmployee: (id) => ipcRenderer.invoke('employees:delete', id),
+  updateEmployeeStatus: (id, status) => ipcRenderer.invoke('employees:updateStatus', id, status),
+  listRoles: () => ipcRenderer.invoke('employees:listRoles'),
+  getEmployeeStats: () => ipcRenderer.invoke('employees:getStats'),
 }); 
