@@ -5,14 +5,32 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('accessToken');
+    navigate('/');
+  };
+
   return (
     <aside className='sidebar'>
       <div className='logo'>Point of Sale</div>
+      {/* <button
+        className={`nav-btn${location.pathname === '/dashboard' ? ' active' : ''}`}
+        onClick={() => navigate('/dashboard')}
+      >
+        Dashboard
+      </button> */}
       <button
         className={`nav-btn${location.pathname === '/sales-interface' ? ' active' : ''}`}
         onClick={() => navigate('/sales-interface')}
       >
         🛒 POS
+      </button>
+       <button
+        className={`nav-btn${location.pathname === '/dashboard' ? ' active' : ''}`}
+        onClick={() => navigate('/dashboard')}
+      >
+       📋 Dashboard
       </button>
       <button
         className={`nav-btn${location.pathname === '/receipt-archive' ? ' active' : ''}`}
@@ -27,11 +45,24 @@ const Sidebar = () => {
         📄 Product Management
       </button>
       <button
+        className={`nav-btn${location.pathname === '/employee-management' ? ' active' : ''}`}
+        onClick={() => navigate('/employee-management')}
+      >
+        📄 Employee Management
+      </button>
+      <button
         className={`nav-btn${location.pathname === '/reports' ? ' active' : ''}`}
         onClick={() => navigate('/reports')}
       >
         📄 Reports
       </button>
+      <button style={{marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',
+          borderRadius: '6px',cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease',}}
+          onClick={handleLogout}onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
+          onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
+      </button>
+      
+      
     </aside>
   );
 };

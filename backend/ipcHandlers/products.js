@@ -41,6 +41,15 @@ module.exports = function registerProductHandlers(ipcMain, db) {
     }
   });
 
+  ipcMain.handle('products:delete', async (event, id) => {
+    try {
+      return await productController.deleteProduct(id);
+    } catch (error) {
+      console.error('Error deleting product:', error.message);
+      throw error;
+    }
+  });
+
   ipcMain.handle('products:get', async (event, id) => {
     try {
       return await productController.getProductById(id);
@@ -55,6 +64,15 @@ module.exports = function registerProductHandlers(ipcMain, db) {
       return await productService.getLowStockProducts(threshold);
     } catch (error) {
       console.error('Error getting low stock products:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('productCategories:list', async (event) => {
+    try {
+      return await productService.listProductCategories();
+    } catch (error) {
+      console.error('Error getting list of product categories:', error.message);
       throw error;
     }
   });

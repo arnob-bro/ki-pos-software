@@ -1,0 +1,164 @@
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    height: 100vh;
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .dashboard-container {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+  }
+  
+  .dashboard-container h1 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #343a40;
+  }
+  
+  /* KPI Cards */
+  .dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  
+  .card {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    flex: 1 1 220px;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .card h4 {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 10px;
+  }
+  
+  .card h2 {
+    font-size: 24px;
+    color: #212529;
+  }
+  
+  .card span.success {
+    color: #28a745;
+    font-size: 14px;
+  }
+  
+  .card span.error {
+    color: #dc3545;
+    font-size: 14px;
+  }
+  
+  /* Charts Section */
+  .charts-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    width: 50%;
+  }
+  
+  .chart-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    flex: 1 1 500px;
+  }
+  
+  .chart-box h3 {
+    margin-bottom: 20px;
+    color: #343a40;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .tab {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #e9ecef;
+    color: #495057;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .tab:hover {
+    background: #dee2e6;
+  }
+  
+  .tab.active {
+    background: #007bff;
+    color: white;
+  }
+  
+  /* Responsive Improvements */
+  @media (max-width: 768px) {
+    .dashboard-cards, .charts-section {
+      flex-direction: column;
+    }
+  }
+
+  .z-reports,
+.device-statuses {
+  margin-top: 2rem;
+}
+
+.z-report-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.z-report-list li {
+  background: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.device-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.device-table th,
+.device-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.status.online {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.offline {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+  

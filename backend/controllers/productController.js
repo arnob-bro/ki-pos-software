@@ -11,6 +11,14 @@ class ProductController {
     }
   }
 
+  async listProductCategories() {
+    try {
+      return await this.productService.listProductCategories();
+    } catch (error) {
+      throw new Error(`Failed to list product categories: ${error.message}`);
+    }
+  }
+
   async addProduct(productData) {
     try {
       // Additional validation if needed
@@ -20,8 +28,11 @@ class ProductController {
 
       const product = {
         name: productData.name.trim(),
+        category_id: productData.category_id,
+        barcode: productData.barcode,
         price: parseFloat(productData.price),
-        stock_quantity: parseInt(productData.stock_quantity, 10)
+        vat_rate: parseFloat(productData.vat_rate || 0),
+        stock_quantity: parseInt(productData.stock_quantity || 0, 10)
       };
 
       return await this.productService.addProduct(product);
@@ -43,8 +54,11 @@ class ProductController {
       const product = {
         id: productData.id, // keep as string if that's your schema
         name: productData.name.trim(),
+        category_id: productData.category_id,
+        barcode: productData.barcode,
         price: parseFloat(productData.price),
-        stock_quantity: parseInt(productData.stock_quantity, 10)
+        vat_rate: parseFloat(productData.vat_rate || 0),
+        stock_quantity: parseInt(productData.stock_quantity || 0, 10)
       };
 
       return await this.productService.updateProduct(product);
@@ -59,6 +73,17 @@ class ProductController {
       return await this.productService.getProductById(id);
     } catch (error) {
       throw new Error(`Failed to get product: ${error.message}`);
+    }
+  }
+
+  async deleteProduct(id) {
+    try {
+      if (!id) {
+        throw new Error('Product ID is required for deletion');
+      }
+      return await this.productService.deleteProduct(id);
+    } catch (error) {
+      throw new Error(`Failed to delete product: ${error.message}`);
     }
   }
 }
