@@ -60,6 +60,16 @@ const Sidebar = () => {
       >
         📄 Employee Management
       </button>
+
+      <button
+        className={`nav-btn${
+          location.pathname === "/reports" ? " active" : ""
+        }`}
+        onClick={() => navigate("/reports")}
+      >
+        📄 Reports
+      </button>
+      
       <button
         style={{
           marginTop: "auto",
@@ -79,14 +89,7 @@ const Sidebar = () => {
         Logout
       </button>
 
-      <button
-        className={`nav-btn${
-          location.pathname === "/reports" ? " active" : ""
-        }`}
-        onClick={() => navigate("/reports")}
-      >
-        📄 Reports
-      </button>
+      
     </aside>
   );
 };
