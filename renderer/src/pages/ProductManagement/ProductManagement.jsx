@@ -1,5 +1,5 @@
 // ProductManagement.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 // import axios from "axios";
 import "./ProductManagement.css";
 import { useNavigate } from "react-router-dom";
@@ -19,37 +19,64 @@ const ProductManagement = () => {
     stock_quantity: 0,
   });
   const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
 
-  const fetchProducts = async () => {
-    // const res = await axios.get("http://localhost:4000/products");
-    setProducts(res.data);
-  };
+  // Fetch products from backend
+	const fetchProducts = useCallback(async () => {
+		setLoading(true);
+		try {
+			const result = await window.posAPI.listProducts(1, 50);
+			setProducts(result.products || result);
+      console.log(result);
+			// setFilteredProducts(result.products || result);
+		} catch (e) {
+			setProducts([]);
+			// setFilteredProducts([]);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
   const fetchCategories = async () => {
-    // const res = await axios.get("http://localhost:4000/categories");
-    setCategories(res.data);
+    try {
+      const result = await window.posAPI.listProductCategories();
+      console.log(result);
+      setCategories(result.categories || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories([]);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // Convert category_id to number if it's not empty, otherwise keep as empty string
+    const processedValue = name === 'category_id' ? (value ? value : '') : value;
+    setFormData({ ...formData, [name]: processedValue });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editing) {
-      // await axios.put(`http://localhost:4000/products/${formData.id}`, formData);
-    } else {
-      // await axios.post("http://localhost:4000/products", formData);
+    
+    try {
+      if (editing) {
+        await window.posAPI.updateProduct(formData);
+      } else {
+        await window.posAPI.addProduct(formData);
+      }
+      console.log(formData);
+      fetchProducts();
+      setFormData({ id: "", name: "", category_id: "", barcode: "", price: "", vat_rate: "", stock_quantity: 0 });
+      setEditing(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Error saving product: ' + error.message);
     }
-    fetchProducts();
-    setFormData({ id: "", name: "", category_id: "", barcode: "", price: "", vat_rate: "", stock_quantity: 0 });
-    setEditing(false);
   };
 
   const handleEdit = (product) => {
@@ -58,8 +85,15 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    // await axios.delete(`http://localhost:4000/products/${id}`);
-    fetchProducts();
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await window.posAPI.deleteProduct(id);
+        fetchProducts();
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Error deleting product: ' + error.message);
+      }
+    }
   };
 
   return (
@@ -103,7 +137,7 @@ const ProductManagement = () => {
                 <td>{categories.find((c) => c.id === p.category_id)?.name || "N/A"}</td>
                 <td>{p.barcode}</td>
                 <td>${parseFloat(p.price).toFixed(2)}</td>
-                <td>{p.vat_rate}%</td>
+                <td>{p.vat_rate ? `${p.vat_rate}%` : '0%'}</td>
                 <td>{p.stock_quantity}</td>
                 <td>
                   <button onClick={() => handleEdit(p)}>✏️</button>

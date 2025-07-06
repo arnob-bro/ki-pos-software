@@ -35,4 +35,13 @@ module.exports = function registerTransactionHandlers(ipcMain, db) {
       throw error;
     }
   });
+
+  ipcMain.handle('transactions:getReceipts', async (event, filters = {}) => {
+    try {
+      return await transactionController.getReceipts(filters);
+    } catch (error) {
+      console.error('Error getting receipts:', error.message);
+      throw error;
+    }
+  });
 }; 

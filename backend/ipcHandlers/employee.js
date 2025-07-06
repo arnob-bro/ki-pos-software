@@ -1,0 +1,87 @@
+const EmployeeService = require('../services/employeeService');
+const EmployeeController = require('../controllers/employeeController');
+
+module.exports = function registerEmployeeHandlers(ipcMain, db) {
+  const employeeService = new EmployeeService(db);
+  const employeeController = new EmployeeController(employeeService);
+
+  // List employees with filters
+  ipcMain.handle('employees:list', async (event, page = 1, limit = 20, filters = {}) => {
+    try {
+      return await employeeController.listEmployees(page, limit, filters);
+    } catch (error) {
+      console.error('Error listing employees:', error.message);
+      throw error;
+    }
+  });
+
+  // Get employee by ID
+  ipcMain.handle('employees:get', async (event, id) => {
+    try {
+      return await employeeController.getEmployeeById(id);
+    } catch (error) {
+      console.error('Error getting employee:', error.message);
+      throw error;
+    }
+  });
+
+  // Add new employee
+  ipcMain.handle('employees:add', async (event, employeeData) => {
+    try {
+      return await employeeController.addEmployee(employeeData);
+    } catch (error) {
+      console.error('Error adding employee:', error.message);
+      throw error;
+    }
+  });
+
+  // Update employee
+  ipcMain.handle('employees:update', async (event, id, employeeData) => {
+    try {
+      return await employeeController.updateEmployee(id, employeeData);
+    } catch (error) {
+      console.error('Error updating employee:', error.message);
+      throw error;
+    }
+  });
+
+  // Delete employee
+  ipcMain.handle('employees:delete', async (event, id) => {
+    try {
+      return await employeeController.deleteEmployee(id);
+    } catch (error) {
+      console.error('Error deleting employee:', error.message);
+      throw error;
+    }
+  });
+
+  // Update employee status
+  ipcMain.handle('employees:updateStatus', async (event, id, status) => {
+    try {
+      return await employeeController.updateEmployeeStatus(id, status);
+    } catch (error) {
+      console.error('Error updating employee status:', error.message);
+      throw error;
+    }
+  });
+
+  // List roles
+  ipcMain.handle('employees:listRoles', async (event) => {
+    try {
+      return await employeeController.listRoles();
+    } catch (error) {
+      console.error('Error listing roles:', error.message);
+      throw error;
+    }
+  });
+
+  // Get employee statistics
+  ipcMain.handle('employees:getStats', async (event) => {
+    try {
+      return await employeeController.getEmployeeStats();
+    } catch (error) {
+      console.error('Error getting employee stats:', error.message);
+      throw error;
+    }
+  });
+};
