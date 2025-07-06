@@ -1,6 +1,6 @@
-import "./pos.css";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import "./pos.css";
 
 function POS() {
 	const [products, setProducts] = useState([]);
@@ -135,6 +135,13 @@ function POS() {
 				>
 					📄 Product Management
 				</button>
+				<button
+					className={`nav-btn${location.pathname === '/reports' ? ' active' : ''}`}
+					onClick={() => navigate('/reports')}
+				>
+					📄 Reports
+				</button>
+
 			</aside>
 
 			<div className='main'>

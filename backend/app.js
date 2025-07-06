@@ -38,6 +38,7 @@ console.log("Seed users updated with proper password hashes.");
 // Register IPC handlers
 require("./ipcHandlers/products")(ipcMain, db);
 require("./ipcHandlers/transactions")(ipcMain, db);
-require("./ipcHandlers/auth")(ipcMain, db); // ← Add auth IPC handler
+require("./ipcHandlers/auth")(ipcMain, db);
+require("./ipcHandlers/report")(ipcMain, db); // ← Add report IPC handler
 
 module.exports = { db };

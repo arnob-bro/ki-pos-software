@@ -16,4 +16,12 @@ contextBridge.exposeInMainWorld('posAPI', {
   addTransaction: (data) => ipcRenderer.invoke('transactions:add', data),
   listTransactions: (page, limit) => ipcRenderer.invoke('transactions:list', page, limit),
   getTransaction: (id) => ipcRenderer.invoke('transactions:get', id),
+
+  // Reports
+  generateXReport: (date, userId) => ipcRenderer.invoke('reports:generateX', date, userId),
+  generateZReport: (date, userId) => ipcRenderer.invoke('reports:generateZ', date, userId),
+  listReports: (page, limit) => ipcRenderer.invoke('reports:list', page, limit),
+  exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
+  generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
+  getReportStats: () => ipcRenderer.invoke('reports:getStats'),
 }); 

@@ -26,6 +26,12 @@ const Sidebar = () => {
       >
         📄 Product Management
       </button>
+      <button
+        className={`nav-btn${location.pathname === '/reports' ? ' active' : ''}`}
+        onClick={() => navigate('/reports')}
+      >
+        📄 Reports
+      </button>
     </aside>
   );
 };
