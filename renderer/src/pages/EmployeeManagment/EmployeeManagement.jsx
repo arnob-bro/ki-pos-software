@@ -13,13 +13,8 @@ const EmployeeManagement = () => {
     last_name: "",
     email: "",
     phone: "",
-    department_id: "",
-    position: "",
-    role: "cashier",
-    hourly_rate: "",
-    hire_date: "",
+    role: "",
     status: "active",
-    pin: "",
     shift_id: "",
     permissions: {
       can_process_returns: false,
@@ -62,13 +57,8 @@ const EmployeeManagement = () => {
         last_name: "Doe",
         email: "john.doe@company.com",
         phone: "555-0123",
-        department_id: 1,
-        position: "Senior Cashier",
         role: "cashier",
-        hourly_rate: 15.5,
-        hire_date: "2023-01-15",
         status: "active",
-        pin: "1234",
         shift_id: 1,
         permissions: {
           can_process_returns: true,
@@ -94,13 +84,8 @@ const EmployeeManagement = () => {
         last_name: "Smith",
         email: "alice.smith@company.com",
         phone: "555-0456",
-        department_id: 2,
-        position: "Store Manager",
         role: "manager",
-        hourly_rate: 25.0,
-        hire_date: "2022-06-01",
         status: "active",
-        pin: "5678",
         shift_id: 1,
         permissions: {
           can_process_returns: true,
@@ -126,13 +111,8 @@ const EmployeeManagement = () => {
         last_name: "Johnson",
         email: "mike.johnson@company.com",
         phone: "555-0789",
-        department_id: 3,
-        position: "Stock Clerk",
-        role: "cashier",
-        hourly_rate: 12.0,
-        hire_date: "2023-08-20",
+        role: "inventory specialist",
         status: "active",
-        pin: "9012",
         shift_id: 2,
         permissions: {
           can_process_returns: false,
@@ -214,12 +194,6 @@ const EmployeeManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate PIN
-    if (formData.pin.length !== 4) {
-      alert("PIN must be exactly 4 digits");
-      return;
-    }
-
     if (editing) {
       // Update employee
       const updatedEmployees = employees.map((emp) =>
@@ -250,13 +224,8 @@ const EmployeeManagement = () => {
       last_name: "",
       email: "",
       phone: "",
-      department_id: "",
-      position: "",
-      role: "cashier",
-      hourly_rate: "",
-      hire_date: "",
+      role: "",
       status: "active",
-      pin: "",
       shift_id: "",
       permissions: {
         can_process_returns: false,
@@ -299,11 +268,6 @@ const EmployeeManagement = () => {
     setEmployees(updatedEmployees);
   };
 
-  const generatePin = () => {
-    const pin = Math.floor(1000 + Math.random() * 9000).toString();
-    setFormData({ ...formData, pin });
-  };
-
   const handleAddNew = () => {
     resetForm();
     setShowForm(true);
@@ -314,6 +278,12 @@ const EmployeeManagement = () => {
     resetForm();
   };
 
+  // Get unique roles from employees for filter dropdown
+  const getUniqueRoles = () => {
+    const roles = [...new Set(employees.map(emp => emp.role))];
+    return roles.sort();
+  };
+
   const filteredEmployees = employees.filter((employee) => {
     const searchText = searchTerm.toLowerCase();
     const matchesSearch =
@@ -322,25 +292,15 @@ const EmployeeManagement = () => {
       employee.employee_id.toLowerCase().includes(searchText) ||
       employee.email.toLowerCase().includes(searchText) ||
       employee.phone.includes(searchText) ||
-      employee.position.toLowerCase().includes(searchText) ||
-      getDepartmentName(employee.department_id)
-        .toLowerCase()
-        .includes(searchText);
+      employee.role.toLowerCase().includes(searchText);
 
     const matchesStatus =
       filterStatus === "all" || employee.status === filterStatus;
     const matchesRole = filterRole === "all" || employee.role === filterRole;
-    const matchesDepartment =
-      filterDepartment === "all" ||
-      employee.department_id === parseInt(filterDepartment);
-
-    return matchesSearch && matchesStatus && matchesRole && matchesDepartment;
+    // Removed department filter since department_id is not in the data
+    
+    return matchesSearch && matchesStatus && matchesRole;
   });
-
-  const getDepartmentName = (id) => {
-    const dept = departments.find((d) => d.id === parseInt(id));
-    return dept ? dept.name : "N/A";
-  };
 
   const getShiftName = (id) => {
     const shift = shifts.find((s) => s.id === parseInt(id));
@@ -385,7 +345,7 @@ const EmployeeManagement = () => {
           <div className="search-section">
             <input
               type="text"
-              placeholder="Search by name, ID, email, phone, or position..."
+              placeholder="Search by name, ID, email, phone, or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -417,24 +377,14 @@ const EmployeeManagement = () => {
               className="filter-select"
             >
               <option value="all">All Roles</option>
-              <option value="cashier">Cashier</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-
-            <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
+              {getUniqueRoles().map((role) => (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
                 </option>
               ))}
             </select>
+
+            {/* Removed department filter since department_id is not in the data */}
           </div>
         </div>
 
@@ -445,10 +395,7 @@ const EmployeeManagement = () => {
                 <th>Employee ID</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Department</th>
-                <th>Position</th>
                 <th>Role</th>
-                <th>Rate</th>
                 <th>Shift</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -462,14 +409,11 @@ const EmployeeManagement = () => {
                     {employee.first_name} {employee.last_name}
                   </td>
                   <td>{employee.email}</td>
-                  <td>{getDepartmentName(employee.department_id)}</td>
-                  <td>{employee.position}</td>
                   <td>
-                    <span className={`role-badge ${employee.role}`}>
+                    <span className={`role-badge ${employee.role.replace(/\s+/g, '-').toLowerCase()}`}>
                       {employee.role}
                     </span>
                   </td>
-                  <td>${parseFloat(employee.hourly_rate).toFixed(2)}/hr</td>
                   <td>{getShiftName(employee.shift_id)}</td>
                   <td>
                     <select
@@ -515,7 +459,7 @@ const EmployeeManagement = () => {
                 </button>
               </div>
 
-              <div onSubmit={handleSubmit} className="employee-form">
+              <form onSubmit={handleSubmit} className="employee-form">
                 <div className="form-section">
                   <h4>Basic Information</h4>
                   <div className="form-row">
@@ -556,58 +500,16 @@ const EmployeeManagement = () => {
                       onChange={handleChange}
                       required
                     />
-                    <input
-                      name="hire_date"
-                      type="date"
-                      value={formData.hire_date}
-                      onChange={handleChange}
-                      required
-                    />
                   </div>
                 </div>
 
                 <div className="form-section">
                   <h4>Work Information</h4>
                   <div className="form-row">
-                    <select
-                      name="department_id"
-                      value={formData.department_id}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </option>
-                      ))}
-                    </select>
                     <input
-                      name="position"
-                      placeholder="Position"
-                      value={formData.position}
-                      onChange={handleChange}
-                      required
-                    />
-                    <select
                       name="role"
+                      placeholder="Role (e.g., Cashier, Manager, Sales Associate)"
                       value={formData.role}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="cashier">Cashier</option>
-                      <option value="supervisor">Supervisor</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <div className="form-row">
-                    <input
-                      name="hourly_rate"
-                      type="number"
-                      step="0.01"
-                      placeholder="Hourly Rate"
-                      value={formData.hourly_rate}
                       onChange={handleChange}
                       required
                     />
@@ -639,24 +541,6 @@ const EmployeeManagement = () => {
                 <div className="form-section">
                   <h4>Security</h4>
                   <div className="form-row">
-                    <div className="pin-input-group">
-                      <input
-                        name="pin"
-                        type="password"
-                        placeholder="4-digit PIN"
-                        value={formData.pin}
-                        onChange={handleChange}
-                        maxLength="4"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={generatePin}
-                        className="generate-pin-btn"
-                      >
-                        Generate PIN
-                      </button>
-                    </div>
                     <button
                       type="button"
                       onClick={() => setShowPermissions(!showPermissions)}
@@ -779,11 +663,7 @@ const EmployeeManagement = () => {
                 </div>
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="submit-btn"
-                  >
+                  <button type="submit" className="submit-btn">
                     {editing ? "Update Employee" : "Add Employee"}
                   </button>
                   <button
@@ -794,7 +674,7 @@ const EmployeeManagement = () => {
                     Cancel
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         )}
