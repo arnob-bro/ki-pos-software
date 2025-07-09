@@ -1,8 +1,8 @@
 // File: Dashboard.jsx
 import React from "react";
-import "./Dashboard.css";
+import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import Sidebar from "../../components/Sidebar";
-import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("userInfo"));

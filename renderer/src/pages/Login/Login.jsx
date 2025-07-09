@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import "./Login.css";
-import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import useUserStore from "../../stores/userStore";
+import "./Login.css";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  
+  // Get user store state and actions
+  const { login, isLoading, error, clearError } = useUserStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,7 +94,7 @@ const Login = () => {
           {isLoading ? "Logging in..." : "Login"}
         </button>
         
-        {errorMsg && <p className="error">{errorMsg}</p>}
+        {error && <p className="error">{error}</p>}
       </form>
     </div>
   );

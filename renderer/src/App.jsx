@@ -1,11 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import POS from "./pages/POS/POS";
 import "./App.css";
-import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
-import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
-import ProductManagement from './pages/ProductManagement/ProductManagement';
 import EmployeeManagement from "./pages/EmployeeManagment/EmployeeManagement";
+import Login from './pages/Login/Login';
+import ProductManagement from './pages/ProductManagement/ProductManagement';
+import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import Reports from "./pages/Reports/Reports";
 import ProtectedRoute from './components/ProtectedRoute';
 
