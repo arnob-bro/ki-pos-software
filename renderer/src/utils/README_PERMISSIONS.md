@@ -1,10 +1,10 @@
 # Frontend Permission System Guide
 
-This guide explains how to use the permission system in the frontend of the POS application.
+This guide explains how to use the permission system in the frontend of the POS application using Zustand userStore.
 
 ## Overview
 
-The permission system provides a flexible way to control access to different parts of the application based on user roles and permissions. When a user logs in, they receive an array of boolean values representing their permissions, along with the corresponding permission codes.
+The permission system provides a flexible way to control access to different parts of the application based on user roles and permissions. When a user logs in, their permissions are stored in the userStore along with the corresponding permission codes.
 
 ## Permission Structure
 
@@ -47,60 +47,90 @@ When a user logs in successfully, the response includes:
 }
 ```
 
-## Available Utility Functions
+## Available Methods
 
-### Basic Permission Functions
+### Using userStore Directly
 
 ```javascript
-import { 
-  getUserPermissions, 
-  getPermissionCodes, 
-  hasPermission, 
-  hasPermissionByCode 
-} from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
-// Get the boolean permission array
-const permissions = getUserPermissions(); // [true, true, false, ...]
+function MyComponent() {
+  const { 
+    hasPermission, 
+    hasPermissionByCode, 
+    hasAnyPermission, 
+    hasAllPermissions,
+    permissions,
+    permissionCodes 
+  } = useUserStore();
 
-// Get the permission codes array
-const codes = getPermissionCodes(); // ["pos:view", "dashboard:view", ...]
+  // Check permission by index
+  const hasDashboardAccess = hasPermission(2); // Check dashboard:view (index 2)
 
-// Check permission by index
-const hasDashboardAccess = hasPermission(2); // Check dashboard:view (index 2)
+  // Check permission by code
+  const hasProductAccess = hasPermissionByCode('product:view');
 
-// Check permission by code
-const hasProductAccess = hasPermissionByCode('product:view');
+  // Check multiple permissions (any)
+  const canViewReportsOrProducts = hasAnyPermission(['report:view', 'product:view']);
+
+  // Check multiple permissions (all)
+  const isAdmin = hasAllPermissions(['dashboard:view', 'report:view', 'settings:view']);
+
+  return (
+    <div>
+      {hasProductAccess && <ProductManagement />}
+      {canViewReportsOrProducts && <ReportsOrProducts />}
+      {isAdmin && <AdminPanel />}
+    </div>
+  );
+}
 ```
 
-### Advanced Permission Functions
+### Using Custom Hooks
 
 ```javascript
-import { 
-  hasAnyPermission, 
-  hasAllPermissions, 
-  getPermissionIndex 
-} from '../utils/permissions';
+import { usePermissions, useHasPermission } from '../hooks/usePermissions';
 
-// Check if user has any of the specified permissions
-const canViewReportsOrProducts = hasAnyPermission(['report:view', 'product:view']);
-
-// Check if user has all of the specified permissions
-const isAdmin = hasAllPermissions(['dashboard:view', 'report:view', 'settings:view']);
-
-// Get the index of a permission code
-const dashboardIndex = getPermissionIndex('dashboard:view'); // Returns 2
+function MyComponent() {
+  // Get all permission data and functions
+  const { permissions, permissionCodes, hasPermissionByCode, hasAnyPermission, hasAllPermissions } = usePermissions();
+  
+  // Check specific permission
+  const canViewDashboard = useHasPermission('dashboard:view');
+  
+  return (
+    <div>
+      {canViewDashboard && <Dashboard />}
+      {hasPermissionByCode('product:view') && <ProductManagement />}
+      {hasAnyPermission(['report:view', 'settings:view']) && <AdminFeatures />}
+    </div>
+  );
+}
 ```
 
-### Permission Constants
+### Using Utility Functions
 
 ```javascript
-import { PERMISSIONS, PERMISSION_CODES } from '../utils/permissions';
+import { getUserPermissions, getPermissionCodes, PERMISSIONS, PERMISSION_CODES } from '../utils/permissions';
 
-// Using index constants
-const hasDashboard = hasPermission(PERMISSIONS.DASHBOARD_VIEW);
+function MyComponent() {
+  // Get the boolean permission array from userStore
+  const permissions = getUserPermissions(); // [true, true, false, ...]
 
-// Using code constants
-const hasProduct = hasPermissionByCode(PERMISSION_CODES.PRODUCT_VIEW);
+  // Get the permission codes array from userStore
+  const codes = getPermissionCodes(); // ["pos:view", "dashboard:view", ...]
+
+  // Using constants
+  const hasDashboard = permissions[PERMISSIONS.DASHBOARD_VIEW];
+  const hasProduct = permissions[PERMISSIONS.PRODUCT_VIEW];
+
+  return (
+    <div>
+      {hasDashboard && <Dashboard />}
+      {hasProduct && <ProductManagement />}
+    </div>
+  );
+}
 ```
 
 ## Components
@@ -175,9 +205,11 @@ import PermissionGuard from '../components/PermissionGuard';
 ### 1. Conditional Button Rendering
 
 ```javascript
-import { hasPermissionByCode } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
 function ProductPage() {
+  const { hasPermissionByCode } = useUserStore();
+
   return (
     <div>
       <h1>Products</h1>
@@ -201,9 +233,11 @@ function ProductPage() {
 ### 2. Navigation Menu with Permissions
 
 ```javascript
-import { hasPermissionByCode } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
 function NavigationMenu() {
+  const { hasPermissionByCode } = useUserStore();
+
   return (
     <nav>
       <Link to="/pos">POS</Link>
@@ -231,9 +265,11 @@ function NavigationMenu() {
 ### 3. Complex Permission Logic
 
 ```javascript
-import { hasPermissionByCode, hasAllPermissions } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
 function AdminPanel() {
+  const { hasPermissionByCode, hasAllPermissions } = useUserStore();
+  
   const isFullAdmin = hasAllPermissions(['dashboard:view', 'report:view', 'settings:view']);
   const canManageProducts = hasPermissionByCode('product:view');
   const canViewReports = hasPermissionByCode('report:view');
@@ -296,6 +332,37 @@ function ProductForm() {
 }
 ```
 
+### 5. Using Custom Hooks
+
+```javascript
+import { useHasPermission } from '../hooks/usePermissions';
+
+function Dashboard() {
+  const canViewReports = useHasPermission('report:view');
+  const canManageProducts = useHasPermission('product:view');
+  
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      
+      {canViewReports && (
+        <div className="reports-section">
+          <h2>Reports</h2>
+          <button>Generate Report</button>
+        </div>
+      )}
+      
+      {canManageProducts && (
+        <div className="products-section">
+          <h2>Products</h2>
+          <button>Manage Products</button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
 ## Best Practices
 
 ### 1. Always Check Permissions on Both Frontend and Backend
@@ -309,6 +376,7 @@ Instead of hardcoding permission codes, use the constants:
 ```javascript
 // Good
 import { PERMISSION_CODES } from '../utils/permissions';
+const { hasPermissionByCode } = useUserStore();
 hasPermissionByCode(PERMISSION_CODES.DASHBOARD_VIEW);
 
 // Bad
@@ -347,8 +415,10 @@ Don't over-restrict or under-restrict access:
 ### 5. Handle Permission Loading States
 
 ```javascript
+import useUserStore from '../stores/userStore';
+
 function MyComponent() {
-  const permissions = getUserPermissions();
+  const { permissions } = useUserStore();
   
   // Show loading state while permissions are being determined
   if (permissions.length === 0) {
@@ -363,13 +433,29 @@ function MyComponent() {
 }
 ```
 
+### 6. Use Custom Hooks for Better Performance
+
+```javascript
+// Good - uses custom hook for better performance
+function MyComponent() {
+  const canViewReports = useHasPermission('report:view');
+  return canViewReports ? <Reports /> : <AccessDenied />;
+}
+
+// Bad - calls function on every render
+function MyComponent() {
+  const { hasPermissionByCode } = useUserStore();
+  return hasPermissionByCode('report:view') ? <Reports /> : <AccessDenied />;
+}
+```
+
 ## Testing Permissions
 
 You can test different permission scenarios by:
 
 1. Logging in with different user accounts (admin, manager, cashier)
-2. Manually modifying the permissions array in localStorage
-3. Using the PermissionExample component to see all permission states
+2. Using the PermissionUsageExample component for a visual demo
+3. Checking the userStore state in browser dev tools
 
 ## Troubleshooting
 
@@ -378,15 +464,23 @@ You can test different permission scenarios by:
 1. **Permissions not loading**: Check if the login response includes the permissions array
 2. **Permission checks failing**: Verify the permission codes match exactly
 3. **Route protection not working**: Ensure ProtectedRoute is wrapping the component correctly
+4. **State not persisting**: Check if userStore is properly configured with persist middleware
 
 ### Debug Permissions
 
 ```javascript
 // Add this to any component to debug permissions
-import { getUserPermissions, getPermissionCodes } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
-console.log('Permissions:', getUserPermissions());
-console.log('Codes:', getPermissionCodes());
+function DebugComponent() {
+  const { user, permissions, permissionCodes } = useUserStore();
+  
+  console.log('User:', user);
+  console.log('Permissions:', permissions);
+  console.log('Codes:', permissionCodes);
+  
+  return <div>Check console for permission data</div>;
+}
 ```
 
 ## Security Notes
@@ -394,4 +488,14 @@ console.log('Codes:', getPermissionCodes());
 - Frontend permission checks are for UX only
 - Always validate permissions on the backend
 - Never trust client-side permission data for sensitive operations
-- Consider implementing permission refresh mechanisms for long sessions 
+- The userStore automatically persists data using Zustand's persist middleware
+- Consider implementing permission refresh mechanisms for long sessions
+
+## Migration from localStorage
+
+If you were previously using localStorage for permissions, the migration is automatic:
+
+1. **Old approach**: `localStorage.getItem('userPermissions')`
+2. **New approach**: `useUserStore().permissions` or `getUserPermissions()`
+
+The userStore automatically handles persistence, so you don't need to manually manage localStorage anymore. 

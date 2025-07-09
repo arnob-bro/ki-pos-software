@@ -7,6 +7,8 @@ const useUserStore = create(
       // State
       user: null,
       accessToken: null,
+      permissions: [],
+      permissionCodes: [],
       isAuthenticated: false,
       isLoading: false,
       error: null,
@@ -22,6 +24,10 @@ const useUserStore = create(
 
       setToken: (token) => {
         set({ accessToken: token });
+      },
+
+      setPermissions: (permissions, permissionCodes) => {
+        set({ permissions: permissions || [], permissionCodes: permissionCodes || [] });
       },
 
       setLoading: (loading) => {
@@ -47,6 +53,8 @@ const useUserStore = create(
             set({
               user: result.user,
               accessToken: result.tokens?.accessToken || '',
+              permissions: result.permissions || [],
+              permissionCodes: result.permissionCodes || [],
               isAuthenticated: true,
               isLoading: false,
               error: null
@@ -90,6 +98,8 @@ const useUserStore = create(
           set({
             user: null,
             accessToken: null,
+            permissions: [],
+            permissionCodes: [],
             isAuthenticated: false,
             isLoading: false,
             error: null
@@ -102,7 +112,7 @@ const useUserStore = create(
         const { accessToken } = get();
         
         if (!accessToken) {
-          set({ isAuthenticated: false, user: null });
+          set({ isAuthenticated: false, user: null, permissions: [], permissionCodes: [] });
           return false;
         }
 
@@ -117,6 +127,8 @@ const useUserStore = create(
           if (result.success) {
             set({
               user: result.user,
+              permissions: result.permissions || [],
+              permissionCodes: result.permissionCodes || [],
               isAuthenticated: true,
               error: null
             });
@@ -125,6 +137,8 @@ const useUserStore = create(
             set({
               user: null,
               accessToken: null,
+              permissions: [],
+              permissionCodes: [],
               isAuthenticated: false,
               error: result.message
             });
@@ -134,6 +148,8 @@ const useUserStore = create(
           set({
             user: null,
             accessToken: null,
+            permissions: [],
+            permissionCodes: [],
             isAuthenticated: false,
             error: error.message
           });
@@ -151,6 +167,34 @@ const useUserStore = create(
       // Clear error
       clearError: () => {
         set({ error: null });
+      },
+
+      // Permission checking methods
+      hasPermission: (permissionIndex) => {
+        const { permissions } = get();
+        return permissions[permissionIndex] === true;
+      },
+
+      hasPermissionByCode: (permissionCode) => {
+        const { permissions, permissionCodes } = get();
+        const index = permissionCodes.indexOf(permissionCode);
+        return index !== -1 && permissions[index] === true;
+      },
+
+      hasAnyPermission: (permissionCodes) => {
+        const { permissions, permissionCodes: codes } = get();
+        return permissionCodes.some(code => {
+          const index = codes.indexOf(code);
+          return index !== -1 && permissions[index] === true;
+        });
+      },
+
+      hasAllPermissions: (permissionCodes) => {
+        const { permissions, permissionCodes: codes } = get();
+        return permissionCodes.every(code => {
+          const index = codes.indexOf(code);
+          return index !== -1 && permissions[index] === true;
+        });
       }
     }),
     {
@@ -158,6 +202,8 @@ const useUserStore = create(
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
+        permissions: state.permissions,
+        permissionCodes: state.permissionCodes,
         isAuthenticated: state.isAuthenticated
       })
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { hasPermissionByCode } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
 /**
  * ProtectedRoute component that checks user permissions
@@ -17,9 +17,11 @@ const ProtectedRoute = ({
   fallbackPath = '/sales-interface',
   fallbackComponent = null 
 }) => {
+  // Get authentication state and permission checking from userStore
+  const { isAuthenticated, hasPermissionByCode } = useUserStore();
+
   // Check if user is authenticated
-  const userInfo = localStorage.getItem('userInfo');
-  if (!userInfo) {
+  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 

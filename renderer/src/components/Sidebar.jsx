@@ -1,19 +1,16 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../stores/userStore";
-import { hasPermissionByCode, clearPermissions } from "../utils/permissions";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useUserStore();
+  const { logout, hasPermissionByCode } = useUserStore();
 
   const handleLogout = async () => {
     const result = await logout();
     if (result && result.success) {
-      localStorage.removeItem("refreshToken");
-    clearPermissions();
-    navigate("/");
+      navigate("/");
     } else {
       // Optionally show an error message here
       alert(result?.message || "Logout failed");

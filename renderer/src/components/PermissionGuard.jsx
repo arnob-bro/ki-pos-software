@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasPermissionByCode, hasAnyPermission, hasAllPermissions } from '../utils/permissions';
+import useUserStore from '../stores/userStore';
 
 /**
  * PermissionGuard component for conditional rendering based on permissions
@@ -18,6 +18,7 @@ const PermissionGuard = ({
   mode = 'any',
   fallback = null 
 }) => {
+  const { hasPermissionByCode, hasAnyPermission, hasAllPermissions } = useUserStore();
   let hasAccess = false;
 
   // Check single permission

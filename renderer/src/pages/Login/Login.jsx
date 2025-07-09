@@ -16,43 +16,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
-    setIsLoading(true);
+    clearError();
     
-    try {
-      if (!window.posAPI || !window.posAPI.login) {
-        throw new Error("POS API not available");
-      }
-
-      const result = await window.posAPI.login(identifier, password);
-      console.log('Login result:', result);
-      
-      if (result.success) {
-        // Store user info
-        localStorage.setItem('userInfo', JSON.stringify(result.user));
-        
-        // Store permissions
-        if (result.permissions) {
-          localStorage.setItem('userPermissions', JSON.stringify(result.permissions));
-          localStorage.setItem('permissionCodes', JSON.stringify(result.permissionCodes));
-          console.log('User permissions:', result.permissions);
-          console.log('Permission codes:', result.permissionCodes);
-        }
-        
-        // Store tokens
-        localStorage.setItem('accessToken', result.tokens?.accessToken || '');
-        localStorage.setItem('refreshToken', result.tokens?.refreshToken || '');
-        
-        navigate("/sales-interface");
-      } else {
-        setErrorMsg(result.message || 'Login failed');
-        console.log('Login Error:', result.message);
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      setErrorMsg(err.message || 'An error occurred during login');
-    } finally {
-      setIsLoading(false);
+    const result = await login(identifier, password);
+    
+    if (result.success) {
+      // console.log('Login successful:', result.user);
+      // console.log(result);
+      navigate("/sales-interface");
     }
   };
 
