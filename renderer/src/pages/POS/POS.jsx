@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
-import "./pos.css";
 import "./pos.css";
 
 function POS() {
@@ -171,11 +170,11 @@ function POS() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("accessToken");
-    navigate("/");
-  };
+//   const handleLogout = () => {
+//     localStorage.removeItem("userInfo");
+//     localStorage.removeItem("accessToken");
+//     navigate("/");
+//   };
 
 	// Add to queue handler
 	const handleAddToQueue = () => {

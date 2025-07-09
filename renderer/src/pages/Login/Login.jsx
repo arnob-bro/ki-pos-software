@@ -1,44 +1,27 @@
 import React, { useState } from "react";
-import "./Login.css";
-import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import useUserStore from "../../stores/userStore";
+import "./Login.css";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  
+  // Get user store state and actions
+  const { login, isLoading, error, clearError } = useUserStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
-    setIsLoading(true);
+    clearError();
     
-    try {
-      if (!window.posAPI || !window.posAPI.login) {
-        throw new Error("POS API not available");
-      }
-
-      const result = await window.posAPI.login(identifier, password);
-      
-      if (result.success) {
-        localStorage.setItem('userInfo', JSON.stringify(result.user));
-        // console.log(result.user);
-        localStorage.setItem('accessToken', result.tokens?.accessToken || '');
-        
-        navigate("/sales-interface");
-      } else {
-        setErrorMsg(result.message || 'Login failed');
-        console.log('Login Error:', result.message);
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      setErrorMsg(err.message || 'An error occurred during login');
-    } finally {
-      setIsLoading(false);
+    const result = await login(identifier, password);
+    
+    if (result.success) {
+      navigate("/sales-interface");
     }
   };
 
@@ -80,7 +63,7 @@ const Login = () => {
           {isLoading ? "Logging in..." : "Login"}
         </button>
         
-        {errorMsg && <p className="error">{errorMsg}</p>}
+        {error && <p className="error">{error}</p>}
       </form>
     </div>
   );

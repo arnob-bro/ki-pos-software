@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("posAPI", {
   // 🔐 Auth
   login: (userId, password) => ipcRenderer.invoke("login", userId, password),
+  logout: (userId, refreshToken) => ipcRenderer.invoke("logout", userId, refreshToken),
   // Products
   listProducts: (page, limit) =>
     ipcRenderer.invoke("products:list", page, limit),

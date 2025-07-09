@@ -1,14 +1,20 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import useUserStore from "../stores/userStore";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useUserStore();
 
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("accessToken");
-    navigate("/");
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result && result.success) {
+      navigate("/");
+    } else {
+      // Optionally show an error message here
+      alert(result?.message || "Logout failed");
+    }
   };
 
   return (
@@ -60,23 +66,17 @@ const Sidebar = () => {
       >
         📄 Employee Management
       </button>
-
       <button
         className={`nav-btn${
           location.pathname === "/reports" ? " active" : ""
         }`}
         onClick={() => navigate("/reports")}
       >
-        📄 Reports
+        📊 Reports
       </button>
-      
-      <button style={{marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',
-          borderRadius: '6px',cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease',}}
-          onClick={handleLogout}onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
-          onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
+      <button className="nav-btn logout-btn" onClick={handleLogout}>
+        🚪 Logout
       </button>
-      
-      
     </aside>
   );
 };
