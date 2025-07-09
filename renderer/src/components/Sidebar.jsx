@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { hasPermissionByCode, clearPermissions } from "../utils/permissions";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,18 +9,16 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem("userInfo");
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    clearPermissions();
     navigate("/");
   };
 
   return (
     <aside className="sidebar">
       <div className="logo">Point of Sale</div>
-      {/* <button
-        className={`nav-btn${location.pathname === '/dashboard' ? ' active' : ''}`}
-        onClick={() => navigate('/dashboard')}
-      >
-        Dashboard
-      </button> */}
+      
+      {/* POS - Always visible for authenticated users */}
       <button
         className={`nav-btn${
           location.pathname === "/sales-interface" ? " active" : ""
@@ -28,55 +27,85 @@ const Sidebar = () => {
       >
         🛒 POS
       </button>
-      <button
-        className={`nav-btn${
-          location.pathname === "/dashboard" ? " active" : ""
-        }`}
-        onClick={() => navigate("/dashboard")}
-      >
-        📋 Dashboard
-      </button>
-      <button
-        className={`nav-btn${
-          location.pathname === "/receipt-archive" ? " active" : ""
-        }`}
-        onClick={() => navigate("/receipt-archive")}
-      >
-        📄 Receipt Archive
-      </button>
-      <button
-        className={`nav-btn${
-          location.pathname === "/product-management" ? " active" : ""
-        }`}
-        onClick={() => navigate("/product-management")}
-      >
-        📄 Product Management
-      </button>
-      <button
-        className={`nav-btn${
-          location.pathname === "/employee-management" ? " active" : ""
-        }`}
-        onClick={() => navigate("/employee-management")}
-      >
-        📄 Employee Management
-      </button>
+      
+      {/* Dashboard - Requires dashboard:view permission */}
+      {hasPermissionByCode('dashboard:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/dashboard" ? " active" : ""
+          }`}
+          onClick={() => navigate("/dashboard")}
+        >
+          📋 Dashboard
+        </button>
+      )}
+      
+      {/* Receipt Archive - Requires receiptarchive:view permission */}
+      {hasPermissionByCode('receiptarchive:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/receipt-archive" ? " active" : ""
+          }`}
+          onClick={() => navigate("/receipt-archive")}
+        >
+          📄 Receipt Archive
+        </button>
+      )}
+      
+      {/* Product Management - Requires product:view permission */}
+      {hasPermissionByCode('product:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/product-management" ? " active" : ""
+          }`}
+          onClick={() => navigate("/product-management")}
+        >
+          📦 Product Management
+        </button>
+      )}
+      
+      {/* Employee Management - Requires settings:view permission */}
+      {hasPermissionByCode('settings:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/employee-management" ? " active" : ""
+          }`}
+          onClick={() => navigate("/employee-management")}
+        >
+          👥 Employee Management
+        </button>
+      )}
 
-      <button
-        className={`nav-btn${
-          location.pathname === "/reports" ? " active" : ""
-        }`}
-        onClick={() => navigate("/reports")}
+      {/* Reports - Requires report:view permission */}
+      {hasPermissionByCode('report:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/reports" ? " active" : ""
+          }`}
+          onClick={() => navigate("/reports")}
+        >
+          📊 Reports
+        </button>
+      )}
+      
+      <button 
+        style={{
+          marginTop: 'auto',
+          backgroundColor: '#dc3545',
+          color: '#fff',
+          border: 'none',
+          padding: '5px',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          transition: 'background-color 0.3s ease',
+        }}
+        onClick={handleLogout}
+        onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
+        onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'}
       >
-        📄 Reports
+        Logout
       </button>
-      
-      <button style={{marginTop: 'auto',backgroundColor: '#dc3545',color: '#fff',border: 'none',padding: '5px',
-          borderRadius: '6px',cursor: 'pointer',fontWeight: 'bold',transition: 'background-color 0.3s ease',}}
-          onClick={handleLogout}onMouseEnter={e => e.target.style.backgroundColor = '#c82333'}
-          onMouseLeave={e => e.target.style.backgroundColor = '#dc3545'} >Logout
-      </button>
-      
-      
     </aside>
   );
 };

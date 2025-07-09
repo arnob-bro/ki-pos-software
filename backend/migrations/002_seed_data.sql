@@ -3,18 +3,6 @@ INSERT OR IGNORE INTO roles (id, name) VALUES (1, 'admin');
 INSERT OR IGNORE INTO roles (id, name) VALUES (2, 'manager');
 INSERT OR IGNORE INTO roles (id, name) VALUES (3, 'cashier');
 
--- Permissions
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (1, 'ALL', 'All permissions');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (2, 'VIEW_REPORTS', 'View reports');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (3, 'EDIT_PRODUCTS', 'Edit products');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (4, 'PROCESS_SALES', 'Process sales');
-
--- Role-Permissions
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 1); -- Admin gets all permissions
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 2); -- Manager gets view reports
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 3); -- Manager gets edit products
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 4); -- Manager gets process sales
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 4); -- Cashier gets process sales
 
 -- Users (password_hash will be updated by app.js with proper hash)
 INSERT OR IGNORE INTO users (id, name, email, password_hash, role_id, status)
@@ -23,6 +11,53 @@ INSERT OR IGNORE INTO users (id, name, email, password_hash, role_id, status)
 VALUES ('user-2', 'Manager User', 'manager@example.com', 'temp_hash', 2, 'active');
 INSERT OR IGNORE INTO users (id, name, email, password_hash, role_id, status)
 VALUES ('user-3', 'Cashier User', 'cashier@example.com', 'temp_hash', 3, 'active');
+
+
+-- permissions 
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (1, 'pos:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (2, 'receiptarchive:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (3, 'dashboard:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (4, 'inventory:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (5, 'product:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (6, 'customer:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (7, 'report:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (8, 'settings:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (9, 'company:view', 'he/she can view pos sales interface');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (10, 'paymentsettings:view', 'he/she can view pos sales interface');
+
+
+-- role_permissions 
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,1);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,2);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,3);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,4);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,5);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,6);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,7);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,8);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,9);
+-- INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+-- VALUES (1,10);
+
 
 -- Categories
 INSERT OR IGNORE INTO categories (id, name, description) VALUES (1, 'Default', 'Default category');
