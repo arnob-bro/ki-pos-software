@@ -3,6 +3,8 @@ const path = require('path');
 
 function runMigrations(db) {
   // Force clean recreation by dropping all tables and recreating migrations table
+  console.log('Starting database migrations...');
+  console.log('Database file path:', db.name);
   console.log('Dropping all existing tables for clean migration...');
   
   // Disable foreign key constraints temporarily
@@ -44,11 +46,18 @@ function runMigrations(db) {
     .sort();
 
   for (const file of files) {
-    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
-    db.exec(sql);
-    db.prepare('INSERT INTO migrations (name) VALUES (?)').run(file);
-    console.log(`Applied migration: ${file}`);
+    try {
+      console.log(`Applying migration: ${file}`);
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      db.exec(sql);
+      db.prepare('INSERT INTO migrations (name) VALUES (?)').run(file);
+      console.log(`Successfully applied migration: ${file}`);
+    } catch (error) {
+      console.error(`Error applying migration ${file}:`, error.message);
+      throw error;
+    }
   }
+  console.log('All migrations completed successfully');
 }
 
 module.exports = { runMigrations }; 
