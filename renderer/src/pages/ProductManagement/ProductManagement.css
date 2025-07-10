@@ -17,18 +17,38 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
+  
   .product-management h2 {
     text-align: center;
     margin-bottom: 24px;
     font-size: 28px;
     color: #333;
   }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+  
+  .form-group label {
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .product-form input,
+  .product-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
   
   .product-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
   
   .product-form input,
@@ -48,7 +68,9 @@
   }
   
   .product-form button {
-    grid-column: span 2;
+    grid-column: span 1.5;
+    margin-top: 25px;
+    height: 45px;
     padding: 10px;
     background: #007bff;
     color: white;
@@ -71,7 +93,7 @@
   
   .product-table th,
   .product-table td {
-    padding: 12px;
+    padding: 10px;
     text-align: left;
     border-bottom: 1px solid #eee;
   }
@@ -96,8 +118,8 @@
   }
   
   .edit-btn {
-    background-color: #ffc107;
-    color: #333;
+    background-color: whitesmoke;
+    color: #090909;
   }
   
   .edit-btn:hover {

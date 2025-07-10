@@ -105,13 +105,12 @@ const ReceiptArchive = () => {
   const [dateFilter, setDateFilter] = useState("");
   const [operatorFilter, setOperatorFilter] = useState("");
   const [idFilter, setIdFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
 
   const navigate = useNavigate();
 
@@ -192,15 +191,6 @@ const ReceiptArchive = () => {
       fetchReceipts(filters, nextPage, true);
     }
   }, [loading, hasMore, currentPage, dateFilter, operatorFilter, idFilter, fetchReceipts]);
-    const filtered = sampleReceipts.filter(
-      (r) =>
-        (!dateFilter || r.date === dateFilter) &&
-        (!operatorFilter || r.operator === operatorFilter) &&
-        (!idFilter || r.id.toString().includes(idFilter))
-    );
-    setFilteredReceipts(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [dateFilter, operatorFilter, idFilter]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredReceipts.length / pageSize);
@@ -208,6 +198,7 @@ const ReceiptArchive = () => {
   const endIndex = startIndex + pageSize;
   const currentReceipts = filteredReceipts.slice(startIndex, endIndex);
 
+  // Calculate totals
   const totalTax = filteredReceipts.reduce((sum, r) => sum + r.tax, 0);
   const totalAmount = filteredReceipts.reduce((sum, r) => sum + r.total, 0);
 
@@ -318,6 +309,7 @@ const ReceiptArchive = () => {
     return buttons;
   };
 
+
   return (
     <div className="receipt-archive">
       <Sidebar />
@@ -343,7 +335,7 @@ const ReceiptArchive = () => {
             {loading ? 'Loading...' : '🔄 Refresh'}
           </button>
         </div>
-        <h2>🧾 Receipt Archive</h2>
+       
         <div className="tax-cards">
       <div className="tax-card">
         <h4>Total Receipts</h4>
@@ -394,7 +386,7 @@ const ReceiptArchive = () => {
             <option value={5}>5 per page</option>
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
-           
+            
           </select>
         </div>
 
@@ -418,7 +410,7 @@ const ReceiptArchive = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredReceipts.map((r) => (
+                {currentReceipts.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => setSelectedReceipt(r)}
@@ -436,32 +428,6 @@ const ReceiptArchive = () => {
             </table>
           </div>
         )}
-        <table className="receipt-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Operator</th>
-              <th>Total</th>
-              <th>Tax</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentReceipts.map((r) => (
-              <tr
-                key={r.id}
-                onClick={() => setSelectedReceipt(r)}
-                style={{ cursor: "pointer" }}
-              >
-                <td>{r.id}</td>
-                <td>{r.date}</td>
-                <td>{r.operator}</td>
-                <td>${r.total.toFixed(2)}</td>
-                <td>${r.tax.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         {/* Pagination info */}
         <div className="pagination-info">
@@ -476,34 +442,6 @@ const ReceiptArchive = () => {
             {renderPaginationButtons()}
           </div>
         )}
-{/* 
-        <div className="tax-summary">
-          <h4>📊 Tax Summary</h4>
-          <p><strong>Total Tax:</strong> ${totalTax.toFixed(2)}</p>
-          <p><strong>Total Amount:</strong> ${totalAmount.toFixed(2)}</p>
-          <p><strong>Showing:</strong> {filteredReceipts.length} receipts</p>
-        </div>
-
-        {hasMore && (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button 
-              onClick={loadMore}
-              disabled={loading}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#28a745', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '6px', 
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              {loading ? 'Loading...' : '📄 Load More Receipts'}
-            </button>
-          </div>
-        )}
-        </div> */}
       </div>
 
       {selectedReceipt && (
@@ -547,9 +485,7 @@ const ReceiptArchive = () => {
             <p><strong>Sub Total:</strong> ${(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}</p>
             <p><strong>Tax:</strong> ${selectedReceipt.tax.toFixed(2)}</p>
             <p><strong>Total:</strong> ${selectedReceipt.total.toFixed(2)}</p>
-            <button onClick={() => window.print()}>🖨️ Print / Save PDF</button>
-            <p><strong>Total:</strong> ${(selectedReceipt.total + selectedReceipt.tax).toFixed(2)}</p>
-            <p><strong>Cash:</strong> ${(selectedReceipt.total + selectedReceipt.tax + 20).toFixed(2)}</p>
+            <p><strong>Cash:</strong> ${(selectedReceipt.total + 20).toFixed(2)}</p>
             <p><strong>Change:</strong> $20.00</p>
             <button onClick={() => window.print()}>🖨️ Print Receipt</button>
             <button onClick={handleDownload}>🖨️ Download</button>
