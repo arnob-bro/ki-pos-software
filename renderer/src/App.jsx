@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import ProductManagement from './pages/ProductManagement/ProductManagement';
 import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import Reports from "./pages/Reports/Reports";
+import InventoryManagement from "./pages/InventoryManagement/InventoryManagement";
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {

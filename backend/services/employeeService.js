@@ -46,6 +46,18 @@ class EmployeeService {
     const stmt = this.db.prepare(query);
     const employees = stmt.all(...params);
     
+    // Get permissions for each employee
+    for (let employee of employees) {
+      const permissions = this.db.prepare(`
+        SELECT p.code, p.description
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        WHERE rp.role_id = ?
+      `).all(employee.role_id);
+      
+      employee.permissions = permissions;
+    }
+    
     // Get total count for pagination
     const countQuery = query.replace(/SELECT.*FROM/, 'SELECT COUNT(*) as total FROM').replace(/ORDER BY.*LIMIT.*OFFSET.*/, '');
     const countStmt = this.db.prepare(countQuery);
@@ -76,6 +88,16 @@ class EmployeeService {
     if (!employee) {
       throw new Error('Employee not found');
     }
+    
+    // Get employee permissions
+    const permissions = this.db.prepare(`
+      SELECT p.code, p.description
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      WHERE rp.role_id = ?
+    `).all(employee.role_id);
+    
+    employee.permissions = permissions;
     
     return employee;
   }
@@ -109,6 +131,11 @@ class EmployeeService {
       throw new Error('Failed to add employee');
     }
     
+    // Handle custom permissions if provided
+    if (employeeData.custom_permissions && employeeData.custom_permissions.length > 0) {
+      await this.updateEmployeePermissions(id, employeeData.custom_permissions);
+    }
+    
     return this.getEmployeeById(id);
   }
 
@@ -136,6 +163,11 @@ class EmployeeService {
     
     if (result.changes === 0) {
       throw new Error('Employee not found or no changes made');
+    }
+    
+    // Handle custom permissions if provided
+    if (employeeData.custom_permissions && employeeData.custom_permissions.length > 0) {
+      await this.updateEmployeePermissions(id, employeeData.custom_permissions);
     }
     
     return this.getEmployeeById(id);
@@ -198,6 +230,49 @@ class EmployeeService {
       managers,
       cashiers: roleStats.find(r => r.name === 'cashier')?.count || 0
     };
+  }
+
+  // Get all available permissions
+  async listPermissions() {
+    return this.db.prepare('SELECT * FROM permissions ORDER BY code').all();
+  }
+
+  // Get permissions for a specific employee
+  async getEmployeePermissions(employeeId) {
+    const employee = this.db.prepare('SELECT role_id FROM users WHERE id = ?').get(employeeId);
+    if (!employee) {
+      throw new Error('Employee not found');
+    }
+
+    return this.db.prepare(`
+      SELECT p.code, p.description
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      WHERE rp.role_id = ?
+    `).all(employee.role_id);
+  }
+
+  // Update employee permissions (override role permissions)
+  async updateEmployeePermissions(employeeId, permissionCodes) {
+    // First, get the employee's role
+    const employee = this.db.prepare('SELECT role_id FROM users WHERE id = ?').get(employeeId);
+    if (!employee) {
+      throw new Error('Employee not found');
+    }
+
+    // Get permission IDs for the provided codes
+    const permissionIds = this.db.prepare(`
+      SELECT id FROM permissions WHERE code IN (${permissionCodes.map(() => '?').join(',')})
+    `).all(...permissionCodes).map(p => p.id);
+
+    // Remove existing role permissions for this employee
+    this.db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(employee.role_id);
+
+    // Add new permissions
+    const insertStmt = this.db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+    for (const permissionId of permissionIds) {
+      insertStmt.run(employee.role_id, permissionId);
+    }
   }
 }
 

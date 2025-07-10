@@ -40,4 +40,8 @@ contextBridge.exposeInMainWorld("posAPI", {
   exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
   generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
   getReportStats: () => ipcRenderer.invoke('reports:getStats'),
+  // Permissions
+  listPermissions: () => ipcRenderer.invoke('employees:listPermissions'),
+  getEmployeePermissions: (employeeId) => ipcRenderer.invoke('employees:getEmployeePermissions', employeeId),
+  updateEmployeePermissions: (employeeId, permissionCodes) => ipcRenderer.invoke('employees:updateEmployeePermissions', employeeId, permissionCodes),
 }); 

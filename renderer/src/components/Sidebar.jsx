@@ -63,7 +63,7 @@ const Sidebar = () => {
           }`}
           onClick={() => navigate("/product-management")}
         >
-          📦 Product Management
+          📄📦 Product Management
         </button>
       )}
       
@@ -75,8 +75,16 @@ const Sidebar = () => {
           }`}
           onClick={() => navigate("/employee-management")}
         >
-          👥 Employee Management
+          📄👥 Employee Management
         </button>
+      <button
+        className={`nav-btn${
+          location.pathname === "/inventory-management" ? " active" : ""
+        }`}
+        onClick={() => navigate("/inventory-management")}
+      >
+        📄 Inventory Management
+      </button>
       )}
 
       {/* Reports - Requires report:view permission */}
