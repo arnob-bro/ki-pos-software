@@ -9,6 +9,7 @@ import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import ProductManagement from './pages/ProductManagement/ProductManagement';
 import EmployeeManagement from "./pages/EmployeeManagment/EmployeeManagement";
 import Reports from "./pages/Reports/Reports";
+import InventoryManagement from "./pages/InventoryManagement/InventoryManagement";
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 		  <Route path='/receipt-archive' element={<ReceiptArchive />} />
 		  <Route path='/product-management' element={<ProductManagement />} />
 		  <Route path='/employee-management' element={<EmployeeManagement />} />
+		  <Route path='/inventory-management' element={<InventoryManagement />} />
 		  <Route path='/reports' element={<Reports />} />
 		</Routes>
 	);
