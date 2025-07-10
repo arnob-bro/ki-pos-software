@@ -27,7 +27,7 @@
   }
   
   .card {
-    background: #fff;
+    background: #f0f4ff;
     padding: 20px 25px;
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
@@ -75,11 +75,17 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
     flex: 1 1 500px;
   }
+  .product-table{
+    width: 100%;
+    margin-top: 20px;
+  }
   
   .chart-box h3 {
     margin-bottom: 20px;
     color: #343a40;
+    
   }
+  
   
   .tabs {
     display: flex;
@@ -98,7 +104,7 @@
   }
   
   .tab:hover {
-    background: #dee2e6;
+    background: #adb2b7;
   }
   
   .tab.active {

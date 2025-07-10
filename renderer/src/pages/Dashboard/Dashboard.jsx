@@ -68,8 +68,7 @@ const Dashboard = () => {
           <h3>Sales Overview</h3>
           <div className="tabs">
             <span className="tab active">Daily</span>
-            <span className="tab">Weekly</span>
-            <span className="tab">Monthly</span>
+            
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
@@ -82,28 +81,25 @@ const Dashboard = () => {
         </div>
       </div>
 
-        <div className="chart-box">
-          <h3>Top Products</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={productData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label
-              >
-                {productData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-      
-      </div>
+      <div className="chart-box">
+                <h3>Top 5 Products</h3>
+                <table className="product-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Sales</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productData.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.name}</td>
+                        <td>{item.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
       
       
       
