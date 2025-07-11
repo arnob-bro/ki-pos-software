@@ -204,6 +204,113 @@ function updateLastLogin(id) {
   }
 }
 
+/**
+ * Get user permissions as an array of boolean values
+ * @param {string} userId - User ID
+ * @returns {Array} Array of boolean permission values
+ */
+function getUserPermissions(userId) {
+  try {
+    // Get all permissions first
+    const allPermissionsStmt = db.prepare('SELECT id, code FROM permissions ORDER BY id');
+    const allPermissions = allPermissionsStmt.all();
+    
+    // Get user's role
+    const userStmt = db.prepare('SELECT role_id FROM users WHERE id = ?');
+    const user = userStmt.get(userId);
+    
+    if (!user) {
+      return new Array(allPermissions.length).fill(false);
+    }
+    
+    // Get user's role permissions
+    const userPermissionsStmt = db.prepare(`
+      SELECT p.id, p.code 
+      FROM permissions p 
+      JOIN role_permissions rp ON p.id = rp.permission_id 
+      WHERE rp.role_id = ?
+    `);
+    const userPermissions = userPermissionsStmt.all(user.role_id);
+    
+    // Create a map of user's permissions
+    const userPermissionMap = {};
+    userPermissions.forEach(perm => {
+      userPermissionMap[perm.id] = true;
+    });
+    
+    // Check for ALL permission (admin override)
+    const hasAllPermission = userPermissions.some(perm => perm.code === 'ALL');
+    
+    // Build boolean array
+    const permissionsArray = allPermissions.map(perm => {
+      return hasAllPermission || userPermissionMap[perm.id] || false;
+    });
+    
+    return permissionsArray;
+  } catch (error) {
+    console.error('Error getting user permissions:', error);
+    return [];
+  }
+}
+
+/**
+ * Get user permissions with permission codes
+ * @param {string} userId - User ID
+ * @returns {Object} Object with permissions array and permission codes
+ */
+function getUserPermissionsWithCodes(userId) {
+  try {
+    // Get all permissions first
+    const allPermissionsStmt = db.prepare('SELECT id, code FROM permissions ORDER BY id');
+    const allPermissions = allPermissionsStmt.all();
+    
+    // Get user's role
+    const userStmt = db.prepare('SELECT role_id FROM users WHERE id = ?');
+    const user = userStmt.get(userId);
+    
+    if (!user) {
+      return {
+        permissions: new Array(allPermissions.length).fill(false),
+        permissionCodes: allPermissions.map(p => p.code)
+      };
+    }
+    
+    // Get user's role permissions
+    const userPermissionsStmt = db.prepare(`
+      SELECT p.id, p.code 
+      FROM permissions p 
+      JOIN role_permissions rp ON p.id = rp.permission_id 
+      WHERE rp.role_id = ?
+    `);
+    const userPermissions = userPermissionsStmt.all(user.role_id);
+    
+    // Create a map of user's permissions
+    const userPermissionMap = {};
+    userPermissions.forEach(perm => {
+      userPermissionMap[perm.id] = true;
+    });
+    
+    // Check for ALL permission (admin override)
+    const hasAllPermission = userPermissions.some(perm => perm.code === 'ALL');
+    
+    // Build boolean array
+    const permissionsArray = allPermissions.map(perm => {
+      return hasAllPermission || userPermissionMap[perm.id] || false;
+    });
+    
+    return {
+      permissions: permissionsArray,
+      permissionCodes: allPermissions.map(p => p.code)
+    };
+  } catch (error) {
+    console.error('Error getting user permissions with codes:', error);
+    return {
+      permissions: [],
+      permissionCodes: []
+    };
+  }
+}
+
 module.exports = {
   findUserById,
   findUserByEmail,
@@ -213,5 +320,7 @@ module.exports = {
   deleteUser,
   getAllUsers,
   getUserWithRole,
-  updateLastLogin
+  updateLastLogin,
+  getUserPermissions,
+  getUserPermissionsWithCodes
 };

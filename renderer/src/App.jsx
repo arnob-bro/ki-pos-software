@@ -1,27 +1,80 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import POS from "./pages/POS/POS";
-
 import "./App.css";
-import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
-import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
-import ProductManagement from './pages/ProductManagement/ProductManagement';
 import EmployeeManagement from "./pages/EmployeeManagment/EmployeeManagement";
+import Login from './pages/Login/Login';
+import ProductManagement from './pages/ProductManagement/ProductManagement';
+import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import Reports from "./pages/Reports/Reports";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
 	return (
 		<Routes>
 			<Route path='/' element={<Login />} />
-			<Route path='/sales-interface' element={<POS />} />
-		  <Route path='/dashboard' element={<Dashboard />} />
-		  <Route path='/receipt-archive' element={<ReceiptArchive />} />
-		  <Route path='/product-management' element={<ProductManagement />} />
-		  <Route path='/employee-management' element={<EmployeeManagement />} />
-		  <Route path='/reports' element={<Reports />} />
+			
+			{/* POS - No specific permission required for authenticated users */}
+			<Route 
+				path='/sales-interface' 
+				element={
+					<ProtectedRoute>
+						<POS />
+					</ProtectedRoute>
+				} 
+			/>
+			
+			{/* Dashboard - Requires dashboard:view permission */}
+			<Route 
+				path='/dashboard' 
+				element={
+					<ProtectedRoute requiredPermission="dashboard:view">
+						<Dashboard />
+					</ProtectedRoute>
+				} 
+			/>
+			
+			{/* Receipt Archive - Requires receiptarchive:view permission */}
+			<Route 
+				path='/receipt-archive' 
+				element={
+					<ProtectedRoute requiredPermission="receiptarchive:view">
+						<ReceiptArchive />
+					</ProtectedRoute>
+				} 
+			/>
+			
+			{/* Product Management - Requires product:view permission */}
+			<Route 
+				path='/product-management' 
+				element={
+					<ProtectedRoute requiredPermission="product:view">
+						<ProductManagement />
+					</ProtectedRoute>
+				} 
+			/>
+			
+			{/* Employee Management - Requires settings:view permission */}
+			<Route 
+				path='/employee-management' 
+				element={
+					<ProtectedRoute requiredPermission="settings:view">
+						<EmployeeManagement />
+					</ProtectedRoute>
+				} 
+			/>
+			
+			{/* Reports - Requires report:view permission */}
+			<Route 
+				path='/reports' 
+				element={
+					<ProtectedRoute requiredPermission="report:view">
+						<Reports />
+					</ProtectedRoute>
+				} 
+			/>
 		</Routes>
 	);
 }
 
 export default App;
-

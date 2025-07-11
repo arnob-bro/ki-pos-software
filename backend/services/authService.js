@@ -8,7 +8,8 @@ const {
   updateUser, 
   deleteUser,
   updateLastLogin,
-  getUserWithRole
+  getUserWithRole,
+  getUserPermissionsWithCodes
 } = require('../models/UserModel');
 const { generateToken, verifyToken } = require('../utils/jwt');
 const { hashPassword, comparePassword } = require('../utils/hash');
@@ -93,6 +94,9 @@ class AuthService {
         this.refreshTokenExpiry
       );
 
+      // Get user permissions
+      const userPermissions = getUserPermissionsWithCodes(createdUser.id);
+
       logger.info(`User registered successfully: ${createdUser.name}`);
 
       return {
@@ -105,6 +109,8 @@ class AuthService {
           role_id: createdUser.role_id,
           status: createdUser.status
         },
+        permissions: userPermissions.permissions,
+        permissionCodes: userPermissions.permissionCodes,
         tokens: {
           accessToken,
           refreshToken
@@ -187,6 +193,9 @@ class AuthService {
       // Update last login
       updateLastLogin(user.id);
 
+      // Get user permissions
+      const userPermissions = getUserPermissionsWithCodes(user.id);
+
       logger.info(`User logged in successfully: ${user.name}`);
 
       return {
@@ -199,6 +208,8 @@ class AuthService {
           role_id: user.role_id,
           status: user.status
         },
+        permissions: userPermissions.permissions,
+        permissionCodes: userPermissions.permissionCodes,
         tokens: {
           accessToken,
           refreshToken
@@ -256,10 +267,15 @@ class AuthService {
         this.tokenExpiry
       );
 
+      // Get user permissions
+      const userPermissions = getUserPermissionsWithCodes(user.id);
+
       return {
         success: true,
         message: 'Token refreshed successfully',
-        accessToken: newAccessToken
+        accessToken: newAccessToken,
+        permissions: userPermissions.permissions,
+        permissionCodes: userPermissions.permissionCodes
       };
     } catch (error) {
       logger.error('Token refresh error:', error);
@@ -377,6 +393,9 @@ class AuthService {
         };
       }
 
+      // Get user permissions
+      const userPermissions = getUserPermissionsWithCodes(userId);
+
       return {
         success: true,
         message: 'Profile retrieved successfully',
@@ -389,7 +408,9 @@ class AuthService {
           status: user.status,
           created_at: user.created_at,
           updated_at: user.updated_at
-        }
+        },
+        permissions: userPermissions.permissions,
+        permissionCodes: userPermissions.permissionCodes
       };
     } catch (error) {
       logger.error('Get profile error:', error);
@@ -491,6 +512,9 @@ class AuthService {
         };
       }
 
+      // Get user permissions
+      const userPermissions = getUserPermissionsWithCodes(user.id);
+
       return {
         success: true,
         message: 'Token is valid',
@@ -498,7 +522,9 @@ class AuthService {
           id: user.id,
           name: user.name,
           role_id: user.role_id
-        }
+        },
+        permissions: userPermissions.permissions,
+        permissionCodes: userPermissions.permissionCodes
       };
     } catch (error) {
       logger.error('Token validation error:', error);

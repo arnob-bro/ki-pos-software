@@ -1,8 +1,8 @@
 const { ipcMain } = require("electron");
 const path = require("path");
-const fs = require('fs');
-const Database = require('better-sqlite3');
-const { runMigrations } = require('./migrations/runner');
+const fs = require("fs");
+const Database = require("better-sqlite3");
+const { runMigrations } = require("./migrations/runner");
 const { hashPassword } = require("./utils/hash");
 
 // Initialize SQLite database
@@ -18,30 +18,30 @@ db.pragma("temp_store = MEMORY");
 console.log('Database initialized successfully');
 
 // Ensure migrations directory exists
-const migrationsDir = path.join(__dirname, 'migrations');
+const migrationsDir = path.join(__dirname, "migrations");
 if (!fs.existsSync(migrationsDir)) {
   fs.mkdirSync(migrationsDir);
 }
 
 // Run migrations
-console.log('Starting database migrations...');
+console.log("Starting database migrations...");
 runMigrations(db);
-console.log('Database migrations completed');
+console.log("Database migrations completed");
 
 // Update seed users with proper password hashes
 const updateUserPassword = db.prepare(
-  'UPDATE users SET password_hash = ? WHERE name = ?'
+  "UPDATE users SET password_hash = ? WHERE name = ?"
 );
 
 // Update existing seed users with proper password hashes
-updateUserPassword.run(hashPassword('admin123'), 'Admin User');
-updateUserPassword.run(hashPassword('manager123'), 'Manager User');
-updateUserPassword.run(hashPassword('cashier123'), 'Cashier User');
+updateUserPassword.run(hashPassword("admin123"), "Admin User");
+updateUserPassword.run(hashPassword("manager123"), "Manager User");
+updateUserPassword.run(hashPassword("cashier123"), "Cashier User");
 
 console.log("Seed users updated with proper password hashes.");
 
 // Register IPC handlers
-console.log('Registering IPC handlers...');
+console.log("Registering IPC handlers...");
 require("./ipcHandlers/products")(ipcMain, db);
 require("./ipcHandlers/transactions")(ipcMain, db);
 require("./ipcHandlers/employee")(ipcMain, db);
