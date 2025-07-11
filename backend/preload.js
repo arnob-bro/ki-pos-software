@@ -1,5 +1,6 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require("electron");
+const { shell } = require("electron");
 
 contextBridge.exposeInMainWorld("posAPI", {
   // 🔐 Auth
@@ -40,4 +41,5 @@ contextBridge.exposeInMainWorld("posAPI", {
   exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
   generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
   getReportStats: () => ipcRenderer.invoke('reports:getStats'),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
 }); 
