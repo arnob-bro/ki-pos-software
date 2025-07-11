@@ -48,6 +48,7 @@ const useUserStore = create(
           }
 
           const result = await window.posAPI.login(identifier, password);
+          console.log(result);
           
           if (result.success) {
             set({
@@ -59,8 +60,7 @@ const useUserStore = create(
               isLoading: false,
               error: null
             });
-           
-           
+            return { success: true, user: result.user };
           } else {
             set({
               isLoading: false,
