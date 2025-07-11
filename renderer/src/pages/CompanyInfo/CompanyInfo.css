@@ -1,0 +1,53 @@
+.company-profile-page {
+    display: flex;
+  }
+  
+  .company-profile-container {
+    flex: 1;
+    padding: 30px;
+    background-color: #f5f5f5;
+  }
+  
+  .company-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .company-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+  }
+  
+  .company-form input,
+  .company-form textarea {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .checkbox-row {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .save-btn {
+    padding: 10px 16px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .save-btn:hover {
+    background-color: #0056b3;
+  }
+  

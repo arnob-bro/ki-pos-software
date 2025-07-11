@@ -103,7 +103,20 @@ const Sidebar = () => {
           📊 Reports
         </button>
       )}
+
+      {/* Company Info - Requires company:view permission */}
+      {hasPermissionByCode('company:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/company-info" ? " active" : ""
+          }`}
       
+          onClick={() => navigate("/company-info")}
+        >
+          🏢 Company Info
+        </button>
+      )}
+
       <button 
         style={{
           marginTop: 'auto',

@@ -1,7 +1,7 @@
 import React from 'react';
-import { usePermissions, useHasPermission } from '../hooks/usePermissions';
-import PermissionGuard from './PermissionGuard';
 import useUserStore from '../stores/userStore';
+import { usePermissions, useHasPermission } from '../hooks/usePermissions';
+import PermissionGuard from './PermissionGuard';  
 
 /**
  * Simple example component demonstrating the updated permission system
@@ -132,7 +132,7 @@ const PermissionUsageExample = () => {
             <p>You have dashboard access but not report access.</p>
           </div>
         )}
-      </div>
+      </div>  
 
       {/* Debug Info */}
       <details style={{ marginTop: '20px' }}>
