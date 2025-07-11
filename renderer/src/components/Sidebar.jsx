@@ -68,7 +68,7 @@ const Sidebar = () => {
       )}
       
       {/* Employee Management - Requires settings:view permission */}
-      {hasPermissionByCode('settings:view') && (
+      {hasPermissionByCode('employee:view') && (
         <button
           className={`nav-btn${
             location.pathname === "/employee-management" ? " active" : ""
@@ -77,7 +77,12 @@ const Sidebar = () => {
         >
           📄👥 Employee Management
         </button>
-      <button
+      
+      )}
+
+      {/* Reports - Requires report:view permission */}
+      {hasPermissionByCode('inventory:view') && (
+        <button
         className={`nav-btn${
           location.pathname === "/inventory-management" ? " active" : ""
         }`}

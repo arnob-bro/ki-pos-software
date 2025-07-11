@@ -114,4 +114,50 @@ module.exports = function registerEmployeeHandlers(ipcMain, db) {
       throw error;
     }
   });
+
+  // Role management
+  ipcMain.handle('roles:add', async (event, roleData) => {
+    try {
+      return await employeeController.addRole(roleData);
+    } catch (error) {
+      console.error('Error adding role:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('roles:get', async (event, id) => {
+    try {
+      return await employeeController.getRoleById(id);
+    } catch (error) {
+      console.error('Error getting role:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('roles:update', async (event, id, roleData) => {
+    try {
+      return await employeeController.updateRole(id, roleData);
+    } catch (error) {
+      console.error('Error updating role:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('roles:delete', async (event, id) => {
+    try {
+      return await employeeController.deleteRole(id);
+    } catch (error) {
+      console.error('Error deleting role:', error.message);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('roles:getUsage', async (event, id) => {
+    try {
+      return await employeeController.getRoleUsage(id);
+    } catch (error) {
+      console.error('Error getting role usage:', error.message);
+      throw error;
+    }
+  });
 };

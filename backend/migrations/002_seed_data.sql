@@ -15,25 +15,29 @@ VALUES ('user-3', 'Cashier User', 'cashier@example.com', 'temp_hash', 3, 'active
 
 -- permissions 
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (1, 'pos:view', 'he/she can view pos sales interface');
+VALUES (1, 'pos:view', 'can view pos sales interface');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (2, 'receiptarchive:view', 'he/she can view pos sales interface');
+VALUES (2, 'receiptarchive:view', 'can view receipt archive');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (3, 'dashboard:view', 'he/she can view pos sales interface');
+VALUES (3, 'dashboard:view', 'can view dashboard');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (4, 'inventory:view', 'he/she can view pos sales interface');
+VALUES (4, 'inventory:view', 'can view inventory management');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (5, 'product:view', 'he/she can view pos sales interface');
+VALUES (5, 'product:view', 'can view product management');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (6, 'customer:view', 'he/she can view pos sales interface');
+VALUES (6, 'customer:view', 'can view customer management');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (7, 'report:view', 'he/she can view pos sales interface');
+VALUES (7, 'report:view', 'can view reports');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (8, 'settings:view', 'he/she can view pos sales interface');
+VALUES (8, 'settings:view', 'can view settings');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (9, 'company:view', 'he/she can view pos sales interface');
+VALUES (9, 'company:view', 'can view company profile');
 INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (10, 'paymentsettings:view', 'he/she can view pos sales interface');
+VALUES (10, 'paymentsettings:view', 'can view payment settings');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (11, 'ALL', 'Admin has all access');
+INSERT OR IGNORE INTO permissions (id, code, description)
+VALUES (12, 'employee:view', 'can view employee management');
 
 
 -- role_permissions 
@@ -55,8 +59,10 @@ INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
 VALUES (1,8);
 INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
 VALUES (1,9);
--- INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
--- VALUES (1,10);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,11);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (1,12);
 
 
 -- Categories
@@ -116,46 +122,6 @@ VALUES ('log-1', 'user-1', 'CREATE', 'products', 'prod-1');
 INSERT OR IGNORE INTO data_deletion_logs (id, user_id, deleted_entity, record_id)
 VALUES ('del-1', 'user-1', 'products', 'prod-1');
 
--- Permissions
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (1, 'VIEW_REPORTS', 'View sales and inventory reports');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (2, 'EDIT_PRODUCTS', 'Add, edit, and delete products');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (3, 'MANAGE_INVENTORY', 'Manage inventory levels and stock');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (4, 'PROCESS_RETURNS', 'Process customer returns and refunds');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (5, 'APPLY_DISCOUNTS', 'Apply discounts to transactions');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (6, 'VOID_TRANSACTIONS', 'Void or cancel transactions');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (7, 'OVERRIDE_PRICES', 'Override product prices');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (8, 'OPEN_REGISTER', 'Open and close cash register');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (9, 'MANAGE_EMPLOYEES', 'Manage employee accounts and permissions');
-INSERT OR IGNORE INTO permissions (id, code, description) VALUES (10, 'VIEW_AUDIT_LOGS', 'View system audit logs');
-
--- Role Permissions
--- Cashier permissions
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 4); -- PROCESS_RETURNS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 5); -- APPLY_DISCOUNTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (1, 8); -- OPEN_REGISTER
-
--- Manager permissions (includes all cashier permissions plus more)
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 1); -- VIEW_REPORTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 2); -- EDIT_PRODUCTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 3); -- MANAGE_INVENTORY
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 4); -- PROCESS_RETURNS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 5); -- APPLY_DISCOUNTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 6); -- VOID_TRANSACTIONS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 7); -- OVERRIDE_PRICES
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 8); -- OPEN_REGISTER
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (2, 9); -- MANAGE_EMPLOYEES
-
--- Admin permissions (all permissions)
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 1); -- VIEW_REPORTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 2); -- EDIT_PRODUCTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 3); -- MANAGE_INVENTORY
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 4); -- PROCESS_RETURNS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 5); -- APPLY_DISCOUNTS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 6); -- VOID_TRANSACTIONS
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 7); -- OVERRIDE_PRICES
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 8); -- OPEN_REGISTER
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 9); -- MANAGE_EMPLOYEES
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (3, 10); -- VIEW_AUDIT_LOGS
 
 -- Login Attempts
 INSERT OR IGNORE INTO login_attempts (id, user_id, success)

@@ -55,12 +55,22 @@ function App() {
 				} 
 			/>
 			
-			{/* Employee Management - Requires settings:view permission */}
+			{/* Employee Management - Requires employee:view permission */}
 			<Route 
 				path='/employee-management' 
 				element={
 					<ProtectedRoute requiredPermission="settings:view">
 						<EmployeeManagement />
+					</ProtectedRoute>
+				} 
+			/>
+
+			{/* Inventory Management - Requires inventory:view permission */}
+			<Route 
+				path='/inventory-management' 
+				element={
+					<ProtectedRoute requiredPermission="inventory:view">
+						<InventoryManagement />
 					</ProtectedRoute>
 				} 
 			/>

@@ -38,10 +38,13 @@ const Reports = () => {
     try {
       setLoading(true);
       const result = await window.posAPI.listReports();
+      console.log('Loaded reports result:', result);
       if (result.success) {
         setReports(result.data.reports);
+        console.log('Reports loaded:', result.data.reports);
       }
     } catch (error) {
+      console.error('Error loading reports:', error);
       setMessage('Error loading reports: ' + error.message);
     } finally {
       setLoading(false);
@@ -129,15 +132,37 @@ const Reports = () => {
       setLoading(true);
       setMessage('');
       
+      console.log('Attempting to download report with ID:', reportId);
+      
+      // First generate the report file
       const result = await window.posAPI.generatePDFReport(reportId);
+      console.log('PDF generation result:', result);
       
       if (result.success) {
-        setMessage('PDF report generated successfully!');
+        // Then download the generated file
+        const downloadResult = await window.posAPI.downloadReportFile(result.data.filePath);
+        
+        if (downloadResult.success) {
+          // Create and trigger download
+          const blob = new Blob([downloadResult.content], { type: downloadResult.contentType });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = downloadResult.filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          setMessage(`Report downloaded successfully: ${downloadResult.filename}`);
+        } else {
+          setMessage('Error downloading file: ' + downloadResult.message);
+        }
       } else {
-        setMessage('Error: ' + result.message);
+        setMessage('Error generating report: ' + result.message);
       }
     } catch (error) {
-      setMessage('Error generating PDF: ' + error.message);
+      setMessage('Error generating/downloading report: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -224,25 +249,32 @@ const Reports = () => {
 
         <div className="reports-section">
           <h2>Download Archive</h2>
-          <p>Download archived reports and invoices in PDF format.</p>
+          <p>Download archived reports and invoices in text format.</p>
           
           {reports.length > 0 ? (
             <div className="reports-list">
               {reports.slice(0, 5).map((report) => (
                 <div key={report.id} className="report-item">
-                  <span>{report.type} Report - {new Date(report.generated_at).toLocaleDateString()}</span>
+                  <span>
+                    {report.type || 'Unknown'} Report - {new Date(report.generated_at).toLocaleDateString()}
+                    {report.data && <span className="report-status">✓ Has Data</span>}
+                  </span>
                   <button 
                     className="download-btn"
                     onClick={() => downloadPDF(report.id)}
                     disabled={loading}
+                    title={`Download ${report.type || 'Unknown'} report`}
                   >
-                    Download PDF
+                    Download Report
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No reports generated yet.</p>
+            <div className="no-reports">
+              <p>No reports generated yet.</p>
+              <p className="hint">Generate an X or Z report first to see it here.</p>
+            </div>
           )}
         </div>
 

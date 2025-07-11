@@ -22,7 +22,7 @@ class ReportService {
           SUM(CASE WHEN payment_method = 'cash' THEN total ELSE 0 END) as cash_sales,
           SUM(CASE WHEN payment_method = 'card' THEN total ELSE 0 END) as card_sales,
           SUM(CASE WHEN payment_method = 'other' THEN total ELSE 0 END) as other_sales
-        FROM sales 
+        FROM transactions 
         WHERE DATE(created_at) = ?
       `);
       
@@ -33,7 +33,7 @@ class ReportService {
         SELECT 
           json_extract(items, '$[*].name') as names,
           json_extract(items, '$[*].qty') as quantities
-        FROM sales 
+        FROM transactions 
         WHERE DATE(created_at) = ?
       `);
       
@@ -296,13 +296,40 @@ class ReportService {
         throw new Error('Report not found');
       }
       
-      const reportData = JSON.parse(report.data_blob);
-      const pdfResult = await generatePDF(reportData, report.type);
+      // Check if data_blob exists and is valid
+      if (!report.data_blob) {
+        throw new Error('Report data is missing or corrupted');
+      }
+      
+      let reportData;
+      try {
+        reportData = JSON.parse(report.data_blob);
+      } catch (parseError) {
+        throw new Error('Report data is corrupted and cannot be parsed');
+      }
+      
+      // Validate that reportData has required fields
+      if (!reportData || typeof reportData !== 'object') {
+        throw new Error('Report data is invalid');
+      }
+      
+      // Ensure required fields exist with defaults
+      const validatedReportData = {
+        date: reportData.date || new Date().toISOString().split('T')[0],
+        generated_by: reportData.generated_by || report.user_name || 'Unknown',
+        generated_at: reportData.generated_at || report.generated_at,
+        type: reportData.type || report.type,
+        summary: reportData.summary || {},
+        top_products: reportData.top_products || [],
+        transactions: reportData.transactions || []
+      };
+      
+      const pdfResult = await generatePDF(validatedReportData, report.type);
       
       return {
         success: true,
-        message: 'PDF report generated successfully',
-        file_path: pdfResult.filePath
+        message: 'Report generated successfully',
+        data: pdfResult
       };
     } catch (error) {
       throw new Error(`Failed to generate PDF report: ${error.message}`);

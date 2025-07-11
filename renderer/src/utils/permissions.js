@@ -31,7 +31,9 @@ export const PERMISSIONS = {
   REPORT_VIEW: 6,        // 'report:view'
   SETTINGS_VIEW: 7,      // 'settings:view'
   COMPANY_VIEW: 8,       // 'company:view'
-  PAYMENT_SETTINGS_VIEW: 9 // 'paymentsettings:view'
+  PAYMENT_SETTINGS_VIEW: 9, // 'paymentsettings:view'
+  ALL: 10, // 'paymentsettings:view'
+  EMPLOYEE_VIEW: 11 // 'paymentsettings:view'
 };
 
 /**
@@ -47,5 +49,8 @@ export const PERMISSION_CODES = {
   REPORT_VIEW: 'report:view',
   SETTINGS_VIEW: 'settings:view',
   COMPANY_VIEW: 'company:view',
-  PAYMENT_SETTINGS_VIEW: 'paymentsettings:view'
+  PAYMENT_SETTINGS_VIEW: 'paymentsettings:view',
+  ALL: 'ALL',
+  EMPLOYEE_VIEW: 'employee:view'
+  
 }; 

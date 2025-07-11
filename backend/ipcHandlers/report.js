@@ -60,6 +60,31 @@ module.exports = function registerReportHandlers(ipcMain, db) {
     }
   });
 
+  // Download report file
+  ipcMain.handle('reports:downloadFile', async (event, filePath) => {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      if (!fs.existsSync(filePath)) {
+        throw new Error('File not found');
+      }
+      
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const filename = path.basename(filePath);
+      
+      return {
+        success: true,
+        filename: filename,
+        content: fileContent,
+        contentType: 'text/plain'
+      };
+    } catch (error) {
+      console.error('Error downloading file:', error.message);
+      throw error;
+    }
+  });
+
   // Get report statistics
   ipcMain.handle('reports:getStats', async () => {
     try {

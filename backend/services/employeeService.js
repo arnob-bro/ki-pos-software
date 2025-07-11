@@ -118,11 +118,15 @@ class EmployeeService {
       ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `);
     
+    // Hash password if provided, otherwise use a default
+    const bcrypt = require('bcryptjs');
+    const passwordHash = employeeData.password_hash || await bcrypt.hash('123456', 10); // Default password
+    
     const result = stmt.run(
       id,
       `${employeeData.first_name} ${employeeData.last_name}`,
       employeeData.email,
-      employeeData.password_hash || 'default_hash', // You might want to hash the PIN
+      passwordHash,
       role.id,
       employeeData.status || 'active'
     );
@@ -200,6 +204,133 @@ class EmployeeService {
   // List roles (for dropdown)
   async listRoles() {
     return this.db.prepare('SELECT * FROM roles ORDER BY name').all();
+  }
+
+  // Add new role
+  async addRole(roleData) {
+    const stmt = this.db.prepare('INSERT INTO roles (name) VALUES (?)');
+    const result = stmt.run(roleData.name);
+    
+    if (result.changes === 0) {
+      throw new Error('Failed to add role');
+    }
+    
+    const roleId = result.lastInsertRowid;
+    
+    // Add permissions to the role if provided
+    if (roleData.permissions && roleData.permissions.length > 0) {
+      await this.addPermissionsToRole(roleId, roleData.permissions);
+    }
+    
+    return this.getRoleById(roleId);
+  }
+
+  // Get role by ID
+  async getRoleById(id) {
+    const role = this.db.prepare('SELECT * FROM roles WHERE id = ?').get(id);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+    
+    // Get role permissions
+    const permissions = this.db.prepare(`
+      SELECT p.code, p.description
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      WHERE rp.role_id = ?
+    `).all(role.id);
+    
+    role.permissions = permissions;
+    return role;
+  }
+
+  // Update role
+  async updateRole(id, roleData) {
+    const stmt = this.db.prepare('UPDATE roles SET name = ? WHERE id = ?');
+    const result = stmt.run(roleData.name, id);
+    
+    if (result.changes === 0) {
+      throw new Error('Role not found or no changes made');
+    }
+    
+    // Update permissions if provided
+    if (roleData.permissions) {
+      // Remove existing permissions
+      this.db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+      
+      // Add new permissions
+      if (roleData.permissions.length > 0) {
+        await this.addPermissionsToRole(id, roleData.permissions);
+      }
+    }
+    
+    return this.getRoleById(id);
+  }
+
+  // Delete role
+  async deleteRole(id) {
+    // Check if role is being used by any users
+    const usersWithRole = this.db.prepare('SELECT COUNT(*) as count FROM users WHERE role_id = ?').get(id);
+    if (usersWithRole.count > 0) {
+      // Get detailed information about users with this role
+      const users = this.db.prepare(`
+        SELECT id, name, email, status 
+        FROM users 
+        WHERE role_id = ? 
+        ORDER BY name
+      `).all(id);
+      
+      const userNames = users.map(u => u.name).join(', ');
+      throw new Error(`Cannot delete role: it is assigned to ${usersWithRole.count} employee(s): ${userNames}. Please reassign or delete these employees first.`);
+    }
+    
+    // Remove role permissions first
+    this.db.prepare('DELETE FROM role_permissions WHERE role_id = ?').run(id);
+    
+    // Delete the role
+    const stmt = this.db.prepare('DELETE FROM roles WHERE id = ?');
+    const result = stmt.run(id);
+    
+    if (result.changes === 0) {
+      throw new Error('Role not found');
+    }
+    
+    return { success: true, message: 'Role deleted successfully' };
+  }
+
+  // Get role usage information
+  async getRoleUsage(id) {
+    const role = this.db.prepare('SELECT * FROM roles WHERE id = ?').get(id);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+    
+    const users = this.db.prepare(`
+      SELECT id, name, email, status 
+      FROM users 
+      WHERE role_id = ? 
+      ORDER BY name
+    `).all(id);
+    
+    return {
+      role: role,
+      userCount: users.length,
+      users: users
+    };
+  }
+
+  // Add permissions to role
+  async addPermissionsToRole(roleId, permissionCodes) {
+    // Get permission IDs for the provided codes
+    const permissionIds = this.db.prepare(`
+      SELECT id FROM permissions WHERE code IN (${permissionCodes.map(() => '?').join(',')})
+    `).all(...permissionCodes).map(p => p.id);
+
+    // Add permissions to role
+    const insertStmt = this.db.prepare('INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)');
+    for (const permissionId of permissionIds) {
+      insertStmt.run(roleId, permissionId);
+    }
   }
 
   // Get employee statistics
