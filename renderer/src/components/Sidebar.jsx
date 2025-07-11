@@ -118,7 +118,7 @@ const Sidebar = () => {
       )}
 
       {/* System Settings - Requires settings:view permission */}
-      {/* {hasPermissionByCode('systemsettings:view') && (
+      {hasPermissionByCode('settings:view') && (      
         <button
           className={`nav-btn${
             location.pathname === "/system-settings" ? " active" : ""
@@ -127,15 +127,8 @@ const Sidebar = () => {
         >
           ⚙️ System Settings
         </button>
-      )}   */}
-      <button
-        className={`nav-btn${
-          location.pathname === "/system-settings" ? " active" : ""
-        }`} 
-        onClick={() => navigate("/system-settings")}
-      >
-        ⚙️ System Settings
-      </button>
+      )}  
+      
 
       <button 
         style={{

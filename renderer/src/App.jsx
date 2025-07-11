@@ -101,7 +101,9 @@ function App() {
 			<Route 
 				path='/system-settings' 
 				element={
-					<SystemSettings />
+					<ProtectedRoute requiredPermission="settings:view">
+						<SystemSettings />
+					</ProtectedRoute>
 				} 
 			/>
 

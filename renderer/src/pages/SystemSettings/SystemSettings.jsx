@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Sidebar from '../../components/Sidebar';
 import './SystemSettings.css';
 
 const SystemSettings = () => {
@@ -32,7 +33,10 @@ const SystemSettings = () => {
   };
 
   return (
+    <div className='system-settings-page'>
+    <Sidebar />
     <div className="system-settings">
+       
       <h2>⚙️ System Settings</h2>
       <form onSubmit={handleSubmit} className="settings-form">
 
@@ -94,7 +98,7 @@ const SystemSettings = () => {
 
         {/* Discount */}
         <div className="form-group">
-          <label>🤑 Max Discount Allowed (%)</label>
+          <label> Max Discount Allowed (%)</label>
           <input
             type="number"
             name="discount"
@@ -105,6 +109,7 @@ const SystemSettings = () => {
 
         <button type="submit" className="save-btn">💾 Save Settings</button>
       </form>
+    </div>
     </div>
   );
 };
