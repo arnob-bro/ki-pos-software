@@ -1,12 +1,11 @@
 // File: Dashboard.jsx
 import React from "react";
-import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import Sidebar from "../../components/Sidebar";
 import "./Dashboard.css";
+import Sidebar from "../../components/Sidebar";
+import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("userInfo"));
-  
   const role = user?.role_id;
   const salesData = [
     { time: "6 AM", sales: 300 },

@@ -8,6 +8,7 @@ import ProductManagement from './pages/ProductManagement/ProductManagement';
 import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import Reports from "./pages/Reports/Reports";
 import ProtectedRoute from './components/ProtectedRoute';
+import CompanyProfile from "./pages/CompanyInfo/CompanyInfo";
 
 function App() {
 	return (
@@ -73,6 +74,17 @@ function App() {
 					</ProtectedRoute>
 				} 
 			/>
+
+			{/* Company Info - Requires company:view permission */}
+			<Route 
+				path='/company-info' 
+				element={
+					<ProtectedRoute requiredPermission="company:view">
+						<CompanyProfile />
+					</ProtectedRoute>
+				} 
+			/>
+
 		</Routes>
 	);
 }

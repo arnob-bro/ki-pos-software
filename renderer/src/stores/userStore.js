@@ -59,7 +59,8 @@ const useUserStore = create(
               isLoading: false,
               error: null
             });
-            return { success: true, user: result.user };
+           
+           
           } else {
             set({
               isLoading: false,
@@ -75,6 +76,7 @@ const useUserStore = create(
           return { success: false, message: error.message };
         }
       },
+     
 
       // Logout action
       logout: async () => {
