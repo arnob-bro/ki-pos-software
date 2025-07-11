@@ -110,12 +110,32 @@ const Sidebar = () => {
           className={`nav-btn${
             location.pathname === "/company-info" ? " active" : ""
           }`}
-      
+          
           onClick={() => navigate("/company-info")}
         >
           🏢 Company Info
         </button>
       )}
+
+      {/* System Settings - Requires settings:view permission */}
+      {/* {hasPermissionByCode('systemsettings:view') && (
+        <button
+          className={`nav-btn${
+            location.pathname === "/system-settings" ? " active" : ""
+          }`} 
+          onClick={() => navigate("/system-settings")}
+        >
+          ⚙️ System Settings
+        </button>
+      )}   */}
+      <button
+        className={`nav-btn${
+          location.pathname === "/system-settings" ? " active" : ""
+        }`} 
+        onClick={() => navigate("/system-settings")}
+      >
+        ⚙️ System Settings
+      </button>
 
       <button 
         style={{

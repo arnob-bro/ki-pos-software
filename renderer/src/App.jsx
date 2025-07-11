@@ -10,6 +10,7 @@ import Reports from "./pages/Reports/Reports";
 import InventoryManagement from "./pages/InventoryManagement/InventoryManagement";
 import ProtectedRoute from './components/ProtectedRoute';
 import CompanyProfile from "./pages/CompanyInfo/CompanyInfo";
+import SystemSettings from "./pages/SystemSettings/SystemSettings";
 
 function App() {
 	return (
@@ -93,6 +94,14 @@ function App() {
 					<ProtectedRoute requiredPermission="company:view">
 						<CompanyProfile />
 					</ProtectedRoute>
+				} 
+			/>
+
+			{/* System Settings - Requires systemsettings:view permission */}
+			<Route 
+				path='/system-settings' 
+				element={
+					<SystemSettings />
 				} 
 			/>
 
