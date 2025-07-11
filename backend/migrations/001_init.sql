@@ -25,7 +25,7 @@ CREATE TABLE roles (
 
 -- Table: permissions
 CREATE TABLE permissions (
-  id INTEGER PRIMARY KEY,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   code VARCHAR NOT NULL, -- e.g., 'VIEW_REPORTS', 'EDIT_PRODUCTS', etc.
   description TEXT
 );
