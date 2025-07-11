@@ -15,47 +15,37 @@ class ReportService {
    */
   async generateXReport(date, userId) {
     try {
+      // Check if user exists
+      const userCheck = this.db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
+      if (!userCheck) {
+        throw new Error(`Failed to generate X report: userId '${userId}' does not exist in users table.`);
+      }
       const stmt = this.db.prepare(`
         SELECT 
           COUNT(*) as total_transactions,
-          SUM(total) as total_sales,
-          SUM(CASE WHEN payment_method = 'cash' THEN total ELSE 0 END) as cash_sales,
-          SUM(CASE WHEN payment_method = 'card' THEN total ELSE 0 END) as card_sales,
-          SUM(CASE WHEN payment_method = 'other' THEN total ELSE 0 END) as other_sales
+          SUM(total_amount) as total_sales,
+          SUM(CASE WHEN payment_method = 'cash' THEN total_amount ELSE 0 END) as cash_sales,
+          SUM(CASE WHEN payment_method = 'card' THEN total_amount ELSE 0 END) as card_sales,
+          SUM(CASE WHEN payment_method = 'other' THEN total_amount ELSE 0 END) as other_sales
         FROM transactions 
-        WHERE DATE(created_at) = ?
+        WHERE DATE(timestamp) = ?
       `);
       
       const report = stmt.get(date);
       
       // Get top selling products for the day
       const productStmt = this.db.prepare(`
-        SELECT 
-          json_extract(items, '$[*].name') as names,
-          json_extract(items, '$[*].qty') as quantities
-        FROM transactions 
-        WHERE DATE(created_at) = ?
+        SELECT ti.product_id, p.name, SUM(ti.quantity) as total_qty
+        FROM transaction_items ti
+        JOIN transactions t ON ti.transaction_id = t.id
+        JOIN products p ON ti.product_id = p.id
+        WHERE DATE(t.timestamp) = ?
+        GROUP BY ti.product_id, p.name
+        ORDER BY total_qty DESC
+        LIMIT 5
       `);
       
-      const sales = productStmt.all(date);
-      const productStats = new Map();
-      
-      for (const sale of sales) {
-        try {
-          const items = JSON.parse(sale.items);
-          for (const item of items) {
-            const current = productStats.get(item.name) || 0;
-            productStats.set(item.name, current + item.qty);
-          }
-        } catch (e) {
-          // Skip invalid JSON
-        }
-      }
-      
-      const topProducts = Array.from(productStats.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([name, qty]) => ({ name, qty }));
+      const topProducts = productStmt.all(date).map(row => ({ name: row.name, qty: row.total_qty }));
       
       const xReport = {
         type: 'X',
@@ -95,6 +85,11 @@ class ReportService {
    */
   async generateZReport(date, userId) {
     try {
+      // Check if user exists
+      const userCheck = this.db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
+      if (!userCheck) {
+        throw new Error(`Failed to generate Z report: userId '${userId}' does not exist in users table.`);
+      }
       // Check if Z report already exists for this date
       const existingStmt = this.db.prepare(`
         SELECT id FROM generated_reports 
@@ -111,9 +106,9 @@ class ReportService {
       
       // Get all transactions for the day
       const transactionsStmt = this.db.prepare(`
-        SELECT * FROM sales 
-        WHERE DATE(created_at) = ?
-        ORDER BY created_at
+        SELECT * FROM transactions 
+        WHERE DATE(timestamp) = ?
+        ORDER BY timestamp
       `);
       
       const transactions = transactionsStmt.all(date);
@@ -122,18 +117,20 @@ class ReportService {
       let totalVAT = 0;
       let totalNet = 0;
       
-      for (const transaction of transactions) {
-        try {
-          const items = JSON.parse(transaction.items);
-          for (const item of items) {
-            const netAmount = item.price * item.qty;
-            const vatAmount = netAmount * 0.19; // Assuming 19% VAT
-            totalNet += netAmount;
-            totalVAT += vatAmount;
-          }
-        } catch (e) {
-          // Skip invalid JSON
-        }
+      // Get all transaction items for the day
+      const itemsStmt = this.db.prepare(`
+        SELECT ti.*, p.vat_rate, p.price
+        FROM transaction_items ti
+        JOIN transactions t ON ti.transaction_id = t.id
+        JOIN products p ON ti.product_id = p.id
+        WHERE DATE(t.timestamp) = ?
+      `);
+      const items = itemsStmt.all(date);
+      for (const item of items) {
+        const netAmount = item.price * item.quantity;
+        const vatAmount = netAmount * (item.vat_rate / 100);
+        totalNet += netAmount;
+        totalVAT += vatAmount;
       }
       
       const zReport = {
@@ -149,9 +146,9 @@ class ReportService {
         },
         transactions: transactions.map(t => ({
           id: t.id,
-          total: t.total,
+          total: t.total_amount,
           payment_method: t.payment_method,
-          created_at: t.created_at
+          created_at: t.timestamp
         })),
         top_products: xReport.top_products
       };
@@ -296,40 +293,13 @@ class ReportService {
         throw new Error('Report not found');
       }
       
-      // Check if data_blob exists and is valid
-      if (!report.data_blob) {
-        throw new Error('Report data is missing or corrupted');
-      }
-      
-      let reportData;
-      try {
-        reportData = JSON.parse(report.data_blob);
-      } catch (parseError) {
-        throw new Error('Report data is corrupted and cannot be parsed');
-      }
-      
-      // Validate that reportData has required fields
-      if (!reportData || typeof reportData !== 'object') {
-        throw new Error('Report data is invalid');
-      }
-      
-      // Ensure required fields exist with defaults
-      const validatedReportData = {
-        date: reportData.date || new Date().toISOString().split('T')[0],
-        generated_by: reportData.generated_by || report.user_name || 'Unknown',
-        generated_at: reportData.generated_at || report.generated_at,
-        type: reportData.type || report.type,
-        summary: reportData.summary || {},
-        top_products: reportData.top_products || [],
-        transactions: reportData.transactions || []
-      };
-      
-      const pdfResult = await generatePDF(validatedReportData, report.type);
+      const reportData = JSON.parse(report.data_blob);
+      const pdfResult = await generatePDF(reportData, report.type);
       
       return {
         success: true,
-        message: 'Report generated successfully',
-        data: pdfResult
+        message: 'PDF report generated successfully',
+        file_path: pdfResult.filePath
       };
     } catch (error) {
       throw new Error(`Failed to generate PDF report: ${error.message}`);
