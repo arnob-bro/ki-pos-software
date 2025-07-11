@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import ProductManagement from './pages/ProductManagement/ProductManagement';
 import ReceiptArchive from './pages/ReceiptArchive/ReceiptArchive';
 import Reports from "./pages/Reports/Reports";
+import InventoryManagement from "./pages/InventoryManagement/InventoryManagement";
 import ProtectedRoute from './components/ProtectedRoute';
 import CompanyProfile from "./pages/CompanyInfo/CompanyInfo";
 
@@ -55,12 +56,22 @@ function App() {
 				} 
 			/>
 			
-			{/* Employee Management - Requires settings:view permission */}
+			{/* Employee Management - Requires employee:view permission */}
 			<Route 
 				path='/employee-management' 
 				element={
 					<ProtectedRoute requiredPermission="settings:view">
 						<EmployeeManagement />
+					</ProtectedRoute>
+				} 
+			/>
+
+			{/* Inventory Management - Requires inventory:view permission */}
+			<Route 
+				path='/inventory-management' 
+				element={
+					<ProtectedRoute requiredPermission="inventory:view">
+						<InventoryManagement />
 					</ProtectedRoute>
 				} 
 			/>

@@ -60,6 +60,7 @@ const useUserStore = create(
               isLoading: false,
               error: null
             });
+            console.log(result);
             return { success: true, user: result.user };
           } else {
             set({

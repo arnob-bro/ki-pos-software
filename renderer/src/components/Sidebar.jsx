@@ -63,20 +63,33 @@ const Sidebar = () => {
           }`}
           onClick={() => navigate("/product-management")}
         >
-          📦 Product Management
+          📄📦 Product Management
         </button>
       )}
       
       {/* Employee Management - Requires settings:view permission */}
-      {hasPermissionByCode('settings:view') && (
+      {hasPermissionByCode('employee:view') && (
         <button
           className={`nav-btn${
             location.pathname === "/employee-management" ? " active" : ""
           }`}
           onClick={() => navigate("/employee-management")}
         >
-          👥 Employee Management
+          📄👥 Employee Management
         </button>
+      
+      )}
+
+      {/* Reports - Requires report:view permission */}
+      {hasPermissionByCode('inventory:view') && (
+        <button
+        className={`nav-btn${
+          location.pathname === "/inventory-management" ? " active" : ""
+        }`}
+        onClick={() => navigate("/inventory-management")}
+      >
+        📄 Inventory Management
+      </button>
       )}
 
       {/* Reports - Requires report:view permission */}

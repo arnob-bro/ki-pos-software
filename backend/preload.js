@@ -1,5 +1,6 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require("electron");
+const { shell } = require("electron");
 
 contextBridge.exposeInMainWorld("posAPI", {
   // 🔐 Auth
@@ -39,5 +40,18 @@ contextBridge.exposeInMainWorld("posAPI", {
   listReports: (page, limit) => ipcRenderer.invoke('reports:list', page, limit),
   exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
   generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
+  downloadReportFile: (filePath) => ipcRenderer.invoke('reports:downloadFile', filePath),
   getReportStats: () => ipcRenderer.invoke('reports:getStats'),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  // Permissions
+  listPermissions: () => ipcRenderer.invoke('employees:listPermissions'),
+  getEmployeePermissions: (employeeId) => ipcRenderer.invoke('employees:getEmployeePermissions', employeeId),
+  updateEmployeePermissions: (employeeId, permissionCodes) => ipcRenderer.invoke('employees:updateEmployeePermissions', employeeId, permissionCodes),
+  
+  // Role Management
+  addRole: (roleData) => ipcRenderer.invoke('roles:add', roleData),
+  getRole: (id) => ipcRenderer.invoke('roles:get', id),
+  updateRole: (id, roleData) => ipcRenderer.invoke('roles:update', id, roleData),
+  deleteRole: (id) => ipcRenderer.invoke('roles:delete', id),
+  getRoleUsage: (id) => ipcRenderer.invoke('roles:getUsage', id),
 }); 

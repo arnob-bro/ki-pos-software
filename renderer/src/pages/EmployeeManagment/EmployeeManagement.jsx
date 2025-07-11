@@ -4,205 +4,145 @@ import Sidebar from "../../components/Sidebar";
 
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [shifts, setShifts] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [roleUsage, setRoleUsage] = useState({});
   const [formData, setFormData] = useState({
     id: "",
-    employee_id: "",
     first_name: "",
     last_name: "",
     email: "",
-    phone: "",
-    department_id: "",
-    position: "",
-    role: "cashier",
-    hourly_rate: "",
-    hire_date: "",
+    role: "",
     status: "active",
-    pin: "",
-    shift_id: "",
-    permissions: {
-      can_process_returns: false,
-      can_apply_discounts: false,
-      can_void_transactions: false,
-      can_access_reports: false,
-      can_manage_inventory: false,
-      can_override_prices: false,
-      can_open_register: false,
-      can_close_register: false,
-      max_discount_percent: 0,
-      max_void_amount: 0,
-    },
-    address: "",
-    emergency_contact: "",
-    emergency_phone: "",
-    notes: "",
+    custom_permissions: []
   });
   const [editing, setEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
+  const [showRoleForm, setShowRoleForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterRole, setFilterRole] = useState("all");
-  const [filterDepartment, setFilterDepartment] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0
+  });
+  const [roleFormData, setRoleFormData] = useState({
+    id: "",
+    name: "",
+    permissions: []
+  });
+  const [editingRole, setEditingRole] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
-    fetchDepartments();
-    fetchShifts();
-  }, []);
+    fetchRoles();
+    fetchPermissions();
+  }, [pagination.page, filterStatus, filterRole, searchTerm]);
 
   const fetchEmployees = async () => {
-    // Mock data - replace with actual API call
-    const mockEmployees = [
-      {
-        id: 1,
-        employee_id: "EMP001",
-        first_name: "John",
-        last_name: "Doe",
-        email: "john.doe@company.com",
-        phone: "555-0123",
-        department_id: 1,
-        position: "Senior Cashier",
-        role: "cashier",
-        hourly_rate: 15.5,
-        hire_date: "2023-01-15",
-        status: "active",
-        pin: "1234",
-        shift_id: 1,
-        permissions: {
-          can_process_returns: true,
-          can_apply_discounts: true,
-          can_void_transactions: false,
-          can_access_reports: false,
-          can_manage_inventory: false,
-          can_override_prices: false,
-          can_open_register: true,
-          can_close_register: true,
-          max_discount_percent: 10,
-          max_void_amount: 50,
-        },
-        address: "123 Main St, City, State 12345",
-        emergency_contact: "Jane Doe",
-        emergency_phone: "555-0124",
-        notes: "Reliable employee",
-      },
-      {
-        id: 2,
-        employee_id: "EMP002",
-        first_name: "Alice",
-        last_name: "Smith",
-        email: "alice.smith@company.com",
-        phone: "555-0456",
-        department_id: 2,
-        position: "Store Manager",
-        role: "manager",
-        hourly_rate: 25.0,
-        hire_date: "2022-06-01",
-        status: "active",
-        pin: "5678",
-        shift_id: 1,
-        permissions: {
-          can_process_returns: true,
-          can_apply_discounts: true,
-          can_void_transactions: true,
-          can_access_reports: true,
-          can_manage_inventory: true,
-          can_override_prices: true,
-          can_open_register: true,
-          can_close_register: true,
-          max_discount_percent: 25,
-          max_void_amount: 500,
-        },
-        address: "456 Oak Ave, City, State 12345",
-        emergency_contact: "Bob Smith",
-        emergency_phone: "555-0457",
-        notes: "Team leader",
-      },
-      {
-        id: 3,
-        employee_id: "EMP003",
-        first_name: "Mike",
-        last_name: "Johnson",
-        email: "mike.johnson@company.com",
-        phone: "555-0789",
-        department_id: 3,
-        position: "Stock Clerk",
-        role: "cashier",
-        hourly_rate: 12.0,
-        hire_date: "2023-08-20",
-        status: "active",
-        pin: "9012",
-        shift_id: 2,
-        permissions: {
-          can_process_returns: false,
-          can_apply_discounts: false,
-          can_void_transactions: false,
-          can_access_reports: false,
-          can_manage_inventory: true,
-          can_override_prices: false,
-          can_open_register: false,
-          can_close_register: false,
-          max_discount_percent: 0,
-          max_void_amount: 0,
-        },
-        address: "789 Pine St, City, State 12345",
-        emergency_contact: "Sarah Johnson",
-        emergency_phone: "555-0790",
-        notes: "New hire",
-      },
-    ];
-    setEmployees(mockEmployees);
+    try {
+      setLoading(true);
+      const filters = {};
+      if (filterStatus !== "all") filters.status = filterStatus;
+      if (filterRole !== "all") filters.role = filterRole;
+      if (searchTerm) filters.search = searchTerm;
+
+      const result = await window.posAPI.listEmployees(pagination.page, pagination.limit, filters);
+      setEmployees(result.employees);
+      setPagination(prev => ({
+        ...prev,
+        total: result.pagination.total,
+        totalPages: result.pagination.totalPages
+      }));
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setError('Failed to fetch employees');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const fetchDepartments = async () => {
-    // Mock data - replace with actual API call
-    const mockDepartments = [
-      { id: 1, name: "Sales Floor" },
-      { id: 2, name: "Management" },
-      { id: 3, name: "Stockroom" },
-      { id: 4, name: "Customer Service" },
-    ];
-    setDepartments(mockDepartments);
+  const fetchRoles = async () => {
+    try {
+      const rolesData = await window.posAPI.listRoles();
+      // Load permissions and usage for each role
+      const rolesWithData = await Promise.all(
+        rolesData.map(async (role) => {
+          try {
+            const [roleDetails, roleUsage] = await Promise.all([
+              window.posAPI.getRole(role.id),
+              window.posAPI.getRoleUsage(role.id)
+            ]);
+            
+            return {
+              ...role,
+              permissions: roleDetails.permissions || [],
+              userCount: roleUsage.userCount
+            };
+          } catch (error) {
+            console.error(`Error loading data for role ${role.id}:`, error);
+            return {
+              ...role,
+              permissions: [],
+              userCount: 0
+            };
+          }
+        })
+      );
+      setRoles(rolesWithData);
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    }
   };
 
-  const fetchShifts = async () => {
-    // Mock data - replace with actual API call
-    const mockShifts = [
-      {
-        id: 1,
-        name: "Morning (8AM-4PM)",
-        start_time: "08:00",
-        end_time: "16:00",
-      },
-      {
-        id: 2,
-        name: "Evening (4PM-12AM)",
-        start_time: "16:00",
-        end_time: "00:00",
-      },
-      {
-        id: 3,
-        name: "Night (12AM-8AM)",
-        start_time: "00:00",
-        end_time: "08:00",
-      },
-    ];
-    setShifts(mockShifts);
+  // Function to refresh role usage data specifically
+  const refreshRoleUsage = async () => {
+    try {
+      const updatedRoles = await Promise.all(
+        roles.map(async (role) => {
+          try {
+            const roleUsage = await window.posAPI.getRoleUsage(role.id);
+            return {
+              ...role,
+              userCount: roleUsage.userCount
+            };
+          } catch (error) {
+            console.error(`Error refreshing usage for role ${role.id}:`, error);
+            return role;
+          }
+        })
+      );
+      setRoles(updatedRoles);
+    } catch (error) {
+      console.error('Error refreshing role usage:', error);
+    }
+  };
+
+  const fetchPermissions = async () => {
+    try {
+      const permissionsData = await window.posAPI.listPermissions();
+      setPermissions(permissionsData);
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name.startsWith("permissions.")) {
-      const permissionName = name.split(".")[1];
-      setFormData({
-        ...formData,
-        permissions: {
-          ...formData.permissions,
-          [permissionName]: type === "checkbox" ? checked : value,
-        },
-      });
+      const permissionCode = name.split(".")[1];
+      setFormData(prev => ({
+        ...prev,
+        custom_permissions: checked 
+          ? [...prev.custom_permissions, permissionCode]
+          : prev.custom_permissions.filter(p => p !== permissionCode)
+      }));
     } else {
       setFormData({
         ...formData,
@@ -213,95 +153,85 @@ const EmployeeManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate PIN
-    if (formData.pin.length !== 4) {
-      alert("PIN must be exactly 4 digits");
-      return;
+    try {
+      if (editing) {
+        // Update employee
+        await window.posAPI.updateEmployee(formData.id, formData);
+      } else {
+        // Add new employee
+        await window.posAPI.addEmployee(formData);
+      }
+      
+      // Refresh both employee list and roles (to update role usage)
+      await Promise.all([fetchEmployees(), fetchRoles()]);
+      resetForm();
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error saving employee:', error);
+      setError('Failed to save employee');
     }
-
-    if (editing) {
-      // Update employee
-      const updatedEmployees = employees.map((emp) =>
-        emp.id === formData.id ? { ...formData } : emp
-      );
-      setEmployees(updatedEmployees);
-    } else {
-      // Add new employee
-      const newEmployee = {
-        ...formData,
-        id: employees.length + 1,
-        employee_id:
-          formData.employee_id ||
-          `EMP${String(employees.length + 1).padStart(3, "0")}`,
-      };
-      setEmployees([...employees, newEmployee]);
-    }
-
-    resetForm();
-    setShowForm(false);
   };
 
   const resetForm = () => {
     setFormData({
       id: "",
-      employee_id: "",
       first_name: "",
       last_name: "",
       email: "",
-      phone: "",
-      department_id: "",
-      position: "",
-      role: "cashier",
-      hourly_rate: "",
-      hire_date: "",
+      role: "",
       status: "active",
-      pin: "",
-      shift_id: "",
-      permissions: {
-        can_process_returns: false,
-        can_apply_discounts: false,
-        can_void_transactions: false,
-        can_access_reports: false,
-        can_manage_inventory: false,
-        can_override_prices: false,
-        can_open_register: false,
-        can_close_register: false,
-        max_discount_percent: 0,
-        max_void_amount: 0,
-      },
-      address: "",
-      emergency_contact: "",
-      emergency_phone: "",
-      notes: "",
+      custom_permissions: []
     });
     setEditing(false);
     setShowPermissions(false);
+    setError(null);
   };
 
-  const handleEdit = (employee) => {
-    setFormData(employee);
-    setEditing(true);
-    setShowPermissions(true);
-    setShowForm(true);
+  const handleEdit = async (employee) => {
+    try {
+      // Fetch employee permissions
+      const employeePermissions = await window.posAPI.getEmployeePermissions(employee.id);
+      
+      setFormData({
+        id: employee.id,
+        first_name: employee.name.split(' ')[0] || '',
+        last_name: employee.name.split(' ').slice(1).join(' ') || '',
+        email: employee.email,
+        role: employee.role_name,
+        status: employee.status,
+        custom_permissions: employeePermissions.map(p => p.code)
+      });
+      setEditing(true);
+      setShowPermissions(true);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+      setError('Failed to load employee details');
+    }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
-      setEmployees(employees.filter((emp) => emp.id !== id));
+      try {
+        await window.posAPI.deleteEmployee(id);
+        // Refresh both employee list and roles (to update role usage)
+        await Promise.all([fetchEmployees(), fetchRoles()]);
+      } catch (error) {
+        console.error('Error deleting employee:', error);
+        setError('Failed to delete employee');
+      }
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    const updatedEmployees = employees.map((emp) =>
-      emp.id === id ? { ...emp, status: newStatus } : emp
-    );
-    setEmployees(updatedEmployees);
-  };
-
-  const generatePin = () => {
-    const pin = Math.floor(1000 + Math.random() * 9000).toString();
-    setFormData({ ...formData, pin });
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await window.posAPI.updateEmployeeStatus(id, newStatus);
+      // Refresh both employee list and roles (to update role usage)
+      await Promise.all([fetchEmployees(), fetchRoles()]);
+    } catch (error) {
+      console.error('Error updating employee status:', error);
+      setError('Failed to update employee status');
+    }
   };
 
   const handleAddNew = () => {
@@ -314,38 +244,130 @@ const EmployeeManagement = () => {
     resetForm();
   };
 
-  const filteredEmployees = employees.filter((employee) => {
-    const searchText = searchTerm.toLowerCase();
-    const matchesSearch =
-      employee.first_name.toLowerCase().includes(searchText) ||
-      employee.last_name.toLowerCase().includes(searchText) ||
-      employee.employee_id.toLowerCase().includes(searchText) ||
-      employee.email.toLowerCase().includes(searchText) ||
-      employee.phone.includes(searchText) ||
-      employee.position.toLowerCase().includes(searchText) ||
-      getDepartmentName(employee.department_id)
-        .toLowerCase()
-        .includes(searchText);
-
-    const matchesStatus =
-      filterStatus === "all" || employee.status === filterStatus;
-    const matchesRole = filterRole === "all" || employee.role === filterRole;
-    const matchesDepartment =
-      filterDepartment === "all" ||
-      employee.department_id === parseInt(filterDepartment);
-
-    return matchesSearch && matchesStatus && matchesRole && matchesDepartment;
-  });
-
-  const getDepartmentName = (id) => {
-    const dept = departments.find((d) => d.id === parseInt(id));
-    return dept ? dept.name : "N/A";
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  const getShiftName = (id) => {
-    const shift = shifts.find((s) => s.id === parseInt(id));
-    return shift ? shift.name : "N/A";
+  // Role management functions
+  const handleRoleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (name.startsWith("rolePermissions.")) {
+      const permissionCode = name.split(".")[1];
+      setRoleFormData(prev => ({
+        ...prev,
+        permissions: checked 
+          ? [...prev.permissions, permissionCode]
+          : prev.permissions.filter(p => p !== permissionCode)
+      }));
+    } else {
+      setRoleFormData({
+        ...roleFormData,
+        [name]: type === "checkbox" ? checked : value,
+      });
+    }
   };
+
+  const handleRoleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingRole) {
+        await window.posAPI.updateRole(roleFormData.id, roleFormData);
+      } else {
+        await window.posAPI.addRole(roleFormData);
+      }
+      
+      // Refresh roles to update usage information
+      await fetchRoles();
+      resetRoleForm();
+      setShowRoleForm(false);
+    } catch (error) {
+      console.error('Error saving role:', error);
+      setError('Failed to save role');
+    }
+  };
+
+  const resetRoleForm = () => {
+    setRoleFormData({
+      id: "",
+      name: "",
+      permissions: []
+    });
+    setEditingRole(false);
+    setError(null);
+  };
+
+  const handleEditRole = async (role) => {
+    try {
+      const roleDetails = await window.posAPI.getRole(role.id);
+      setRoleFormData({
+        id: role.id,
+        name: role.name,
+        permissions: roleDetails.permissions.map(p => p.code)
+      });
+      setEditingRole(true);
+      setShowRoleForm(true);
+    } catch (error) {
+      console.error('Error fetching role details:', error);
+      setError('Failed to load role details');
+    }
+  };
+
+  const handleDeleteRole = async (id) => {
+    try {
+      // First check if role is being used
+      const roleUsage = await window.posAPI.getRoleUsage(id);
+      
+      if (roleUsage.userCount > 0) {
+        const userList = roleUsage.users.map(u => u.name).join(', ');
+        const message = `Cannot delete role "${roleUsage.role.name}" because it is assigned to ${roleUsage.userCount} employee(s):\n\n${userList}\n\nPlease reassign or delete these employees first.`;
+        alert(message);
+        return;
+      }
+      
+      // If no users, proceed with deletion
+      if (window.confirm(`Are you sure you want to delete the role "${roleUsage.role.name}"?`)) {
+        await window.posAPI.deleteRole(id);
+        // Refresh roles to update usage information
+        await fetchRoles();
+      }
+    } catch (error) {
+      console.error('Error deleting role:', error);
+      setError(error.message || 'Failed to delete role');
+    }
+  };
+
+  const handleAddNewRole = () => {
+    resetRoleForm();
+    setShowRoleForm(true);
+  };
+
+  const handleCloseRoleForm = () => {
+    setShowRoleForm(false);
+    resetRoleForm();
+  };
+
+  // Get unique roles from backend data
+  const getUniqueRoles = () => {
+    return roles.map(role => role.name);
+  };
+
+  const filteredEmployees = employees; // Backend handles filtering
+
+  const getRoleDisplayName = (roleName) => {
+    return roleName ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : 'N/A';
+  };
+
+  if (loading && employees.length === 0) {
+    return (
+      <div className="employee-management-page">
+        <Sidebar />
+        <div className="employee-management">
+          <div className="loading">Loading employees...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="employee-management-page">
@@ -357,10 +379,18 @@ const EmployeeManagement = () => {
             + Add New Employee
           </button>
         </div>
+
+        {error && (
+          <div className="error-message">
+            {error}
+            <button onClick={() => setError(null)}>×</button>
+          </div>
+        )}
+
         <div className="employee-stats">
           <div className="stat-card">
             <h4>Total Employees</h4>
-            <span>{employees.length}</span>
+            <span>{pagination.total}</span>
           </div>
           <div className="stat-card">
             <h4>Active</h4>
@@ -368,24 +398,93 @@ const EmployeeManagement = () => {
           </div>
           <div className="stat-card">
             <h4>Inactive</h4>
-            <span>
-              {employees.filter((e) => e.status === "inactive").length}
-            </span>
+            <span>{employees.filter((e) => e.status === "suspended").length}</span>
           </div>
           <div className="stat-card">
             <h4>Managers</h4>
-            <span>{employees.filter((e) => e.role === "manager").length}</span>
+            <span>{employees.filter((e) => e.role_name === "manager").length}</span>
           </div>
           <div className="stat-card">
             <h4>Showing Results</h4>
             <span>{filteredEmployees.length}</span>
           </div>
         </div>
+
+        {/* Role Management Section */}
+        <div className="role-management-section">
+          <div className="role-header">
+            <h3>🎭 Roles </h3>
+            <div className="role-actions">
+              <button className="refresh-btn" onClick={refreshRoleUsage} title="Refresh role usage">
+                🔄
+              </button>
+              <button className="add-role-btn" onClick={handleAddNewRole}>
+                + Add New Role
+              </button>
+            </div>
+          </div>
+
+          <div className="role-table-container">
+            <table className="role-table">
+              <thead>
+                <tr>
+                  <th>Role Name</th>
+                  <th>Employees</th>
+                  <th>Permissions</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {roles.map((role) => (
+                  <tr key={role.id}>
+                    <td>
+                      <span className="role-name">{role.name}</span>
+                    </td>
+                    <td>
+                      <span className={`employee-count ${role.userCount > 0 ? 'has-employees' : 'no-employees'}`}>
+                        {role.userCount} employee{role.userCount !== 1 ? 's' : ''}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="role-permissions">
+                        {role.permissions ? role.permissions.map((perm, index) => (
+                          <span key={index} className="permission-tag">
+                            {perm.code}
+                          </span>
+                        )) : (
+                          <span className="no-permissions">No permissions</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="action-buttons">
+                      <button
+                        onClick={() => handleEditRole(role)}
+                        className="edit-btn"
+                        title="Edit role"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRole(role.id)}
+                        className={`delete-btn ${role.userCount > 0 ? 'disabled' : ''}`}
+                        disabled={role.userCount > 0}
+                        title={role.userCount > 0 ? `Cannot delete: ${role.userCount} employee(s) assigned` : 'Delete role'}
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="employee-controls">
           <div className="search-section">
             <input
               type="text"
-              placeholder="Search by name, ID, email, phone, or position..."
+              placeholder="Search by name, email, or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -407,8 +506,8 @@ const EmployeeManagement = () => {
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
               <option value="suspended">Suspended</option>
+              <option value="deleted">Deleted</option>
             </select>
 
             <select
@@ -417,21 +516,9 @@ const EmployeeManagement = () => {
               className="filter-select"
             >
               <option value="all">All Roles</option>
-              <option value="cashier">Cashier</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-
-            <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
+              {getUniqueRoles().map((role) => (
+                <option key={role} value={role}>
+                  {getRoleDisplayName(role)}
                 </option>
               ))}
             </select>
@@ -442,35 +529,24 @@ const EmployeeManagement = () => {
           <table className="employee-table">
             <thead>
               <tr>
-                <th>Employee ID</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Department</th>
-                <th>Position</th>
                 <th>Role</th>
-                <th>Rate</th>
-                <th>Shift</th>
                 <th>Status</th>
+                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredEmployees.map((employee) => (
                 <tr key={employee.id}>
-                  <td>{employee.employee_id}</td>
-                  <td>
-                    {employee.first_name} {employee.last_name}
-                  </td>
+                  <td>{employee.name}</td>
                   <td>{employee.email}</td>
-                  <td>{getDepartmentName(employee.department_id)}</td>
-                  <td>{employee.position}</td>
                   <td>
-                    <span className={`role-badge ${employee.role}`}>
-                      {employee.role}
+                    <span className={`role-badge ${employee.role_name?.replace(/\s+/g, '-').toLowerCase()}`}>
+                      {getRoleDisplayName(employee.role_name)}
                     </span>
                   </td>
-                  <td>${parseFloat(employee.hourly_rate).toFixed(2)}/hr</td>
-                  <td>{getShiftName(employee.shift_id)}</td>
                   <td>
                     <select
                       value={employee.status}
@@ -480,10 +556,11 @@ const EmployeeManagement = () => {
                       className={`status-select ${employee.status}`}
                     >
                       <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
                       <option value="suspended">Suspended</option>
+                      <option value="deleted">Deleted</option>
                     </select>
                   </td>
+                  <td>{new Date(employee.created_at).toLocaleDateString()}</td>
                   <td className="action-buttons">
                     <button
                       onClick={() => handleEdit(employee)}
@@ -504,6 +581,29 @@ const EmployeeManagement = () => {
           </table>
         </div>
 
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1}
+              className="pagination-btn"
+            >
+              Previous
+            </button>
+            <span className="pagination-info">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages}
+              className="pagination-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
+
         {/* Modal/Popup Form */}
         {showForm && (
           <div className="modal-overlay">
@@ -515,16 +615,10 @@ const EmployeeManagement = () => {
                 </button>
               </div>
 
-              <div onSubmit={handleSubmit} className="employee-form">
+              <form onSubmit={handleSubmit} className="employee-form">
                 <div className="form-section">
                   <h4>Basic Information</h4>
                   <div className="form-row">
-                    <input
-                      name="employee_id"
-                      placeholder="Employee ID"
-                      value={formData.employee_id}
-                      onChange={handleChange}
-                    />
                     <input
                       name="first_name"
                       placeholder="First Name"
@@ -549,78 +643,16 @@ const EmployeeManagement = () => {
                       onChange={handleChange}
                       required
                     />
-                    <input
-                      name="phone"
-                      placeholder="Phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                    />
-                    <input
-                      name="hire_date"
-                      type="date"
-                      value={formData.hire_date}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-section">
-                  <h4>Work Information</h4>
-                  <div className="form-row">
-                    <select
-                      name="department_id"
-                      value={formData.department_id}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      name="position"
-                      placeholder="Position"
-                      value={formData.position}
-                      onChange={handleChange}
-                      required
-                    />
                     <select
                       name="role"
                       value={formData.role}
                       onChange={handleChange}
                       required
                     >
-                      <option value="cashier">Cashier</option>
-                      <option value="supervisor">Supervisor</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  </div>
-                  <div className="form-row">
-                    <input
-                      name="hourly_rate"
-                      type="number"
-                      step="0.01"
-                      placeholder="Hourly Rate"
-                      value={formData.hourly_rate}
-                      onChange={handleChange}
-                      required
-                    />
-                    <select
-                      name="shift_id"
-                      value={formData.shift_id}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Shift</option>
-                      {shifts.map((shift) => (
-                        <option key={shift.id} value={shift.id}>
-                          {shift.name}
+                      <option value="">Select Role</option>
+                      {roles.map((role) => (
+                        <option key={role.id} value={role.name}>
+                          {getRoleDisplayName(role.name)}
                         </option>
                       ))}
                     </select>
@@ -630,160 +662,46 @@ const EmployeeManagement = () => {
                       onChange={handleChange}
                     >
                       <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
                       <option value="suspended">Suspended</option>
+                      <option value="deleted">Deleted</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="form-section">
+                {/* <div className="form-section">
                   <h4>Security</h4>
                   <div className="form-row">
-                    <div className="pin-input-group">
-                      <input
-                        name="pin"
-                        type="password"
-                        placeholder="4-digit PIN"
-                        value={formData.pin}
-                        onChange={handleChange}
-                        maxLength="4"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={generatePin}
-                        className="generate-pin-btn"
-                      >
-                        Generate PIN
-                      </button>
-                    </div>
                     <button
                       type="button"
                       onClick={() => setShowPermissions(!showPermissions)}
                       className="toggle-permissions-btn"
                     >
-                      {showPermissions ? "Hide" : "Show"} Permissions
+                      {showPermissions ? "Hide" : "Show"} Custom Permissions
                     </button>
                   </div>
                 </div>
 
                 {showPermissions && (
                   <div className="form-section">
-                    <h4>POS Permissions</h4>
+                    <h4>Custom Permissions (Override Role Permissions)</h4>
                     <div className="permissions-grid">
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_process_returns"
-                          checked={formData.permissions.can_process_returns}
-                          onChange={handleChange}
-                        />
-                        Process Returns
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_apply_discounts"
-                          checked={formData.permissions.can_apply_discounts}
-                          onChange={handleChange}
-                        />
-                        Apply Discounts
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_void_transactions"
-                          checked={formData.permissions.can_void_transactions}
-                          onChange={handleChange}
-                        />
-                        Void Transactions
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_access_reports"
-                          checked={formData.permissions.can_access_reports}
-                          onChange={handleChange}
-                        />
-                        Access Reports
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_manage_inventory"
-                          checked={formData.permissions.can_manage_inventory}
-                          onChange={handleChange}
-                        />
-                        Manage Inventory
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_override_prices"
-                          checked={formData.permissions.can_override_prices}
-                          onChange={handleChange}
-                        />
-                        Override Prices
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_open_register"
-                          checked={formData.permissions.can_open_register}
-                          onChange={handleChange}
-                        />
-                        Open Register
-                      </label>
-                      <label className="permission-item">
-                        <input
-                          type="checkbox"
-                          name="permissions.can_close_register"
-                          checked={formData.permissions.can_close_register}
-                          onChange={handleChange}
-                        />
-                        Close Register
-                      </label>
+                      {permissions.map((permission) => (
+                        <label key={permission.id} className="permission-item">
+                          <input
+                            type="checkbox"
+                            name={`permissions.${permission.code}`}
+                            checked={formData.custom_permissions.includes(permission.code)}
+                            onChange={handleChange}
+                          />
+                          {permission.description || permission.code}
+                        </label>
+                      ))}
                     </div>
                   </div>
-                )}
-
-                <div className="form-section">
-                  <h4>Additional Information</h4>
-                  <div className="form-row">
-                    <input
-                      name="address"
-                      placeholder="Address"
-                      value={formData.address}
-                      onChange={handleChange}
-                    />
-                    <input
-                      name="emergency_contact"
-                      placeholder="Emergency Contact"
-                      value={formData.emergency_contact}
-                      onChange={handleChange}
-                    />
-                    <input
-                      name="emergency_phone"
-                      placeholder="Emergency Phone"
-                      value={formData.emergency_phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <textarea
-                    name="notes"
-                    placeholder="Notes"
-                    value={formData.notes}
-                    onChange={handleChange}
-                    rows="3"
-                  />
-                </div>
+                )} */}
 
                 <div className="form-actions">
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="submit-btn"
-                  >
+                  <button type="submit" className="submit-btn">
                     {editing ? "Update Employee" : "Add Employee"}
                   </button>
                   <button
@@ -794,7 +712,66 @@ const EmployeeManagement = () => {
                     Cancel
                   </button>
                 </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Role Management Modal */}
+        {showRoleForm && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>{editingRole ? "Edit Role" : "Add New Role"}</h3>
+                <button className="close-btn" onClick={handleCloseRoleForm}>
+                  ×
+                </button>
               </div>
+
+              <form onSubmit={handleRoleSubmit} className="role-form">
+                <div className="form-section">
+                  <h4>Basic Information</h4>
+                  <div className="form-row">
+                    <input
+                      name="name"
+                      placeholder="Role Name (e.g., Supervisor, Assistant Manager)"
+                      value={roleFormData.name}
+                      onChange={handleRoleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h4>Role Permissions</h4>
+                  <div className="permissions-grid">
+                    {permissions.map((permission) => (
+                      <label key={permission.id} className="permission-item">
+                        <input
+                          type="checkbox"
+                          name={`rolePermissions.${permission.code}`}
+                          checked={roleFormData.permissions.includes(permission.code)}
+                          onChange={handleRoleChange}
+                        />
+                        {permission.description || permission.code}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="submit-btn">
+                    {editingRole ? "Update Role" : "Add Role"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCloseRoleForm}
+                    className="cancel-btn"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

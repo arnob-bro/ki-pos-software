@@ -93,11 +93,105 @@ class EmployeeController {
     }
   }
 
+  async addRole(roleData) {
+    try {
+      // Validate required fields
+      if (!roleData.name || !roleData.name.trim()) {
+        throw new Error('Role name is required');
+      }
+
+      // Check if role name already exists
+      const existingRoles = await this.employeeService.listRoles();
+      const roleExists = existingRoles.some(role => 
+        role.name.toLowerCase() === roleData.name.toLowerCase()
+      );
+      
+      if (roleExists) {
+        throw new Error('Role name already exists');
+      }
+
+      return await this.employeeService.addRole(roleData);
+    } catch (error) {
+      throw new Error(`Failed to add role: ${error.message}`);
+    }
+  }
+
+  async getRoleById(id) {
+    try {
+      return await this.employeeService.getRoleById(id);
+    } catch (error) {
+      throw new Error(`Failed to get role: ${error.message}`);
+    }
+  }
+
+  async updateRole(id, roleData) {
+    try {
+      // Validate required fields
+      if (!roleData.name || !roleData.name.trim()) {
+        throw new Error('Role name is required');
+      }
+
+      // Check if role name already exists (excluding current role)
+      const existingRoles = await this.employeeService.listRoles();
+      const roleExists = existingRoles.some(role => 
+        role.id !== id && role.name.toLowerCase() === roleData.name.toLowerCase()
+      );
+      
+      if (roleExists) {
+        throw new Error('Role name already exists');
+      }
+
+      return await this.employeeService.updateRole(id, roleData);
+    } catch (error) {
+      throw new Error(`Failed to update role: ${error.message}`);
+    }
+  }
+
+  async deleteRole(id) {
+    try {
+      return await this.employeeService.deleteRole(id);
+    } catch (error) {
+      throw new Error(`Failed to delete role: ${error.message}`);
+    }
+  }
+
+  async getRoleUsage(id) {
+    try {
+      return await this.employeeService.getRoleUsage(id);
+    } catch (error) {
+      throw new Error(`Failed to get role usage: ${error.message}`);
+    }
+  }
+
   async getEmployeeStats() {
     try {
       return await this.employeeService.getEmployeeStats();
     } catch (error) {
       throw new Error(`Failed to get employee statistics: ${error.message}`);
+    }
+  }
+
+  async listPermissions() {
+    try {
+      return await this.employeeService.listPermissions();
+    } catch (error) {
+      throw new Error(`Failed to list permissions: ${error.message}`);
+    }
+  }
+
+  async getEmployeePermissions(employeeId) {
+    try {
+      return await this.employeeService.getEmployeePermissions(employeeId);
+    } catch (error) {
+      throw new Error(`Failed to get employee permissions: ${error.message}`);
+    }
+  }
+
+  async updateEmployeePermissions(employeeId, permissionCodes) {
+    try {
+      return await this.employeeService.updateEmployeePermissions(employeeId, permissionCodes);
+    } catch (error) {
+      throw new Error(`Failed to update employee permissions: ${error.message}`);
     }
   }
 }
