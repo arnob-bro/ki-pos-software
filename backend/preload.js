@@ -54,4 +54,14 @@ contextBridge.exposeInMainWorld("posAPI", {
   updateRole: (id, roleData) => ipcRenderer.invoke('roles:update', id, roleData),
   deleteRole: (id) => ipcRenderer.invoke('roles:delete', id),
   getRoleUsage: (id) => ipcRenderer.invoke('roles:getUsage', id),
+  
+  // Hardware Configuration
+  getHardwareConfig: () => ipcRenderer.invoke('hardware:getConfig'),
+  saveHardwareConfig: (config) => ipcRenderer.invoke('hardware:saveConfig', config),
+  testECTerminal: (config) => ipcRenderer.invoke('hardware:testECTerminal', config),
+  testDrawer: (config) => ipcRenderer.invoke('hardware:testDrawer', config),
+  testPrinter: (config) => ipcRenderer.invoke('hardware:testPrinter', config),
+  syncData: () => ipcRenderer.invoke('hardware:syncData'),
+  getAvailablePorts: () => ipcRenderer.invoke('hardware:getAvailablePorts'),
+  getHardwareStatus: () => ipcRenderer.invoke('hardware:getStatus'),
 }); 

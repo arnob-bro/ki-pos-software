@@ -51,7 +51,7 @@ const CompanyProfile = () => {
       <Sidebar />
 
       <div className="company-profile-container">
-        <h2>Company Profile</h2>
+        <h2>🏢Company Profile</h2>
 
         <form onSubmit={handleSubmit} className="company-form">
           <label>

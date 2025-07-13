@@ -56,7 +56,7 @@ const Sidebar = () => {
       )}
       
       {/* Product Management - Requires product:view permission */}
-      {hasPermissionByCode('product:view') && (
+      {hasPermissionByCode('productmanagement:view') && (
         <button
           className={`nav-btn${
             location.pathname === "/product-management" ? " active" : ""
@@ -110,12 +110,37 @@ const Sidebar = () => {
           className={`nav-btn${
             location.pathname === "/company-info" ? " active" : ""
           }`}
-      
+          
           onClick={() => navigate("/company-info")}
         >
           🏢 Company Info
         </button>
       )}
+
+      {/* System Settings - Requires settings:view permission */}
+      {hasPermissionByCode('settings:view') && (      
+        <button
+          className={`nav-btn${
+            location.pathname === "/system-settings" ? " active" : ""
+          }`} 
+          onClick={() => navigate("/system-settings")}
+        >
+          ⚙️ System Settings
+        </button>
+      )}  
+
+      {/* Hardware Configuration - Requires settings:view permission */}
+      {hasPermissionByCode('settings:view') && (      
+        <button
+          className={`nav-btn${
+            location.pathname === "/hardware-configuration" ? " active" : ""
+          }`} 
+          onClick={() => navigate("/hardware-configuration")}
+        >
+          🔧 Hardware Configuration
+        </button>
+      )}  
+      
 
       <button 
         style={{

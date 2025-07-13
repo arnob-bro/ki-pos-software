@@ -176,6 +176,9 @@ INSERT OR IGNORE INTO permissions (id, code, description) VALUES
 -- role_permissions 
 INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
 VALUES (1,135);
+INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
+VALUES (2,27);
+
 
 
 

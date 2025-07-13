@@ -1,12 +1,15 @@
 // File: Dashboard.jsx
 import React from "react";
 import "./Dashboard.css";
+import { useState } from "react";
 import Sidebar from "../../components/Sidebar";
+import useUserStore from "../../stores/userStore";
 import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
-  const user = JSON.parse(localStorage.getItem("userInfo"));
+  const user = useUserStore((state) => state.user);
   const role = user?.role_id;
+  const [showLowStockModal, setShowLowStockModal] = useState(false);
   const salesData = [
     { time: "6 AM", sales: 300 },
     { time: "8 AM", sales: 600 },
@@ -24,6 +27,16 @@ const Dashboard = () => {
     { name: "Latte", value: 300 },
     { name: "Cappuccino", value: 300 },
     { name: "Croissant", value: 200 },
+  ];
+  const lowStockItems = [
+    { name: "Milk", quantity: 3 },
+    { name: "Sugar", quantity: 5 },
+    { name: "Coffee Beans", quantity: 2 },
+    { name: "Cups", quantity: 4 },
+    { name: "Napkins", quantity: 1 },
+    { name: "Straws", quantity: 6 },
+    { name: "Tea Leaves", quantity: 2 },
+    { name: "Chocolate Syrup", quantity: 3 }
   ];
   
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
@@ -53,11 +66,11 @@ const Dashboard = () => {
           <h2>$877.00</h2>
           <span className="error">▼ 3.4%</span>
         </div>
-        <div className="card">
-          <h4>Low Stock Items</h4>
-          <h2>8 items</h2>
-          <span className="error">▲ 2 items</span>
-        </div>
+        <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
+           <h4>Low Stock Items</h4>
+           <h2>{lowStockItems.length} items</h2>
+           <span className="error">▲ 2 items</span>
+       </div>
         
 
     
@@ -99,6 +112,31 @@ const Dashboard = () => {
                   </tbody>
                 </table>
               </div>
+              {showLowStockModal && (
+  <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <button className="close-btn" onClick={() => setShowLowStockModal(false)}>X</button>
+      <h2>📦 Low Stock Items</h2>
+      <table className="product-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Remaining Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lowStockItems.map((item, index) => (
+            <tr key={index}>
+              <td>{item.name}</td>
+              <td style={{ color: item.quantity < 3 ? 'red' : 'orange' }}>{item.quantity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+    </div>
+  </div>
+)}
       
       
       
