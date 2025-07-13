@@ -48,6 +48,10 @@ require("./ipcHandlers/transactions")(ipcMain, db);
 require("./ipcHandlers/employee")(ipcMain, db);
 require("./ipcHandlers/auth")(ipcMain, db);
 require("./ipcHandlers/report")(ipcMain, db); // ← Add report IPC handler
+
+// Register hardware handlers
+const { setupHardwareHandlers } = require("./ipcHandlers/hardware");
+setupHardwareHandlers();
 // IPC handler to open a file using shell.openPath
 ipcMain.handle('open-file', async (event, filePath) => {
   try {

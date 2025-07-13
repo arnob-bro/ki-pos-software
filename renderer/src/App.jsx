@@ -11,6 +11,7 @@ import InventoryManagement from "./pages/InventoryManagement/InventoryManagement
 import ProtectedRoute from './components/ProtectedRoute';
 import CompanyProfile from "./pages/CompanyInfo/CompanyInfo";
 import SystemSettings from "./pages/SystemSettings/SystemSettings";
+import HardwareConfiguration from "./pages/HardwareConfiguration/HardwareConfiguration";
 
 function App() {
 	return (
@@ -51,7 +52,7 @@ function App() {
 			<Route 
 				path='/product-management' 
 				element={
-					<ProtectedRoute requiredPermission="product:view">
+					<ProtectedRoute requiredPermission="productmanagement:view">
 						<ProductManagement />
 					</ProtectedRoute>
 				} 
@@ -103,6 +104,16 @@ function App() {
 				element={
 					<ProtectedRoute requiredPermission="settings:view">
 						<SystemSettings />
+					</ProtectedRoute>
+				} 
+			/>
+
+			{/* Hardware Configuration - Requires settings:view permission */}
+			<Route 
+				path='/hardware-configuration' 
+				element={
+					<ProtectedRoute requiredPermission="settings:view">
+						<HardwareConfiguration />
 					</ProtectedRoute>
 				} 
 			/>
