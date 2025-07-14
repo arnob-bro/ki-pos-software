@@ -1,4 +1,5 @@
 const { ipcMain } = require("electron");
+const { shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
@@ -47,6 +48,22 @@ require("./ipcHandlers/transactions")(ipcMain, db);
 require("./ipcHandlers/employee")(ipcMain, db);
 require("./ipcHandlers/auth")(ipcMain, db);
 require("./ipcHandlers/report")(ipcMain, db); // ← Add report IPC handler
+
+// Register hardware handlers
+const { setupHardwareHandlers } = require("./ipcHandlers/hardware");
+setupHardwareHandlers();
+// IPC handler to open a file using shell.openPath
+ipcMain.handle('open-file', async (event, filePath) => {
+  try {
+    console.log('Attempting to open file:', filePath);
+    const result = await shell.openPath(filePath);
+    console.log('File opened successfully:', result);
+    return { success: true, message: 'File opened successfully' };
+  } catch (error) {
+    console.error('Error opening file:', error);
+    throw new Error(`Failed to open file: ${error.message}`);
+  }
+});
 console.log('IPC handlers registered successfully');
 
 module.exports = { db };

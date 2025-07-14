@@ -48,6 +48,7 @@ const useUserStore = create(
           }
 
           const result = await window.posAPI.login(identifier, password);
+          console.log(result);
           
           if (result.success) {
             set({
@@ -76,6 +77,7 @@ const useUserStore = create(
           return { success: false, message: error.message };
         }
       },
+     
 
       // Logout action
       logout: async () => {

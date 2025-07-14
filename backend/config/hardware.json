@@ -1,0 +1,38 @@
+{
+  "ecTerminal": {
+    "enabled": true,
+    "model": "Ingenico iSC250",
+    "port": "USB",
+    "baudRate": "9600",
+    "timeout": "30",
+    "merchantId": "qwqw",
+    "terminalId": "wqwq",
+    "testMode": true
+  },
+  "drawer": {
+    "enabled": false,
+    "port": "",
+    "openCommand": "27,112,0,25,250",
+    "closeCommand": "27,112,1,25,250",
+    "autoOpen": true
+  },
+  "printer": {
+    "enabled": false,
+    "model": "",
+    "port": "",
+    "baudRate": "9600",
+    "paperWidth": "80",
+    "autoCut": true,
+    "printLogo": true,
+    "headerText": "",
+    "footerText": ""
+  },
+  "sync": {
+    "mode": "online",
+    "autoSync": false,
+    "syncInterval": "5",
+    "offlineTimeout": "30",
+    "retryAttempts": "3",
+    "lastSync": null
+  }
+}

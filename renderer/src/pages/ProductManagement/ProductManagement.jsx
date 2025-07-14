@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import "./ProductManagement.css";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
+import * as XLSX from 'xlsx';
         
 const ProductManagement = () => {
   const navigate = useNavigate();
@@ -95,6 +96,36 @@ const ProductManagement = () => {
       }
     }
   };
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+  
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  
+      console.log('Parsed Data:', jsonData);
+  
+      try {
+        // Send each row to your backend
+        for (let product of jsonData) {
+          await window.posAPI.addProduct(product);
+        }
+        fetchProducts(); // refresh product list
+        alert("Products imported successfully!");
+      } catch (error) {
+        console.error("Error importing products:", error);
+        alert("Error importing products: " + error.message);
+      }
+    };
+  
+    reader.readAsArrayBuffer(file);
+  };
 
   return (
     <div className="product-management-page">
@@ -103,7 +134,7 @@ const ProductManagement = () => {
         {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button> */}
         <h2>📦 Product Management</h2>
 
-        <form onSubmit={handleSubmit} className="product-form">
+        {/* <form onSubmit={handleSubmit} className="product-form">
           <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
           <select name="category_id" value={formData.category_id} onChange={handleChange} required>
             <option value="">Select Category</option>
@@ -116,7 +147,51 @@ const ProductManagement = () => {
           <input type="number" step="0.01" name="vat_rate" placeholder="VAT %" value={formData.vat_rate} onChange={handleChange} />
           <input type="number" name="stock_quantity" placeholder="Stock Qty" value={formData.stock_quantity} onChange={handleChange} />
           <button type="submit">{editing ? "Update" : "Add Product"}</button>
-        </form>
+        </form> */}
+        <form onSubmit={handleSubmit} className="product-form">
+  <div className="form-group">
+    <label htmlFor="name">Product Name</label>
+    <input id="name" name="name" value={formData.name} onChange={handleChange} required />
+  </div>
+
+  <div className="form-group">
+    <label htmlFor="category_id">Category</label>
+    <select id="category_id" name="category_id" value={formData.category_id} onChange={handleChange} required>
+      <option value="">Select Category</option>
+      {categories.map((cat) => (
+        <option key={cat.id} value={cat.id}>{cat.name}</option>
+      ))}
+    </select>
+  </div>
+
+  <div className="form-group">
+    <label htmlFor="barcode">Barcode</label>
+    <input id="barcode" name="barcode" value={formData.barcode} onChange={handleChange} />
+  </div>
+
+  <div className="form-group">
+    <label htmlFor="price">Price ($)</label>
+    <input id="price" type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required />
+  </div>
+
+  <div className="form-group">
+    <label htmlFor="vat_rate">VAT (%)</label>
+    <input id="vat_rate" type="number" step="0.01" name="vat_rate" value={formData.vat_rate} onChange={handleChange} />
+  </div>
+
+  <div className="form-group">
+    <label htmlFor="stock_quantity">Stock Quantity</label>
+    <input id="stock_quantity" type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} />
+  </div>
+
+  <button type="submit">{editing ? "Update" : "Add Product"}</button>
+</form>
+<div className="excel">
+  <label className="upload-btn">
+    📁 Import CSV/Excel
+    <input type="file" accept=".csv, .xlsx" onChange={handleFileUpload} hidden />
+  </label>
+</div>
 
         <table className="product-table">
           <thead>
@@ -140,8 +215,8 @@ const ProductManagement = () => {
                 <td>{p.vat_rate ? `${p.vat_rate}%` : '0%'}</td>
                 <td>{p.stock_quantity}</td>
                 <td>
-                  <button onClick={() => handleEdit(p)}>✏️</button>
-                  <button onClick={() => handleDelete(p.id)}>🗑️</button>
+                  <button className="edit-btn"  onClick={() => handleEdit(p)}>✏️</button>
+                  <button className="delete-btn" onClick={() => handleDelete(p.id)}>🗑️</button>
                 </td>
               </tr>
             ))}

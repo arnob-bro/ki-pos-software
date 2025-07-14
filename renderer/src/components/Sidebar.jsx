@@ -28,18 +28,7 @@ const Sidebar = () => {
                     location.pathname === "/sales-interface" ? " active" : ""
                 }`}
                 onClick={() => navigate("/sales-interface")}>
-                Sales Interface
-            </button>
-
-            {/* POS - Always visible for authenticated users */}
-            <button
-                className={`nav-btn${
-                    location.pathname === "/customer-management"
-                        ? " active"
-                        : ""
-                }`}
-                onClick={() => navigate("/customer-management")}>
-                Customer Management
+                🛒 POS
             </button>
 
             {/* Dashboard - Requires dashboard:view permission */}
@@ -49,7 +38,7 @@ const Sidebar = () => {
                         location.pathname === "/dashboard" ? " active" : ""
                     }`}
                     onClick={() => navigate("/dashboard")}>
-                    Dashboard
+                    📋 Dashboard
                 </button>
             )}
 
@@ -62,7 +51,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/receipt-archive")}>
-                    Receipt Archive
+                    📄 Receipt Archive
                 </button>
             )}
 
@@ -75,7 +64,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/product-management")}>
-                    Product Management
+                    📄📦 Product Management
                 </button>
             )}
 
@@ -88,7 +77,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/employee-management")}>
-                    Employee Management
+                    📄👥 Employee Management
                 </button>
             )}
 
@@ -112,11 +101,10 @@ const Sidebar = () => {
                         location.pathname === "/reports" ? " active" : ""
                     }`}
                     onClick={() => navigate("/reports")}>
-                    Reports
+                    📊 Reports
                 </button>
             )}
 
-            {/* Style only for logout button */}
             <button
                 style={{
                     marginTop: "auto",

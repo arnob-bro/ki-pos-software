@@ -1,7 +1,100 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./ReceiptArchive.css";
 import { useNavigate } from "react-router-dom";
+import html2pdf from "html2pdf.js";
 import Sidebar from "../../components/Sidebar";
+
+const sampleReceipts = [
+  {
+    id: 1,
+    date: "2025-06-01",
+    operator: "Admin",
+    total: 500,
+    tax: 75,
+    items: [
+      { name: "Latte", qty: 2, price: 5.0 },
+      { name: "Croissant", qty: 1, price: 3.0 },
+    ],
+  },
+  {
+    id: 2,
+    date: "2025-06-02",
+    operator: "Staff1",
+    total: 300,
+    tax: 45,
+    items: [
+      { name: "Espresso", qty: 3, price: 4.0 },
+      { name: "Cake", qty: 2, price: 6.0 },
+    ],
+  },
+  {
+    id: 3,
+    date: "2025-06-02",
+    operator: "Admin",
+    total: 150,
+    tax: 22.5,
+    items: [
+      { name: "Bread", qty: 1, price: 2.0 },
+      { name: "Apples", qty: 3, price: 5.0 },
+    ],
+  },
+  {
+    id: 4,
+    date: "2025-06-02",
+    operator: "Admin",
+    total: 150,
+    tax: 22.5,
+    items: [
+      { name: "Bread", qty: 1, price: 2.0 },
+      { name: "Apples", qty: 3, price: 5.0 },
+    ],
+  },
+  // Add more sample data to demonstrate pagination
+  {
+    id: 5,
+    date: "2025-06-03",
+    operator: "Staff1",
+    total: 250,
+    tax: 37.5,
+    items: [
+      { name: "Coffee", qty: 2, price: 3.5 },
+      { name: "Sandwich", qty: 1, price: 8.0 },
+    ],
+  },
+  {
+    id: 6,
+    date: "2025-06-03",
+    operator: "Admin",
+    total: 180,
+    tax: 27,
+    items: [
+      { name: "Tea", qty: 1, price: 2.5 },
+      { name: "Cookie", qty: 2, price: 1.5 },
+    ],
+  },
+  {
+    id: 7,
+    date: "2025-06-04",
+    operator: "Staff1",
+    total: 320,
+    tax: 48,
+    items: [
+      { name: "Cappuccino", qty: 2, price: 4.5 },
+      { name: "Muffin", qty: 1, price: 3.0 },
+    ],
+  },
+  {
+    id: 8,
+    date: "2025-06-04",
+    operator: "Admin",
+    total: 420,
+    tax: 63,
+    items: [
+      { name: "Hot Chocolate", qty: 1, price: 4.0 },
+      { name: "Croissant", qty: 2, price: 3.5 },
+    ],
+  },
+];
 
 const ReceiptArchive = () => {
   const [receipts, setReceipts] = useState([]);
@@ -12,9 +105,12 @@ const ReceiptArchive = () => {
   const [dateFilter, setDateFilter] = useState("");
   const [operatorFilter, setOperatorFilter] = useState("");
   const [idFilter, setIdFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const navigate = useNavigate();
 
@@ -96,12 +192,124 @@ const ReceiptArchive = () => {
     }
   }, [loading, hasMore, currentPage, dateFilter, operatorFilter, idFilter, fetchReceipts]);
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredReceipts.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const currentReceipts = filteredReceipts.slice(startIndex, endIndex);
+
+  // Calculate totals
   const totalTax = filteredReceipts.reduce((sum, r) => sum + r.tax, 0);
   const totalAmount = filteredReceipts.reduce((sum, r) => sum + r.total, 0);
 
-  const handlePrint = () => {
-    
+  const handleDownload = () => {
+    const element = document.querySelector(".receipt-style");
+
+  const opt = {
+    margin:       0.5,
+    filename:     `receipt-${selectedReceipt.id}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
+
   }
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Previous button
+    buttons.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="pagination-btn"
+      >
+        ← Previous
+      </button>
+    );
+
+    // First page button (if not visible)
+    if (startPage > 1) {
+      buttons.push(
+        <button
+          key="first"
+          onClick={() => handlePageChange(1)}
+          className="pagination-btn"
+        >
+          1
+        </button>
+      );
+      if (startPage > 2) {
+        buttons.push(<span key="dots1" className="pagination-dots">...</span>);
+      }
+    }
+
+    // Page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`pagination-btn ${currentPage === i ? 'active' : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Last page button (if not visible)
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push(<span key="dots2" className="pagination-dots">...</span>);
+      }
+      buttons.push(
+        <button
+          key="last"
+          onClick={() => handlePageChange(totalPages)}
+          className="pagination-btn"
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    // Next button
+    buttons.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="pagination-btn"
+      >
+        Next →
+      </button>
+    );
+
+    return buttons;
+  };
+
+
   return (
     <div className="receipt-archive">
       <Sidebar />
@@ -127,6 +335,21 @@ const ReceiptArchive = () => {
             {loading ? 'Loading...' : '🔄 Refresh'}
           </button>
         </div>
+       
+        <div className="tax-cards">
+      <div className="tax-card">
+        <h4>Total Receipts</h4>
+        <p>{filteredReceipts.length}</p>
+      </div>
+      <div className="tax-card">
+        <h4>Total Tax</h4>
+        <p>${totalTax.toFixed(2)}</p>
+      </div>
+      <div className="tax-card">
+        <h4>Total Amount</h4>
+        <p>${totalAmount.toFixed(2)}</p>
+      </div>
+      </div>
 
         <div className="filters">
           <input
@@ -153,6 +376,20 @@ const ReceiptArchive = () => {
           </select>
         </div>
 
+        {/* Page size selector */}
+        <div className="page-size-selector">
+          <label>Show:</label>
+          <select
+            value={pageSize}
+            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            
+          </select>
+        </div>
+
         {loading && <div className="loading">Loading receipts...</div>}
         
         {!loading && filteredReceipts.length === 0 && (
@@ -173,7 +410,7 @@ const ReceiptArchive = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredReceipts.map((r) => (
+                {currentReceipts.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => setSelectedReceipt(r)}
@@ -192,30 +429,17 @@ const ReceiptArchive = () => {
           </div>
         )}
 
-        <div className="tax-summary">
-          <h4>📊 Tax Summary</h4>
-          <p><strong>Total Tax:</strong> ${totalTax.toFixed(2)}</p>
-          <p><strong>Total Amount:</strong> ${totalAmount.toFixed(2)}</p>
-          <p><strong>Showing:</strong> {filteredReceipts.length} receipts</p>
+        {/* Pagination info */}
+        <div className="pagination-info">
+          <span>
+            Showing {startIndex + 1} to {Math.min(endIndex, filteredReceipts.length)} of {filteredReceipts.length} receipts
+          </span>
         </div>
 
-        {hasMore && (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button 
-              onClick={loadMore}
-              disabled={loading}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#28a745', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '6px', 
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              {loading ? 'Loading...' : '📄 Load More Receipts'}
-            </button>
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="pagination-controls">
+            {renderPaginationButtons()}
           </div>
         )}
       </div>
@@ -261,7 +485,10 @@ const ReceiptArchive = () => {
             <p><strong>Sub Total:</strong> ${(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}</p>
             <p><strong>Tax:</strong> ${selectedReceipt.tax.toFixed(2)}</p>
             <p><strong>Total:</strong> ${selectedReceipt.total.toFixed(2)}</p>
-            <button onClick={() => window.print()}>🖨️ Print / Save PDF</button>
+            <p><strong>Cash:</strong> ${(selectedReceipt.total + 20).toFixed(2)}</p>
+            <p><strong>Change:</strong> $20.00</p>
+            <button onClick={() => window.print()}>🖨️ Print Receipt</button>
+            <button onClick={handleDownload}>🖨️ Download</button>
           </div>
 
           <hr className="dotted" />

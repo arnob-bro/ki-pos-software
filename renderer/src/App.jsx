@@ -9,7 +9,6 @@ import ReceiptArchive from "./pages/ReceiptArchive/ReceiptArchive"
 import Reports from "./pages/Reports/Reports"
 import InventoryManagement from "./pages/InventoryManagement/InventoryManagement"
 import ProtectedRoute from "./components/ProtectedRoute"
-import CustomerManagement from "./pages/CustomerManagement/CustomerManagement"
 
 function App() {
     return (
@@ -22,16 +21,6 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <POS />
-                    </ProtectedRoute>
-                }
-            />
-
-            {/* Customer management : requires no permission for now */}
-            <Route
-                path="/customer-management"
-                element={
-                    <ProtectedRoute>
-                        <CustomerManagement />
                     </ProtectedRoute>
                 }
             />

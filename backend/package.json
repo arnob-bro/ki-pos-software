@@ -1,26 +1,28 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch . --exec electron .",
-    "rebuild": "electron-rebuild"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^28.3.3",
-    "nodemon": "^3.1.10"
-  },
-  "dependencies": {
-    "@electron/rebuild": "^3.2.10",
-    "bcryptjs": "^3.0.2",
-    "better-sqlite3": "^12.1.1",
-    "jsonwebtoken": "^9.0.2",
-    "ki-pos-system": "file:..",
-    "uuid": "^11.1.0"
-  }
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon --watch . --exec electron .",
+        "rebuild": "electron-rebuild"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^28.3.3",
+        "nodemon": "^3.1.10"
+    },
+    "dependencies": {
+        "@electron/rebuild": "^3.2.10",
+        "bcryptjs": "^3.0.2",
+        "better-sqlite3": "^12.1.1",
+        "jsonwebtoken": "^9.0.2",
+        "pdfkit": "^0.17.1",
+        "serialport": "^12.0.0",
+        "ki-pos-system": "file:..",
+        "uuid": "^11.1.0"
+    }
 }

@@ -1,5 +1,6 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require("electron")
+const { shell } = require("electron")
 
 contextBridge.exposeInMainWorld("posAPI", {
     // 🔐 Auth

@@ -14,55 +14,172 @@ VALUES ('user-3', 'Cashier User', 'cashier@example.com', 'temp_hash', 3, 'active
 
 
 -- permissions 
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (1, 'pos:view', 'can view pos sales interface');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (2, 'receiptarchive:view', 'can view receipt archive');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (3, 'dashboard:view', 'can view dashboard');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (4, 'inventory:view', 'can view inventory management');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (5, 'product:view', 'can view product management');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (6, 'customer:view', 'can view customer management');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (7, 'report:view', 'can view reports');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (8, 'settings:view', 'can view settings');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (9, 'company:view', 'can view company profile');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (10, 'paymentsettings:view', 'can view payment settings');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (11, 'ALL', 'Admin has all access');
-INSERT OR IGNORE INTO permissions (id, code, description)
-VALUES (12, 'employee:view', 'can view employee management');
+INSERT OR IGNORE INTO permissions (id, code, description) VALUES
+-- POS Sales Interface
+(1, 'pos:view', 'Can view POS sales interface'),
+(2, 'pos:addproduct', 'Can add product to POS'),
+(3, 'pos:removeproduct', 'Can remove product from POS'),
+(4, 'pos:applydiscount', 'Can apply discount'),
+(5, 'pos:overridediscount', 'Can override discount'),
+(6, 'pos:selectordertype', 'Can select order type'),
+(7, 'pos:parkreceipt', 'Can park receipt'),
+(8, 'pos:resumereceipt', 'Can resume receipt'),
+(9, 'pos:deletereceipt', 'Can delete receipt'),
+(10, 'pos:printreceipt', 'Can print receipt'),
+(11, 'pos:printkitchencopy', 'Can print kitchen copy'),
+(12, 'pos:opendrawer', 'Can open drawer'),
+(13, 'pos:handlepayment', 'Can handle payment'),
+(14, 'pos:refund', 'Can process refund'),
+(15, 'pos:cancelfinalizedtransaction', 'Can cancel finalized transaction'),
+(16, 'pos:overridesale', 'Can override sale'),
+-- Receipt Archive
+(17, 'receiptarchive:view', 'Can view receipt archive'),
+(18, 'receiptarchive:search', 'Can search in receipt archive'),
+(19, 'receiptarchive:viewdetails', 'Can view receipt details'),
+(20, 'receiptarchive:reprint', 'Can reprint receipt'),
+(21, 'receiptarchive:exportpdf', 'Can export receipt as PDF'),
+(22, 'receiptarchive:viewtaxinfo', 'Can view tax information'),
+-- Table Reservation
+(23, 'table:view', 'Can view tables'),
+(24, 'table:reserve', 'Can reserve a table'),
+(25, 'table:attachreceipt', 'Can attach receipt to table'),
+(26, 'table:release', 'Can release table'),
+-- Dashboard
+(27, 'dashboard:view', 'Can view dashboard'),
+(28, 'dashboard:viewsalessummary', 'Can view sales summary'),
+(29, 'dashboard:viewbestsellers', 'Can view best sellers'),
+(30, 'dashboard:viewrevenueperemployee', 'Can view revenue per employee'),
+(31, 'dashboard:viewalerts', 'Can view alerts'),
+-- Inventory Management
+(32, 'inventory:view', 'Can view inventory'),
+(33, 'inventory:add', 'Can add inventory items'),
+(34, 'inventory:update', 'Can update inventory items'),
+(35, 'inventory:delete', 'Can delete inventory items'),
+(36, 'inventory:receivegoods', 'Can receive goods'),
+(37, 'inventory:stocktake', 'Can perform stocktake'),
+(38, 'inventory:setalerts', 'Can set inventory alerts'),
+(39, 'inventory:viewhistory', 'Can view inventory history'),
+(40, 'inventory:autorestockconfig', 'Can configure auto restock'),
+(41, 'inventory:viewauditlog', 'Can view inventory audit log'),
+-- Product Management
+(42, 'productmanagement:view', 'Can view product management'),
+(43, 'productmanagement:add', 'Can add products'),
+(44, 'productmanagement:update', 'Can update products'),
+(45, 'productmanagement:delete', 'Can delete products'),
+(46, 'productmanagement:setpricingtiers', 'Can set pricing tiers'),
+(47, 'productmanagement:assigngroup', 'Can assign product groups'),
+(48, 'productmanagement:setbarcode', 'Can set product barcodes'),
+(49, 'productmanagement:definecostcenter', 'Can define cost center'),
+(50, 'productmanagement:bulkimport', 'Can bulk import products'),
+(51, 'productmanagement:bulkexport', 'Can bulk export products'),
+(52, 'productmanagement:settaxclass', 'Can set tax class'),
+(53, 'productmanagement:setdefaultdiscount', 'Can set default discount'),
+(54, 'productmanagement:setlossreturnthreshold', 'Can set loss/return threshold'),
+-- Customer Management
+(55, 'customermanagement:view', 'Can view customer management'),
+(56, 'customermanagement:add', 'Can add customers'),
+(57, 'customermanagement:update', 'Can update customers'),
+(58, 'customermanagement:delete', 'Can delete customers'),
+(59, 'customermanagement:viewhistory', 'Can view customer history'),
+(60, 'customermanagement:assignloyalty', 'Can assign loyalty points'),
+(61, 'customermanagement:mergeduplicates', 'Can merge duplicate customers'),
+-- Reports
+(62, 'report:view', 'Can view reports'),
+(63, 'report:generatex', 'Can generate X reports'),
+(64, 'report:generatez', 'Can generate Z reports'),
+(65, 'report:generatesalesbycategory', 'Can generate sales by category'),
+(66, 'report:generatesalesbytime', 'Can generate sales by time'),
+(67, 'report:generatesalesbyoperator', 'Can generate sales by operator'),
+(68, 'report:generatetaxbreakdown', 'Can generate tax breakdown'),
+(69, 'report:exportgobd', 'Can export GoBD report'),
+(70, 'report:exportgdpdu', 'Can export GDPdU report'),
+(71, 'report:downloadarchive', 'Can download archived data'),
+(72, 'report:configureschedule', 'Can configure report schedule'),
+-- Employee Management
+(73, 'employee:view', 'Can view employees'),
+(74, 'employee:add', 'Can add employees'),
+(75, 'employee:update', 'Can update employees'),
+(76, 'employee:delete', 'Can delete employees'),
+(77, 'employee:updatestatus', 'Can update employee status'),
+(78, 'employee:viewstats', 'Can view employee stats'),
+(79, 'employee:assignrole', 'Can assign roles to employees'),
+(80, 'employee:setpermissions', 'Can set employee permissions'),
+(81, 'employee:viewloginhistory', 'Can view login history'),
+(82, 'employee:assignshift', 'Can assign shifts'),
+(83, 'employee:viewrevenue', 'Can view employee revenue'),
+(84, 'employee:viewlist', 'Can view employee list'),
+(85, 'employee:listroles', 'Can list roles'),
+-- System Settings
+(86, 'settings:view', 'Can view system settings'),
+(87, 'settings:update', 'Can update system settings'),
+(88, 'settings:configurevat', 'Can configure VAT'),
+(89, 'settings:configurecompanyinfo', 'Can configure company info'),
+(90, 'settings:configurecurrency', 'Can configure currency'),
+(91, 'settings:configurelanguage', 'Can configure language'),
+(92, 'settings:configurebackuppath', 'Can configure backup path'),
+-- Company Profile
+(93, 'company:view', 'Can view company profile'),
+(94, 'company:update', 'Can update company profile'),
+(95, 'company:configurelegal', 'Can configure legal information'),
+(96, 'company:configurelogo', 'Can configure logo'),
+(97, 'company:configurevatnumber', 'Can configure VAT number'),
+(98, 'company:configuregobdgdpdu', 'Can configure GoBD/GDPdU'),
+-- Payment Settings
+(99, 'paymentsettings:view', 'Can view payment settings'),
+(100, 'paymentsettings:update', 'Can update payment settings'),
+(101, 'paymentsettings:enablemethod', 'Can enable payment methods'),
+(102, 'paymentsettings:disablemethod', 'Can disable payment methods'),
+(103, 'paymentsettings:setdefaultcurrency', 'Can set default currency'),
+(104, 'paymentsettings:setcardfee', 'Can set card fee'),
+(105, 'paymentsettings:configureinvoice', 'Can configure invoice'),
+-- Data Backup & Restore
+(106, 'backup:configurepath', 'Can configure backup path'),
+(107, 'backup:trigger', 'Can trigger backup'),
+(108, 'backup:restore', 'Can restore data'),
+(109, 'backup:viewlogs', 'Can view backup logs'),
+-- Hardware Configuration
+(110, 'hardware:configureecterminal', 'Can configure EC terminal'),
+(111, 'hardware:configuredrawer', 'Can configure cash drawer'),
+(112, 'hardware:configureprinter', 'Can configure printer'),
+(113, 'hardware:configureofflinesync', 'Can configure offline sync'),
+(114, 'hardware:enablemodule', 'Can enable hardware module'),
+(115, 'hardware:disablemodule', 'Can disable hardware module'),
+-- Audit & Logs
+(116, 'audit:viewlogs', 'Can view audit logs'),
+(117, 'audit:viewdatadeletionlogs', 'Can view data deletion logs'),
+(118, 'audit:viewloginattempts', 'Can view login attempts'),
+-- Vouchers
+(119, 'voucher:view', 'Can view vouchers'),
+(120, 'voucher:add', 'Can add vouchers'),
+(121, 'voucher:update', 'Can update vouchers'),
+(122, 'voucher:delete', 'Can delete vouchers'),
+(123, 'voucher:assigntocustomer', 'Can assign vouchers to customers'),
+(124, 'voucher:redeem', 'Can redeem vouchers'),
+-- Shifts
+(125, 'shift:view', 'Can view shifts'),
+(126, 'shift:add', 'Can add shifts'),
+(127, 'shift:update', 'Can update shifts'),
+(128, 'shift:close', 'Can close shifts'),
+(129, 'shift:viewstats', 'Can view shift stats'),
+-- Languages
+(130, 'language:view', 'Can view languages'),
+(131, 'language:add', 'Can add languages'),
+(132, 'language:update', 'Can update languages'),
+(133, 'language:delete', 'Can delete languages'),
+(134, 'language:setdefault', 'Can set default language'),
+-- Admin All Access
+(135, 'ALL', 'Admin has all access');
+
+
 
 
 -- role_permissions 
 INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,1);
+VALUES (1,135);
 INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,2);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,3);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,4);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,5);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,6);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,7);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,8);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,9);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,11);
-INSERT OR IGNORE INTO role_permissions (role_id, permission_id)
-VALUES (1,12);
+VALUES (2,27);
+
+
 
 
 -- Categories

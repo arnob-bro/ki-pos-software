@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
+import useUserStore from '../../stores/userStore';
 import './Reports.css';
 
 const Reports = () => {
@@ -17,6 +18,9 @@ const Reports = () => {
     endDate: new Date().toISOString().split('T')[0]
   });
   const [zReportExists, setZReportExists] = useState(false);
+  const user = useUserStore((state) => state.user);
+
+  const getUserId = () => user?.id;
 
   useEffect(() => {
     loadReports();
@@ -26,7 +30,13 @@ const Reports = () => {
 
   const checkZReportExists = async () => {
     try {
-      const result = await window.posAPI.checkZReportExists(selectedDate, 'current-user');
+      const userId = getUserId();
+      if (!userId) {
+        setMessage('Error: No user logged in.');
+        setZReportExists(false);
+        return;
+      }
+      const result = await window.posAPI.checkZReportExists(selectedDate, userId);
       setZReportExists(result.exists);
     } catch (error) {
       console.error('Error checking Z report existence:', error);
@@ -38,13 +48,10 @@ const Reports = () => {
     try {
       setLoading(true);
       const result = await window.posAPI.listReports();
-      console.log('Loaded reports result:', result);
       if (result.success) {
         setReports(result.data.reports);
-        console.log('Reports loaded:', result.data.reports);
       }
     } catch (error) {
-      console.error('Error loading reports:', error);
       setMessage('Error loading reports: ' + error.message);
     } finally {
       setLoading(false);
@@ -66,12 +73,17 @@ const Reports = () => {
     try {
       setLoading(true);
       setMessage('');
-      
-      const result = await window.posAPI.generateXReport(selectedDate, 'current-user');
-      
+      const userId = getUserId();
+      if (!userId) {
+        setMessage('Error: No user logged in.');
+        return;
+      }
+      const result = await window.posAPI.generateXReport(selectedDate, userId);
       if (result.success) {
         setMessage('X Report generated successfully!');
-        loadReports(); // Refresh the reports list
+        loadReports();      // Refresh reports list
+        loadStats();        // Refresh stats
+        checkZReportExists(); // Refresh Z report state
       } else {
         setMessage('Error: ' + result.message);
       }
@@ -86,12 +98,17 @@ const Reports = () => {
     try {
       setLoading(true);
       setMessage('');
-      
-      const result = await window.posAPI.generateZReport(selectedDate, 'current-user');
-      
+      const userId = getUserId();
+      if (!userId) {
+        setMessage('Error: No user logged in.');
+        return;
+      }
+      const result = await window.posAPI.generateZReport(selectedDate, userId);
       if (result.success) {
         setMessage('Z Report generated successfully!');
-        loadReports(); // Refresh the reports list
+        loadReports();      // Refresh reports list
+        loadStats();        // Refresh stats
+        checkZReportExists(); // Refresh Z report state
       } else {
         setMessage('Error: ' + result.message);
       }
@@ -131,38 +148,23 @@ const Reports = () => {
     try {
       setLoading(true);
       setMessage('');
-      
-      console.log('Attempting to download report with ID:', reportId);
-      
-      // First generate the report file
+      console.log('Calling generatePDFReport for:', reportId); // Debug log before IPC call
       const result = await window.posAPI.generatePDFReport(reportId);
-      console.log('PDF generation result:', result);
-      
+      console.log('generatePDFReport result:', result); // Debug log after IPC call
       if (result.success) {
-        // Then download the generated file
-        const downloadResult = await window.posAPI.downloadReportFile(result.data.filePath);
-        
-        if (downloadResult.success) {
-          // Create and trigger download
-          const blob = new Blob([downloadResult.content], { type: downloadResult.contentType });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = downloadResult.filename;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-          
-          setMessage(`Report downloaded successfully: ${downloadResult.filename}`);
-        } else {
-          setMessage('Error downloading file: ' + downloadResult.message);
+        setMessage('PDF report generated successfully!');
+        console.log('PDF Report Result:', result);
+        // Automatically open the generated PDF file if file_path is available
+        if (result.data && result.data.file_path) {
+          window.posAPI.openFile(result.data.file_path);
         }
       } else {
-        setMessage('Error generating report: ' + result.message);
+        setMessage('Error: ' + result.message);
+        console.log('PDF Report Error:', result);
       }
     } catch (error) {
-      setMessage('Error generating/downloading report: ' + error.message);
+      setMessage('Error generating PDF: ' + error.message);
+      console.log('Error in downloadPDF:', error); // Debug log for catch
     } finally {
       setLoading(false);
     }
@@ -176,7 +178,7 @@ const Reports = () => {
     <div className="reports-container">
       <Sidebar />
       <div className="reports-content">
-        <h1 className="reports-title">Reports Section</h1>
+        <h1 className="reports-title">📊 Reports Section</h1>
         
         {message && (
           <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
@@ -249,32 +251,25 @@ const Reports = () => {
 
         <div className="reports-section">
           <h2>Download Archive</h2>
-          <p>Download archived reports and invoices in text format.</p>
+          <p>Download archived reports and invoices in PDF format.</p>
           
           {reports.length > 0 ? (
             <div className="reports-list">
               {reports.slice(0, 5).map((report) => (
                 <div key={report.id} className="report-item">
-                  <span>
-                    {report.type || 'Unknown'} Report - {new Date(report.generated_at).toLocaleDateString()}
-                    {report.data && <span className="report-status">✓ Has Data</span>}
-                  </span>
+                  <span>{report.type} Report - {new Date(report.generated_at).toLocaleDateString()}</span>
                   <button 
                     className="download-btn"
                     onClick={() => downloadPDF(report.id)}
                     disabled={loading}
-                    title={`Download ${report.type || 'Unknown'} report`}
                   >
-                    Download Report
+                    Download PDF
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="no-reports">
-              <p>No reports generated yet.</p>
-              <p className="hint">Generate an X or Z report first to see it here.</p>
-            </div>
+            <p>No reports generated yet.</p>
           )}
         </div>
 
