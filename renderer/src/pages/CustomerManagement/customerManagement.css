@@ -1,0 +1,222 @@
+/* Layout */
+.customer-management-page {
+    display: flex;
+    height: 100vh;
+    background: #f8f9fc;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.customer-management-container {
+    flex: 1;
+    display: flex;
+    padding: 32px 0 32px 0;
+    gap: 32px;
+    overflow: hidden;
+}
+
+.customer-list-panel {
+    width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    min-width: 260px;
+    max-height: 100%;
+}
+
+.customer-list-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.customer-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f4f6fa;
+    outline: none;
+    transition: border 0.2s;
+}
+.customer-search-input:focus {
+    border: 1.5px solid #007bff;
+}
+
+.add-customer-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.add-customer-btn:hover {
+    background: #0056b3;
+}
+
+.customer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.customer-list li {
+    padding: 12px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: #f4f6fa;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+}
+.customer-list li.selected {
+    background: #e3f0ff;
+    border: 1.5px solid #007bff;
+}
+.customer-list li:hover {
+    background: #e9ecef;
+}
+.customer-name {
+    font-weight: 600;
+    color: #222;
+}
+.customer-phone,
+.customer-card {
+    font-size: 13px;
+    color: #555;
+}
+.edit-btn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: #ffc107;
+    color: #222;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.edit-btn:hover {
+    background: #ffb300;
+}
+
+.customer-main-panel {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 32px 32px 24px 32px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow-y: auto;
+}
+
+.customer-form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.customer-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #333;
+    gap: 4px;
+}
+.customer-form input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f4f6fa;
+    outline: none;
+    transition: border 0.2s;
+}
+.customer-form input:focus {
+    border: 1.5px solid #007bff;
+}
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+.customer-form button[type="submit"] {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.customer-form button[type="submit"]:hover {
+    background: #0056b3;
+}
+.customer-form button[type="button"] {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.customer-form button[type="button"]:hover {
+    background: #bdbdbd;
+}
+.form-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.customer-history-panel {
+    width: 100%;
+    max-width: 500px;
+}
+.customer-history-panel h2 {
+    margin-bottom: 10px;
+}
+.purchase-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 16px 0;
+}
+.purchase-history-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 15px;
+    color: #333;
+}
+.purchase-history-list li:last-child {
+    border-bottom: none;
+}
+.empty-state {
+    color: #888;
+    font-size: 18px;
+    margin-top: 40px;
+    text-align: center;
+}

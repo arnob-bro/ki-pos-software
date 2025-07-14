@@ -20,6 +20,7 @@
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.1.1",
     "jsonwebtoken": "^9.0.2",
+    "ki-pos-system": "file:..",
     "uuid": "^11.1.0"
   }
 }
