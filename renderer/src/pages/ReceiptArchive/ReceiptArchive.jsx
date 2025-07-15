@@ -11,6 +11,10 @@ const sampleReceipts = [
     operator: "Admin",
     total: 500,
     tax: 75,
+    payment_method: "Cash",
+    taxpayerId: "TXP-239812",
+    jurisdiction: "Dhaka North",
+    vatRate: 15,
     items: [
       { name: "Latte", qty: 2, price: 5.0 },
       { name: "Croissant", qty: 1, price: 3.0 },
@@ -22,6 +26,10 @@ const sampleReceipts = [
     operator: "Staff1",
     total: 300,
     tax: 45,
+    payment_method: "Cash",
+    taxpayerId: "TXP-239812",
+    jurisdiction: "Dhaka North",
+    vatRate: 15,
     items: [
       { name: "Espresso", qty: 3, price: 4.0 },
       { name: "Cake", qty: 2, price: 6.0 },
@@ -33,6 +41,10 @@ const sampleReceipts = [
     operator: "Admin",
     total: 150,
     tax: 22.5,
+    taxpayerId: "TXP-239812",
+    payment_method: "Cash",
+    jurisdiction: "Dhaka North",
+    vatRate: 15,
     items: [
       { name: "Bread", qty: 1, price: 2.0 },
       { name: "Apples", qty: 3, price: 5.0 },
@@ -44,56 +56,60 @@ const sampleReceipts = [
     operator: "Admin",
     total: 150,
     tax: 22.5,
+    payment_method: "Cash",
+    taxpayerId: "TXP-239812",
+    jurisdiction: "Dhaka North",
+    vatRate: 15,
     items: [
       { name: "Bread", qty: 1, price: 2.0 },
       { name: "Apples", qty: 3, price: 5.0 },
     ],
   },
   // Add more sample data to demonstrate pagination
-  {
-    id: 5,
-    date: "2025-06-03",
-    operator: "Staff1",
-    total: 250,
-    tax: 37.5,
-    items: [
-      { name: "Coffee", qty: 2, price: 3.5 },
-      { name: "Sandwich", qty: 1, price: 8.0 },
-    ],
-  },
-  {
-    id: 6,
-    date: "2025-06-03",
-    operator: "Admin",
-    total: 180,
-    tax: 27,
-    items: [
-      { name: "Tea", qty: 1, price: 2.5 },
-      { name: "Cookie", qty: 2, price: 1.5 },
-    ],
-  },
-  {
-    id: 7,
-    date: "2025-06-04",
-    operator: "Staff1",
-    total: 320,
-    tax: 48,
-    items: [
-      { name: "Cappuccino", qty: 2, price: 4.5 },
-      { name: "Muffin", qty: 1, price: 3.0 },
-    ],
-  },
-  {
-    id: 8,
-    date: "2025-06-04",
-    operator: "Admin",
-    total: 420,
-    tax: 63,
-    items: [
-      { name: "Hot Chocolate", qty: 1, price: 4.0 },
-      { name: "Croissant", qty: 2, price: 3.5 },
-    ],
-  },
+  // {
+  //   id: 5,
+  //   date: "2025-06-03",
+  //   operator: "Staff1",
+  //   total: 250,
+  //   tax: 37.5,
+  //   items: [
+  //     { name: "Coffee", qty: 2, price: 3.5 },
+  //     { name: "Sandwich", qty: 1, price: 8.0 },
+  //   ],
+  // },
+  // {
+  //   id: 6,
+  //   date: "2025-06-03",
+  //   operator: "Admin",
+  //   total: 180,
+  //   tax: 27,
+  //   items: [
+  //     { name: "Tea", qty: 1, price: 2.5 },
+  //     { name: "Cookie", qty: 2, price: 1.5 },
+  //   ],
+  // },
+  // {
+  //   id: 7,
+  //   date: "2025-06-04",
+  //   operator: "Staff1",
+  //   total: 320,
+  //   tax: 48,
+  //   items: [
+  //     { name: "Cappuccino", qty: 2, price: 4.5 },
+  //     { name: "Muffin", qty: 1, price: 3.0 },
+  //   ],
+  // },
+  // {
+  //   id: 8,
+  //   date: "2025-06-04",
+  //   operator: "Admin",
+  //   total: 420,
+  //   tax: 63,
+  //   items: [
+  //     { name: "Hot Chocolate", qty: 1, price: 4.0 },
+  //     { name: "Croissant", qty: 2, price: 3.5 },
+  //   ],
+  // },
 ];
 
 const ReceiptArchive = () => {
@@ -193,14 +209,14 @@ const ReceiptArchive = () => {
   }, [loading, hasMore, currentPage, dateFilter, operatorFilter, idFilter, fetchReceipts]);
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredReceipts.length / pageSize);
+  const totalPages = Math.ceil(sampleReceipts.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const currentReceipts = filteredReceipts.slice(startIndex, endIndex);
+  const currentReceipts = sampleReceipts.slice(startIndex, endIndex);
 
   // Calculate totals
-  const totalTax = filteredReceipts.reduce((sum, r) => sum + r.tax, 0);
-  const totalAmount = filteredReceipts.reduce((sum, r) => sum + r.total, 0);
+  const totalTax = sampleReceipts.reduce((sum, r) => sum + r.tax, 0);
+  const totalAmount = sampleReceipts.reduce((sum, r) => sum + r.total, 0);
 
   const handleDownload = () => {
     const element = document.querySelector(".receipt-style");
@@ -308,7 +324,7 @@ const ReceiptArchive = () => {
 
     return buttons;
   };
-
+  
 
   return (
     <div className="receipt-archive">
@@ -339,7 +355,7 @@ const ReceiptArchive = () => {
         <div className="tax-cards">
       <div className="tax-card">
         <h4>Total Receipts</h4>
-        <p>{filteredReceipts.length}</p>
+        <p>{sampleReceipts.length}</p>
       </div>
       <div className="tax-card">
         <h4>Total Tax</h4>
@@ -392,11 +408,11 @@ const ReceiptArchive = () => {
 
         {loading && <div className="loading">Loading receipts...</div>}
         
-        {!loading && filteredReceipts.length === 0 && (
+        {!loading && sampleReceipts.length === 0 && (
           <div className="no-receipts">No receipts found</div>
         )}
         
-        {!loading && filteredReceipts.length > 0 && (
+        {!loading && sampleReceipts.length > 0 && (
           <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
             <table className="receipt-table">
               <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
@@ -457,6 +473,13 @@ const ReceiptArchive = () => {
           <p><strong>Receipt ID:</strong> {selectedReceipt.id}</p>
           <p><strong>Cashier:</strong> {selectedReceipt.operator}</p>
           <p><strong>Payment Method:</strong> {selectedReceipt.payment_method}</p>
+          <div className="tax-info">
+                       <h4>🧾 Tax Compliance Info</h4>
+                        <p><strong>Taxpayer ID:</strong> {selectedReceipt.taxpayerId || "N/A"}</p>
+                        <p><strong>Jurisdiction:</strong> {selectedReceipt.jurisdiction || "N/A"}</p>
+                        <p><strong>VAT Rate:</strong> {selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}</p>
+                    </div>
+                    
 
           <hr className="dotted" />
 

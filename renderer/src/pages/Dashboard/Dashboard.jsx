@@ -9,6 +9,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Responsive
 const Dashboard = () => {
   const user = useUserStore((state) => state.user);
   const role = user?.role_id;
+  const [salesView, setSalesView] = useState("daily");
   const [showLowStockModal, setShowLowStockModal] = useState(false);
   const salesData = [
     { time: "6 AM", sales: 300 },
@@ -23,10 +24,11 @@ const Dashboard = () => {
   ];
   
   const productData = [
-    { name: "Espresso", value: 400 },
-    { name: "Latte", value: 300 },
-    { name: "Cappuccino", value: 300 },
-    { name: "Croissant", value: 200 },
+    { name: "Espresso", value: 400 ,revenue: 1000},
+    { name: "Latte", value: 300 ,revenue: 900},
+    { name: "Cappuccino", value: 300 ,revenue: 800},
+    { name: "Croissant", value: 200 ,revenue: 700},
+    { name: "Tea", value: 100 ,revenue: 500}
   ];
   const lowStockItems = [
     { name: "Milk", quantity: 3 },
@@ -38,7 +40,13 @@ const Dashboard = () => {
     { name: "Tea Leaves", quantity: 2 },
     { name: "Chocolate Syrup", quantity: 3 }
   ];
-  
+  const auditLogs = [
+    { action: "Login", user: "Admin", timestamp: "2025-07-14 09:12 AM" },
+    { action: "Z-report generated", user: "Admin", timestamp: "2025-07-13 10:00 PM" },
+    { action: "Refund Applied", user: "Manager01", timestamp: "2025-07-13 08:45 PM" },
+    { action: "Manual Stock Change", user: "Admin", timestamp: "2025-07-13 07:30 PM" },
+    { action: "Logout", user: "Admin", timestamp: "2025-07-13 11:00 PM" },
+  ];
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
   
   
@@ -55,6 +63,7 @@ const Dashboard = () => {
         {/* Manager Features */}
         {role === 2 && (
           <>
+          <div className="dash-card">
             <div className="card">
               <h4>Today's Sales</h4>
               <h2>$4,385.00</h2>
@@ -71,17 +80,15 @@ const Dashboard = () => {
            <h2>{lowStockItems.length} items</h2>
            <span className="error">▲ 2 items</span>
        </div>
-        
+       </div> 
 
     
 
       <div className="charts-section">
-        <div className="chart-box">
-          <h3>Sales Overview</h3>
-          <div className="tabs">
-            <span className="tab active">Daily</span>
-            
-          </div>
+        
+        <div className="charts-box">
+          <h3>Daily Sales Overview</h3>
+          
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
               <XAxis dataKey="time" />
@@ -91,15 +98,16 @@ const Dashboard = () => {
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
+     
 
-      <div className="chart-box">
+      <div className="charts-box">
                 <h3>Top 5 Products</h3>
                 <table className="product-table">
                   <thead>
                     <tr>
                       <th>Product</th>
-                      <th>Sales</th>
+                      <th>Sold Unit</th>
+                      <th>Revenue</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -107,10 +115,12 @@ const Dashboard = () => {
                       <tr key={index}>
                         <td>{item.name}</td>
                         <td>{item.value}</td>
+                        <td>{item.revenue}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
               </div>
               {showLowStockModal && (
   <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
@@ -140,7 +150,7 @@ const Dashboard = () => {
       
       
       
-      
+     
           </>
         )}
 
@@ -148,11 +158,31 @@ const Dashboard = () => {
         {role === 1 && (
           <>
           {/* KPIs */}
+          <div className="dash-card">
           <div className="card">
-            <h4>Total Sales</h4>
-            <h2>$25,789.00</h2>
-            <span className="success">▲ 7.1%</span>
-          </div>
+          <h4>Total Sales</h4>
+           <h2>{salesView === "daily" ? "$4,385.00" : "$25,789.00"}</h2>
+           <span className="success">{salesView === "daily" ? "▲ 12.5%" : "▲ 7.1%"}</span>
+           <div className="radio-group">
+          <label>
+         <input
+        type="radio"
+        value="daily"
+        checked={salesView === "daily"}
+        onChange={(e) => setSalesView(e.target.value)} />
+         Daily
+       </label>
+      <label style={{ marginLeft: "10px" }}>
+      <input
+        type="radio"
+        value="monthly"
+        checked={salesView === "monthly"}
+        onChange={(e) => setSalesView(e.target.value)}
+      />
+      Monthly
+     </label>
+    </div>
+ </div>
           <div className="card">
             <h4>Total Transactions</h4>
             <h2>562</h2>
@@ -168,8 +198,14 @@ const Dashboard = () => {
             <h2>156</h2>
             <span className="success">+12</span>
           </div>
-        
+          <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
+           <h4>Low Stock Items</h4>
+           <h2>{lowStockItems.length} items</h2>
+           <span className="error">▲ 2 items</span>
+          </div>
+          </div>
           {/* Z-Reports Section */}
+          <div className="chart-row">
           <div className="chart-box z-reports">
             <h3>🧾 Latest Z-Reports</h3>
             <ul className="z-report-list">
@@ -184,38 +220,80 @@ const Dashboard = () => {
               </li>
             </ul>
           </div>
+          <div className="chart-box audit-trail">
+             <h3>🔍 Audit Trail</h3>
+             <div className="audit-wrapper">
+             <table className="audit-table">
+            <thead>
+           <tr>
+            <th>Action</th>
+            <th>User</th>
+            <th>Timestamp</th>
+           </tr>
+            </thead>
+          <tbody>
+          {auditLogs.map((log, index) => (
+          <tr key={index}>
+          <td>{log.action}</td>
+          <td>{log.user}</td>
+          <td>{log.timestamp}</td>
+          </tr>
+      ))}
+    </tbody>
+  </table>
+  </div>
+</div>
+          <div className="chart-box">
+                <h3>Top 5 Products</h3>
+                <table className="product-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Sold Unit</th>
+                      <th>Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productData.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.name}</td>
+                        <td>{item.value}</td>
+                        <td>{item.revenue}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              </div>
+       {showLowStockModal && (
+  <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <button className="close-btn" onClick={() => setShowLowStockModal(false)}>X</button>
+      <h2>📦 Low Stock Items</h2>
+      <table className="product-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Remaining Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lowStockItems.map((item, index) => (
+            <tr key={index}>
+              <td>{item.name}</td>
+              <td style={{ color: item.quantity < 3 ? 'red' : 'orange' }}>{item.quantity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+    </div>
+  </div>
+)}
         
-          {/* Device Status Section */}
-          <div className="chart-box device-statuses">
-            <h3>💻 Device Statuses</h3>
-            <table className="device-table">
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>POS #1</td>
-                  <td>Cashier Counter</td>
-                  <td><span className="status online">Online</span></td>
-                </tr>
-                <tr>
-                  <td>POS #2</td>
-                  <td>Beverage Corner</td>
-                  <td><span className="status offline">Offline</span></td>
-                </tr>
-                <tr>
-                  <td>POS #3</td>
-                  <td>Express Checkout</td>
-                  <td><span className="status online">Online</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          
         </>
+        
         )}
       </div>
     </div>
