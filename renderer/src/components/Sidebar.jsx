@@ -63,7 +63,7 @@ const Sidebar = () => {
           }`}
           onClick={() => navigate("/product-management")}
         >
-          📄📦 Product Management
+          📦 Product Management
         </button>
       )}
       
@@ -75,7 +75,7 @@ const Sidebar = () => {
           }`}
           onClick={() => navigate("/employee-management")}
         >
-          📄👥 Employee Management
+          👥 Employee Management
         </button>
       
       )}
