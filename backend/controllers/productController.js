@@ -19,7 +19,7 @@ class ProductController {
     }
   }
 
-  async addProduct(productData) {
+  async addProduct(productData, currentUser) {
     try {
       // Additional validation if needed
       if (!productData.name || productData.name.trim().length === 0) {
@@ -35,13 +35,13 @@ class ProductController {
         stock_quantity: parseInt(productData.stock_quantity || 0, 10)
       };
 
-      return await this.productService.addProduct(product);
+      return await this.productService.addProduct(product, currentUser);
     } catch (error) {
       throw new Error(`Failed to add product: ${error.message}`);
     }
   }
 
-  async updateProduct(productData) {
+  async updateProduct(productData, currentUser) {
     try {
       if (!productData.id) {
         throw new Error('Product ID is required for update');
@@ -61,7 +61,7 @@ class ProductController {
         stock_quantity: parseInt(productData.stock_quantity || 0, 10)
       };
 
-      return await this.productService.updateProduct(product);
+      return await this.productService.updateProduct(product, currentUser);
     } catch (error) {
       throw new Error(`Failed to update product: ${error.message}`);
     }
@@ -76,12 +76,12 @@ class ProductController {
     }
   }
 
-  async deleteProduct(id) {
+  async deleteProduct(id, currentUser) {
     try {
       if (!id) {
         throw new Error('Product ID is required for deletion');
       }
-      return await this.productService.deleteProduct(id);
+      return await this.productService.deleteProduct(id, currentUser);
     } catch (error) {
       throw new Error(`Failed to delete product: ${error.message}`);
     }

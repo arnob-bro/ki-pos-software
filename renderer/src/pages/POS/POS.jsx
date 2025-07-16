@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import "./pos.css";
+import useUserStore from '../../stores/userStore';
 
 function POS() {
   const [products, setProducts] = useState([]);
@@ -20,6 +21,7 @@ function POS() {
 	const debounceTimeout = useRef();
 	const [queue, setQueue] = useState([]); // Array of carts (currently selected items)
 	const [showQueueDropdown, setShowQueueDropdown] = useState(false);
+	const currentUser = useUserStore((state) => state.user);
 
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
@@ -154,7 +156,7 @@ function POS() {
     );
 
     try {
-      const result = await window.posAPI.addTransaction(transactionData);
+      const result = await window.posAPI.addTransaction(transactionData, currentUser);
       console.log("DEBUG: Transaction result:", result);
       setCart({});
       setPaidAmount(0);

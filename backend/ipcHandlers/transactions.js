@@ -5,10 +5,10 @@ module.exports = function registerTransactionHandlers(ipcMain, db) {
   const transactionService = new TransactionService(db);
   const transactionController = new TransactionController(transactionService);
 
-  ipcMain.handle('transactions:add', async (event, data) => {
+  ipcMain.handle('transactions:add', async (event, data, currentUser) => {
     try {
       console.log('DEBUG: Received transaction data:', JSON.stringify(data, null, 2));
-      const result = await transactionController.addTransaction(data);
+      const result = await transactionController.addTransaction(data, currentUser);
       console.log('DEBUG: Transaction added successfully:', result.id);
       return result;
     } catch (error) {

@@ -3,7 +3,7 @@ class TransactionController {
     this.transactionService = transactionService;
   }
 
-  async addTransaction(data) {
+  async addTransaction(data, currentUser) {
     try {
       console.log('DEBUG: TransactionController.addTransaction called with:', JSON.stringify(data, null, 2));
       
@@ -41,7 +41,7 @@ class TransactionController {
       }
       
       console.log('DEBUG: Processed transaction data:', JSON.stringify(processedData, null, 2));
-      return await this.transactionService.addTransaction(processedData);
+      return await this.transactionService.addTransaction(processedData, currentUser);
     } catch (error) {
       throw new Error(`Failed to add transaction: ${error.message}`);
     }

@@ -11,18 +11,19 @@ contextBridge.exposeInMainWorld("posAPI", {
     ipcRenderer.invoke("products:list", page, limit),
   searchProducts: (query, limit) =>
     ipcRenderer.invoke("products:search", query, limit),
-  addProduct: (product) => ipcRenderer.invoke("products:add", product),
-  updateProduct: (product) => ipcRenderer.invoke("products:update", product),
-  deleteProduct: (id) => ipcRenderer.invoke("products:delete", id),
+  addProduct: (product, currentUser) => ipcRenderer.invoke("products:add", product, currentUser),
+  updateProduct: (product, currentUser) => ipcRenderer.invoke("products:update", product, currentUser),
+  deleteProduct: (id, currentUser) => ipcRenderer.invoke("products:delete", id, currentUser),
   getProduct: (id) => ipcRenderer.invoke("products:get", id),
   getLowStockProducts: (threshold) =>
     ipcRenderer.invoke("products:getLowStock", threshold),
   listProductCategories: () => ipcRenderer.invoke("productCategories:list"),
   // Transactions
-  addTransaction: (data) => ipcRenderer.invoke('transactions:add', data),
+  addTransaction: (data, currentUser) => ipcRenderer.invoke('transactions:add', data, currentUser),
   listTransactions: (page, limit) => ipcRenderer.invoke('transactions:list', page, limit),
   getTransaction: (id) => ipcRenderer.invoke('transactions:get', id),
   getReceipts: (filters) => ipcRenderer.invoke('transactions:getReceipts', filters),
+  addSale: (sale, currentUser) => ipcRenderer.invoke('sales:add', sale, currentUser),
   // Employees
   listEmployees: (page, limit, filters) => ipcRenderer.invoke('employees:list', page, limit, filters),
   getEmployee: (id) => ipcRenderer.invoke('employees:get', id),

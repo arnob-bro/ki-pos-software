@@ -7,9 +7,9 @@ module.exports = function registerSalesHandlers(ipcMain, db) {
   const productService = new ProductService(db);
   const saleController = new SaleController(saleService, productService);
 
-  ipcMain.handle('sales:add', async (event, sale) => {
+  ipcMain.handle('sales:add', async (event, sale, currentUser) => {
     try {
-      return await saleController.addSale(sale);
+      return await saleController.addSale(sale, currentUser);
     } catch (error) {
       console.error('Error adding sale:', error.message);
       throw error;

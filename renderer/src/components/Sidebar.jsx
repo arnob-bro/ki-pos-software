@@ -128,7 +128,7 @@ const Sidebar = () => {
           ⚙️ System Settings
         </button>
       )}  
-
+      
       {/* Hardware Configuration - Requires settings:view permission */}
       {hasPermissionByCode('settings:view') && (      
         <button

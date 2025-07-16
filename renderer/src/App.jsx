@@ -62,7 +62,7 @@ function App() {
 			<Route 
 				path='/employee-management' 
 				element={
-					<ProtectedRoute requiredPermission="settings:view">
+					<ProtectedRoute requiredPermission="employee:view">
 						<EmployeeManagement />
 					</ProtectedRoute>
 				} 

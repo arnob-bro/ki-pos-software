@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./EmployeeManagement.css";
 import Sidebar from "../../components/Sidebar";
+import { PERMISSION_CODES } from "../../utils/permissions";
+import useUserStore from "../../stores/userStore";
 
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
@@ -37,6 +39,8 @@ const EmployeeManagement = () => {
     permissions: []
   });
   const [editingRole, setEditingRole] = useState(false);
+  const { hasPermissionByCode } = useUserStore();
+  const isAdmin = hasPermissionByCode(PERMISSION_CODES.ALL);
 
   useEffect(() => {
     fetchEmployees();
@@ -375,9 +379,11 @@ const EmployeeManagement = () => {
       <div className="employee-management">
         <div className="employee-header">
           <h2>👥 Employee Management</h2>
-          <button className="add-employee-btn" onClick={handleAddNew}>
+          {isAdmin &&(
+            <button className="add-employee-btn" onClick={handleAddNew}>
             + Add New Employee
-          </button>
+            </button>
+          )}
         </div>
 
         {error && (
@@ -411,7 +417,8 @@ const EmployeeManagement = () => {
         </div>
 
         {/* Role Management Section */}
-        <div className="role-management-section">
+        {isAdmin && (
+          <div className="role-management-section">
           <div className="role-header">
             <h3>🎭 Roles </h3>
             <div className="role-actions">
@@ -423,7 +430,6 @@ const EmployeeManagement = () => {
               </button>
             </div>
           </div>
-
           <div className="role-table-container">
             <table className="role-table">
               <thead>
@@ -479,6 +485,9 @@ const EmployeeManagement = () => {
             </table>
           </div>
         </div>
+        )
+
+        }
 
         <div className="employee-controls">
           <div className="search-section">
@@ -568,12 +577,15 @@ const EmployeeManagement = () => {
                     >
                       ✏️
                     </button>
-                    <button
-                      onClick={() => handleDelete(employee.id)}
-                      className="delete-btn"
-                    >
-                      🗑️
-                    </button>
+                    {isAdmin &&
+                      (<button
+                        onClick={() => handleDelete(employee.id)}
+                        className="delete-btn"
+                      >
+                        🗑️
+                      </button>
+                      )
+                    }
                   </td>
                 </tr>
               ))}
@@ -718,7 +730,7 @@ const EmployeeManagement = () => {
         )}
 
         {/* Role Management Modal */}
-        {showRoleForm && (
+        {showRoleForm && isAdmin && (
           <div className="modal-overlay">
             <div className="modal-content">
               <div className="modal-header">

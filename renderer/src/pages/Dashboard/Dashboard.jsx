@@ -6,9 +6,11 @@ import Sidebar from "../../components/Sidebar";
 import useUserStore from "../../stores/userStore";
 import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
+
 const Dashboard = () => {
   const user = useUserStore((state) => state.user);
   const role = user?.role_id;
+  
   const [showLowStockModal, setShowLowStockModal] = useState(false);
   const salesData = [
     { time: "6 AM", sales: 300 },
@@ -53,94 +55,90 @@ const Dashboard = () => {
       <div className="dashboard-cards">
          
         {/* Manager Features */}
-        {role === 2 && (
+        {role != 1 && (
           <>
-            <div className="card">
-              <h4>Today's Sales</h4>
-              <h2>$4,385.00</h2>
-              <span className="success">▲ 12.5%</span>
+              <div className="card">
+                <h4>Today's Sales</h4>
+                <h2>$4,385.00</h2>
+                <span className="success">▲ 12.5%</span>
+              </div>
+          
+              <div className="card">
+                <h4>Revenue Per Employee</h4>
+                <h2>$877.00</h2>
+                <span className="error">▼ 3.4%</span>
+              </div>
+              <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
+                <h4>Low Stock Items</h4>
+                <h2>{lowStockItems.length} items</h2>
+                <span className="error">▲ 2 items</span>
             </div>
-        
-        <div className="card">
-          <h4>Revenue Per Employee</h4>
-          <h2>$877.00</h2>
-          <span className="error">▼ 3.4%</span>
-        </div>
-        <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
-           <h4>Low Stock Items</h4>
-           <h2>{lowStockItems.length} items</h2>
-           <span className="error">▲ 2 items</span>
-       </div>
         
 
     
 
-      <div className="charts-section">
-        <div className="chart-box">
-          <h3>Sales Overview</h3>
-          <div className="tabs">
-            <span className="tab active">Daily</span>
-            
-          </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={salesData}>
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="sales" stroke="#007bff" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="chart-box">
-                <h3>Top 5 Products</h3>
-                <table className="product-table">
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Sales</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productData.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.name}</td>
-                        <td>{item.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="charts-section">
+                <div className="chart-box">
+                  <h3>Sales Overview</h3>
+                  <div className="tabs">
+                    <span className="tab active">Daily</span>
+                    
+                  </div>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={salesData}>
+                      <XAxis dataKey="time" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="sales" stroke="#007bff" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
+
+              <div className="chart-box">
+                        <h3>Top 5 Products</h3>
+                        <table className="product-table">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Sales</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {productData.map((item, index) => (
+                              <tr key={index}>
+                                <td>{item.name}</td>
+                                <td>{item.value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                </div>
               {showLowStockModal && (
-  <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
-    <div className="modal" onClick={(e) => e.stopPropagation()}>
-    <button className="close-btn" onClick={() => setShowLowStockModal(false)}>X</button>
-      <h2>📦 Low Stock Items</h2>
-      <table className="product-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Remaining Qty</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lowStockItems.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td style={{ color: item.quantity < 3 ? 'red' : 'orange' }}>{item.quantity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      
-    </div>
-  </div>
-)}
-      
-      
-      
-      
+                <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
+                  <div className="modal" onClick={(e) => e.stopPropagation()}>
+                  <button className="close-btn" onClick={() => setShowLowStockModal(false)}>X</button>
+                    <h2>📦 Low Stock Items</h2>
+                    <table className="product-table">
+                      <thead>
+                        <tr>
+                          <th>Item</th>
+                          <th>Remaining Qty</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lowStockItems.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.name}</td>
+                            <td style={{ color: item.quantity < 3 ? 'red' : 'orange' }}>{item.quantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    
+                  </div>
+                </div>
+              )}
           </>
         )}
 

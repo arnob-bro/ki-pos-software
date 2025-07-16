@@ -5,6 +5,7 @@ import "./ProductManagement.css";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import * as XLSX from 'xlsx';
+import useUserStore from '../../stores/userStore';
         
 const ProductManagement = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const ProductManagement = () => {
   });
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const currentUser = useUserStore((state) => state.user);
 
   useEffect(() => {
     fetchProducts();
@@ -66,9 +68,9 @@ const ProductManagement = () => {
     
     try {
       if (editing) {
-        await window.posAPI.updateProduct(formData);
+        await window.posAPI.updateProduct(formData, currentUser);
       } else {
-        await window.posAPI.addProduct(formData);
+        await window.posAPI.addProduct(formData, currentUser);
       }
       console.log(formData);
       fetchProducts();
@@ -88,7 +90,7 @@ const ProductManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await window.posAPI.deleteProduct(id);
+        await window.posAPI.deleteProduct(id, currentUser);
         fetchProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -114,7 +116,7 @@ const ProductManagement = () => {
       try {
         // Send each row to your backend
         for (let product of jsonData) {
-          await window.posAPI.addProduct(product);
+          await window.posAPI.addProduct(product, currentUser);
         }
         fetchProducts(); // refresh product list
         alert("Products imported successfully!");

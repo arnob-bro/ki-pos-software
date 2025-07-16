@@ -4,7 +4,7 @@ class SaleController {
     this.productService = productService;
   }
 
-  async addSale(saleData) {
+  async addSale(saleData, currentUser) {
     try {
       // Validate sale data
       if (!saleData.items || !Array.isArray(saleData.items) || saleData.items.length === 0) {
@@ -57,7 +57,7 @@ class SaleController {
         total: parseFloat(saleData.total)
       };
 
-      return await this.saleService.addSale(sale);
+      return await this.saleService.addSale(sale, currentUser);
     } catch (error) {
       throw new Error(`Failed to process sale: ${error.message}`);
     }
