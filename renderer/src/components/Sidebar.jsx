@@ -28,7 +28,25 @@ const Sidebar = () => {
                     location.pathname === "/sales-interface" ? " active" : ""
                 }`}
                 onClick={() => navigate("/sales-interface")}>
-                🛒 POS
+                Sales Interface
+            </button>
+            {/* Customer Management - NEED TO UPDATE THE PERMISSION */}
+            <button
+                className={`nav-btn${
+                    location.pathname === "/customer-management"
+                        ? " active"
+                        : ""
+                }`}
+                onClick={() => navigate("/customer-management")}>
+                Customer Management
+            </button>
+            {/* Payment Settings - NEED TO UPDATE THE PERMISSION */}
+            <button
+                className={`nav-btn${
+                    location.pathname === "/payment-settings" ? " active" : ""
+                }`}
+                onClick={() => navigate("/payment-settings")}>
+                Payment Settings
             </button>
 
             {/* Dashboard - Requires dashboard:view permission */}
@@ -38,7 +56,7 @@ const Sidebar = () => {
                         location.pathname === "/dashboard" ? " active" : ""
                     }`}
                     onClick={() => navigate("/dashboard")}>
-                    📋 Dashboard
+                    Dashboard
                 </button>
             )}
 
@@ -51,7 +69,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/receipt-archive")}>
-                    📄 Receipt Archive
+                    Receipt Archive
                 </button>
             )}
 
@@ -64,7 +82,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/product-management")}>
-                    📄📦 Product Management
+                    Product Management
                 </button>
             )}
 
@@ -77,7 +95,7 @@ const Sidebar = () => {
                             : ""
                     }`}
                     onClick={() => navigate("/employee-management")}>
-                    📄👥 Employee Management
+                    Employee Management
                 </button>
             )}
 
@@ -101,7 +119,7 @@ const Sidebar = () => {
                         location.pathname === "/reports" ? " active" : ""
                     }`}
                     onClick={() => navigate("/reports")}>
-                    📊 Reports
+                    Reports
                 </button>
             )}
 

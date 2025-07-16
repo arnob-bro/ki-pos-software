@@ -9,6 +9,8 @@ import ReceiptArchive from "./pages/ReceiptArchive/ReceiptArchive"
 import Reports from "./pages/Reports/Reports"
 import InventoryManagement from "./pages/InventoryManagement/InventoryManagement"
 import ProtectedRoute from "./components/ProtectedRoute"
+import CustomerManagement from "./pages/CustomerManagement/CustomerManagement"
+import PaymentSettings from "./pages/PaymentSettings/PaymentSettings"
 
 function App() {
     return (
@@ -21,6 +23,24 @@ function App() {
                 element={
                     <ProtectedRoute>
                         <POS />
+                    </ProtectedRoute>
+                }
+            />
+            {/* Customer Management - No specific permission required for authenticated users */}
+            <Route
+                path="/customer-management"
+                element={
+                    <ProtectedRoute>
+                        <CustomerManagement />
+                    </ProtectedRoute>
+                }
+            />
+            {/* Payment Settings - No specific permission required for authenticated users */}
+            <Route
+                path="/payment-settings"
+                element={
+                    <ProtectedRoute>
+                        <PaymentSettings />
                     </ProtectedRoute>
                 }
             />

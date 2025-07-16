@@ -775,7 +775,7 @@ function POS() {
                                     <button
                                         className="print-btn"
                                         onClick={handlePrintInvoice}>
-                                        Print Invoice
+                                        Checkout
                                     </button>
                                 </div>
                             </div>
