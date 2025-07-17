@@ -3,6 +3,7 @@ import "./ReceiptArchive.css";
 import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import Sidebar from "../../components/Sidebar";
+import useLanguageStore from '../../stores/languageStore';
 
 const sampleReceipts = [
   {
@@ -113,6 +114,8 @@ const sampleReceipts = [
 ];
 
 const ReceiptArchive = () => {
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
   const [receipts, setReceipts] = useState([]);
   const [filteredReceipts, setFilteredReceipts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -261,7 +264,7 @@ const ReceiptArchive = () => {
         disabled={currentPage === 1}
         className="pagination-btn"
       >
-        ← Previous
+        ← {t('Previous', 'Zurück')}
       </button>
     );
 
@@ -318,7 +321,7 @@ const ReceiptArchive = () => {
         disabled={currentPage === totalPages}
         className="pagination-btn"
       >
-        Next →
+        {t('Next', 'Weiter')} →
       </button>
     );
 
@@ -332,7 +335,7 @@ const ReceiptArchive = () => {
       <div className="receipt-list-section">
         {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button> */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2>🧾 Receipt Archive</h2>
+          <h2>🗾 {t('Receipt Archive', 'Belegarchiv')}</h2>
           <button 
             onClick={() => {
               setCurrentPage(1);
@@ -348,21 +351,21 @@ const ReceiptArchive = () => {
             }}
             disabled={loading}
           >
-            {loading ? 'Loading...' : '🔄 Refresh'}
+            {loading ? t('Loading...', 'Lädt...') : '🔄 ' + t('Refresh', 'Aktualisieren')}
           </button>
         </div>
        
         <div className="tax-cards">
       <div className="tax-card">
-        <h4>Total Receipts</h4>
+        <h4>{t('Total Receipts', 'Belege insgesamt')}</h4>
         <p>{sampleReceipts.length}</p>
       </div>
       <div className="tax-card">
-        <h4>Total Tax</h4>
+        <h4>{t('Total Tax', 'Gesamte Steuer')}</h4>
         <p>${totalTax.toFixed(2)}</p>
       </div>
       <div className="tax-card">
-        <h4>Total Amount</h4>
+        <h4>{t('Total Amount', 'Gesamtbetrag')}</h4>
         <p>${totalAmount.toFixed(2)}</p>
       </div>
       </div>
@@ -370,7 +373,7 @@ const ReceiptArchive = () => {
         <div className="filters">
           <input
             type="text"
-            placeholder="🔍 Search by ID"
+            placeholder={'🔍 ' + t('Search by ID', 'Nach ID suchen')}
             value={idFilter}
             onChange={(e) => setIdFilter(e.target.value)}
           />
@@ -383,7 +386,7 @@ const ReceiptArchive = () => {
             value={operatorFilter}
             onChange={(e) => setOperatorFilter(e.target.value)}
           >
-            <option value="">All Operators</option>
+            <option value="">{t('All Operators', 'Alle Bediener')}</option>
             {operators.map((operator) => (
               <option key={operator} value={operator}>
                 {operator}
@@ -394,22 +397,22 @@ const ReceiptArchive = () => {
 
         {/* Page size selector */}
         <div className="page-size-selector">
-          <label>Show:</label>
+          <label>{t('Show:', 'Anzeigen:')}</label>
           <select
             value={pageSize}
             onChange={(e) => handlePageSizeChange(Number(e.target.value))}
           >
-            <option value={5}>5 per page</option>
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
+            <option value={5}>{t('5 per page', '5 pro Seite')}</option>
+            <option value={10}>{t('10 per page', '10 pro Seite')}</option>
+            <option value={20}>{t('20 per page', '20 pro Seite')}</option>
             
           </select>
         </div>
 
-        {loading && <div className="loading">Loading receipts...</div>}
+        {loading && <div className="loading">{t('Loading receipts...', 'Belege werden geladen...')}</div>}
         
         {!loading && sampleReceipts.length === 0 && (
-          <div className="no-receipts">No receipts found</div>
+          <div className="no-receipts">{t('No receipts found', 'Keine Belege gefunden')}</div>
         )}
         
         {!loading && sampleReceipts.length > 0 && (
@@ -417,12 +420,12 @@ const ReceiptArchive = () => {
             <table className="receipt-table">
               <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
                 <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Operator</th>
-                  <th>Payment Method</th>
-                  <th>Total</th>
-                  <th>Tax</th>
+                  <th>{t('ID', 'ID')}</th>
+                  <th>{t('Date', 'Datum')}</th>
+                  <th>{t('Operator', 'Bediener')}</th>
+                  <th>{t('Payment Method', 'Zahlungsmethode')}</th>
+                  <th>{t('Total', 'Gesamt')}</th>
+                  <th>{t('Tax', 'Steuer')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -448,7 +451,7 @@ const ReceiptArchive = () => {
         {/* Pagination info */}
         <div className="pagination-info">
           <span>
-            Showing {startIndex + 1} to {Math.min(endIndex, filteredReceipts.length)} of {filteredReceipts.length} receipts
+            {t('Showing', 'Anzeigen')} {startIndex + 1} {t('to', 'bis')} {Math.min(endIndex, filteredReceipts.length)} {t('of', 'von')} {filteredReceipts.length} {t('receipts', 'Belege')}
           </span>
         </div>
 
@@ -470,14 +473,14 @@ const ReceiptArchive = () => {
 
           <hr className="dotted" />
 
-          <p><strong>Receipt ID:</strong> {selectedReceipt.id}</p>
-          <p><strong>Cashier:</strong> {selectedReceipt.operator}</p>
-          <p><strong>Payment Method:</strong> {selectedReceipt.payment_method}</p>
+          <p><strong>{t('Receipt ID:', 'Belegnummer:')}</strong> {selectedReceipt.id}</p>
+          <p><strong>{t('Cashier:', 'Kassierer:')}</strong> {selectedReceipt.operator}</p>
+          <p><strong>{t('Payment Method:', 'Zahlungsmethode:')}</strong> {selectedReceipt.payment_method}</p>
           <div className="tax-info">
-                       <h4>🧾 Tax Compliance Info</h4>
-                        <p><strong>Taxpayer ID:</strong> {selectedReceipt.taxpayerId || "N/A"}</p>
-                        <p><strong>Jurisdiction:</strong> {selectedReceipt.jurisdiction || "N/A"}</p>
-                        <p><strong>VAT Rate:</strong> {selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}</p>
+                       <h4>🗾 {t('Tax Compliance Info', 'Steuerkonformitätsinfo')}</h4>
+                        <p><strong>{t('Taxpayer ID:', 'Steuerzahler-ID:')}</strong> {selectedReceipt.taxpayerId || "N/A"}</p>
+                        <p><strong>{t('Jurisdiction:', 'Gerichtsbarkeit:')}</strong> {selectedReceipt.jurisdiction || "N/A"}</p>
+                        <p><strong>{t('VAT Rate:', 'MwSt-Satz:')}</strong> {selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}</p>
                     </div>
                     
 
@@ -486,9 +489,9 @@ const ReceiptArchive = () => {
           <table className="items-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Qty</th>
-                <th>Price</th>
+                <th>{t('Name', 'Name')}</th>
+                <th>{t('Qty', 'Menge')}</th>
+                <th>{t('Price', 'Preis')}</th>
               </tr>
             </thead>
             <tbody>
@@ -505,13 +508,13 @@ const ReceiptArchive = () => {
           <hr className="dotted" />
 
           <div className="summary">
-            <p><strong>Sub Total:</strong> ${(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}</p>
-            <p><strong>Tax:</strong> ${selectedReceipt.tax.toFixed(2)}</p>
-            <p><strong>Total:</strong> ${selectedReceipt.total.toFixed(2)}</p>
-            <p><strong>Cash:</strong> ${(selectedReceipt.total + 20).toFixed(2)}</p>
-            <p><strong>Change:</strong> $20.00</p>
-            <button onClick={() => window.print()}>🖨️ Print Receipt</button>
-            <button onClick={handleDownload}>🖨️ Download</button>
+            <p><strong>{t('Sub Total:', 'Zwischensumme:')}</strong> ${(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}</p>
+            <p><strong>{t('Tax:', 'Steuer:')}</strong> ${selectedReceipt.tax.toFixed(2)}</p>
+            <p><strong>{t('Total:', 'Gesamt:')}</strong> ${selectedReceipt.total.toFixed(2)}</p>
+            <p><strong>{t('Cash:', 'Bar:')}</strong> ${(selectedReceipt.total + 20).toFixed(2)}</p>
+            <p><strong>{t('Change:', 'Wechselgeld:')}</strong> $20.00</p>
+            <button onClick={() => window.print()}>🖨️ {t('Print Receipt', 'Beleg drucken')}</button>
+            <button onClick={handleDownload}>🖨️ {t('Download', 'Herunterladen')}</button>
           </div>
 
           <hr className="dotted" />
@@ -519,8 +522,8 @@ const ReceiptArchive = () => {
           <div className="barcode">[||||||||||||||||||||||]</div>
 
           <div className="thank-you">
-            <p>THANK YOU!</p>
-            <p>Glad to see you again!</p>
+            <p>{t('THANK YOU!', 'DANKE!')}</p>
+            <p>{t('Glad to see you again!', 'Schön, Sie wiederzusehen!')}</p>
           </div>
 
         </div>

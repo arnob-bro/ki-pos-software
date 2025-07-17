@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./EmployeeManagement.css";
 import Sidebar from "../../components/Sidebar";
+import useLanguageStore from '../../stores/languageStore';
 
 const EmployeeManagement = () => {
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
   const [employees, setEmployees] = useState([]);
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
@@ -428,10 +431,10 @@ const EmployeeManagement = () => {
             <table className="role-table">
               <thead>
                 <tr>
-                  <th>Role Name</th>
-                  <th>Employees</th>
-                  <th>Permissions</th>
-                  <th>Actions</th>
+                  <th>{t("Role Name", "Rollenname")}</th>
+                  <th>{t("Employees", "Mitarbeiter")}</th>
+                  <th>{t("Permissions", "Berechtigungen")}</th>
+                  <th>{t("Actions", "Aktionen")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -442,7 +445,7 @@ const EmployeeManagement = () => {
                     </td>
                     <td>
                       <span className={`employee-count ${role.userCount > 0 ? 'has-employees' : 'no-employees'}`}>
-                        {role.userCount} employee{role.userCount !== 1 ? 's' : ''}
+                        {role.userCount} {t("employee(s)", "Mitarbeiter")}
                       </span>
                     </td>
                     <td>
@@ -452,7 +455,7 @@ const EmployeeManagement = () => {
                             {perm.code}
                           </span>
                         )) : (
-                          <span className="no-permissions">No permissions</span>
+                          <span className="no-permissions">{t("No permissions", "Keine Berechtigungen")}</span>
                         )}
                       </div>
                     </td>
@@ -460,7 +463,7 @@ const EmployeeManagement = () => {
                       <button
                         onClick={() => handleEditRole(role)}
                         className="edit-btn"
-                        title="Edit role"
+                        title={t("Edit role", "Rollen bearbeiten")}
                       >
                         ✏️
                       </button>
@@ -468,7 +471,7 @@ const EmployeeManagement = () => {
                         onClick={() => handleDeleteRole(role.id)}
                         className={`delete-btn ${role.userCount > 0 ? 'disabled' : ''}`}
                         disabled={role.userCount > 0}
-                        title={role.userCount > 0 ? `Cannot delete: ${role.userCount} employee(s) assigned` : 'Delete role'}
+                        title={role.userCount > 0 ? `${t("Cannot delete: %s employee(s) assigned", "Kann nicht löschen: %s Mitarbeiter zugewiesen")} ${role.userCount}` : t("Delete role", "Rollen löschen")}
                       >
                         🗑️
                       </button>
@@ -484,7 +487,7 @@ const EmployeeManagement = () => {
           <div className="search-section">
             <input
               type="text"
-              placeholder="Search by name, email, or role..."
+              placeholder={t("Search by name, email, or role...", "Suche nach Name, E-Mail oder Rolle...")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -494,7 +497,7 @@ const EmployeeManagement = () => {
               onClick={() => setSearchTerm("")}
               style={{ display: searchTerm ? "block" : "none" }}
             >
-              Clear
+              {t("Clear", "Löschen")}
             </button>
           </div>
 
@@ -504,10 +507,10 @@ const EmployeeManagement = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
-              <option value="deleted">Deleted</option>
+              <option value="all">{t("All Status", "Alle Status")}</option>
+              <option value="active">{t("Active", "Aktiv")}</option>
+              <option value="suspended">{t("Suspended", "Gesperrt")}</option>
+              <option value="deleted">{t("Deleted", "Gelöscht")}</option>
             </select>
 
             <select
@@ -515,7 +518,7 @@ const EmployeeManagement = () => {
               onChange={(e) => setFilterRole(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All Roles</option>
+              <option value="all">{t("All Roles", "Alle Rollen")}</option>
               {getUniqueRoles().map((role) => (
                 <option key={role} value={role}>
                   {getRoleDisplayName(role)}
@@ -529,12 +532,12 @@ const EmployeeManagement = () => {
           <table className="employee-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Actions</th>
+                <th>{t("Name", "Name")}</th>
+                <th>{t("Email", "E-Mail")}</th>
+                <th>{t("Role", "Rolle")}</th>
+                <th>{t("Status", "Status")}</th>
+                <th>{t("Created", "Erstellt")}</th>
+                <th>{t("Actions", "Aktionen")}</th>
               </tr>
             </thead>
             <tbody>
@@ -555,9 +558,9 @@ const EmployeeManagement = () => {
                       }
                       className={`status-select ${employee.status}`}
                     >
-                      <option value="active">Active</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="deleted">Deleted</option>
+                      <option value="active">{t("Active", "Aktiv")}</option>
+                      <option value="suspended">{t("Suspended", "Gesperrt")}</option>
+                      <option value="deleted">{t("Deleted", "Gelöscht")}</option>
                     </select>
                   </td>
                   <td>{new Date(employee.created_at).toLocaleDateString()}</td>
@@ -589,17 +592,17 @@ const EmployeeManagement = () => {
               disabled={pagination.page === 1}
               className="pagination-btn"
             >
-              Previous
+              {t("Previous", "Vorherige")}
             </button>
             <span className="pagination-info">
-              Page {pagination.page} of {pagination.totalPages}
+              {t("Page %s of %s", "Seite %s von %s")} {pagination.page} {t("of", "von")} {pagination.totalPages}
             </span>
             <button
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
               className="pagination-btn"
             >
-              Next
+              {t("Next", "Nächste")}
             </button>
           </div>
         )}
@@ -609,7 +612,7 @@ const EmployeeManagement = () => {
           <div className="modal-overlay">
             <div className="modal-content">
               <div className="modal-header">
-                <h3>{editing ? "Edit Employee" : "Add New Employee"}</h3>
+                <h3>{editing ? t("Edit Employee", "Mitarbeiter bearbeiten") : t("Add New Employee", "Neuen Mitarbeiter hinzufügen")}</h3>
                 <button className="close-btn" onClick={handleCloseForm}>
                   ×
                 </button>
@@ -617,18 +620,18 @@ const EmployeeManagement = () => {
 
               <form onSubmit={handleSubmit} className="employee-form">
                 <div className="form-section">
-                  <h4>Basic Information</h4>
+                  <h4>{t("Basic Information", "Grundlegende Informationen")}</h4>
                   <div className="form-row">
                     <input
                       name="first_name"
-                      placeholder="First Name"
+                      placeholder={t("First Name", "Vorname")}
                       value={formData.first_name}
                       onChange={handleChange}
                       required
                     />
                     <input
                       name="last_name"
-                      placeholder="Last Name"
+                      placeholder={t("Last Name", "Nachname")}
                       value={formData.last_name}
                       onChange={handleChange}
                       required
@@ -638,7 +641,7 @@ const EmployeeManagement = () => {
                     <input
                       name="email"
                       type="email"
-                      placeholder="Email"
+                      placeholder={t("Email", "E-Mail")}
                       value={formData.email}
                       onChange={handleChange}
                       required
@@ -649,7 +652,7 @@ const EmployeeManagement = () => {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">Select Role</option>
+                      <option value="">{t("Select Role", "Rolle auswählen")}</option>
                       {roles.map((role) => (
                         <option key={role.id} value={role.name}>
                           {getRoleDisplayName(role.name)}
@@ -661,9 +664,9 @@ const EmployeeManagement = () => {
                       value={formData.status}
                       onChange={handleChange}
                     >
-                      <option value="active">Active</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="deleted">Deleted</option>
+                      <option value="active">{t("Active", "Aktiv")}</option>
+                      <option value="suspended">{t("Suspended", "Gesperrt")}</option>
+                      <option value="deleted">{t("Deleted", "Gelöscht")}</option>
                     </select>
                   </div>
                 </div>
@@ -702,14 +705,14 @@ const EmployeeManagement = () => {
 
                 <div className="form-actions">
                   <button type="submit" className="submit-btn">
-                    {editing ? "Update Employee" : "Add Employee"}
+                    {editing ? t("Update Employee", "Mitarbeiter aktualisieren") : t("Add Employee", "Mitarbeiter hinzufügen")}
                   </button>
                   <button
                     type="button"
                     onClick={handleCloseForm}
                     className="cancel-btn"
                   >
-                    Cancel
+                    {t("Cancel", "Abbrechen")}
                   </button>
                 </div>
               </form>
@@ -722,7 +725,7 @@ const EmployeeManagement = () => {
           <div className="modal-overlay">
             <div className="modal-content">
               <div className="modal-header">
-                <h3>{editingRole ? "Edit Role" : "Add New Role"}</h3>
+                <h3>{editingRole ? t("Edit Role", "Rolle bearbeiten") : t("Add New Role", "Neue Rolle hinzufügen")}</h3>
                 <button className="close-btn" onClick={handleCloseRoleForm}>
                   ×
                 </button>
@@ -730,11 +733,11 @@ const EmployeeManagement = () => {
 
               <form onSubmit={handleRoleSubmit} className="role-form">
                 <div className="form-section">
-                  <h4>Basic Information</h4>
+                  <h4>{t("Basic Information", "Grundlegende Informationen")}</h4>
                   <div className="form-row">
                     <input
                       name="name"
-                      placeholder="Role Name (e.g., Supervisor, Assistant Manager)"
+                      placeholder={t("Role Name (e.g., Supervisor, Assistant Manager)", "Rollenname (z.B. Supervisor, Assistent Manager)")}
                       value={roleFormData.name}
                       onChange={handleRoleChange}
                       required
@@ -743,7 +746,7 @@ const EmployeeManagement = () => {
                 </div>
 
                 <div className="form-section">
-                  <h4>Role Permissions</h4>
+                  <h4>{t("Role Permissions", "Rollenberechtigungen")}</h4>
                   <div className="permissions-grid">
                     {permissions.map((permission) => (
                       <label key={permission.id} className="permission-item">
@@ -761,14 +764,14 @@ const EmployeeManagement = () => {
 
                 <div className="form-actions">
                   <button type="submit" className="submit-btn">
-                    {editingRole ? "Update Role" : "Add Role"}
+                    {editingRole ? t("Update Role", "Rolle aktualisieren") : t("Add Role", "Rolle hinzufügen")}
                   </button>
                   <button
                     type="button"
                     onClick={handleCloseRoleForm}
                     className="cancel-btn"
                   >
-                    Cancel
+                    {t("Cancel", "Abbrechen")}
                   </button>
                 </div>
               </form>

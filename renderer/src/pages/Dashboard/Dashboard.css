@@ -106,7 +106,11 @@ h1 {
   display: flex;
   flex-direction: column;
   height: 300px;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
 }
+
 
 .audit-wrapper {
   flex: 1;
@@ -232,4 +236,26 @@ h1 {
   margin-bottom: 12px;
   font-size: 18px;
   color: #333;
+}
+/*pagination */
+.pagination-controls {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination-controls button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }

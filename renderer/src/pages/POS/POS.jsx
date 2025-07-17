@@ -2,8 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import "./pos.css";
+import useLanguageStore from '../../stores/languageStore';
 
 function POS() {
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 	const [barcodeSearch, setBarcodeSearch] = useState("");
@@ -272,11 +275,11 @@ function POS() {
 					<div className='input-fields'>
 
 					<div className='input-group' ref={searchInputRef} style={{ position: 'relative' }}>
-							<label htmlFor='search'>Product</label>
+							<label htmlFor='search'>{t('Product', 'Produkt')}</label>
 							<input
 								id='search'
 								className='search'
-								placeholder='Search product'
+								placeholder={t('Search product', 'Produkt suchen')}
 								value={searchTerm}
 								onChange={(e) => {
 									setSearchTerm(e.target.value);
@@ -288,7 +291,7 @@ function POS() {
 								<ul className='product-dropdown'>
 									{loading ? (
 										<li className='dropdown-item' style={{ color: '#888', textAlign: 'center' }}>
-											Searching...
+											{t('Searching...', 'Suche...')}
 										</li>
 									) : filteredProducts.length > 0 ? (
 										filteredProducts.map((p) => (
@@ -311,18 +314,18 @@ function POS() {
 										))
 									) : (
 										<li className='dropdown-item' style={{ color: '#888', textAlign: 'center' }}>
-											No products found
+											{t('No products found', 'Keine Produkte gefunden')}
 										</li>
 									)}
 								</ul>
 							)}
 						
 						<div className='input-group'>
-							<label htmlFor='barcode-search'>Barcode</label>
+							<label htmlFor='barcode-search'>{t('Barcode', 'Barcode')}</label>
 							<input
 								id='barcode-search'
 								className='search'
-								placeholder='Scan barcode'
+								placeholder={t('Scan barcode', 'Barcode scannen')}
 								value={barcodeSearch}
 								onChange={(e) => setBarcodeSearch(e.target.value)}
 							/>
@@ -335,7 +338,7 @@ function POS() {
 					</div>
 					<div className='cashier-section'>
 						<div>
-							Cashier: <span className='cashier-name'>John Doe</span>
+							{t('Cashier:', 'Kassierer:')} <span className='cashier-name'>John Doe</span>
 						</div>
 						{/* Queue Button */}
 						<div style={{ position: 'relative' }}>
@@ -344,7 +347,7 @@ function POS() {
 								onClick={() => setShowQueueDropdown((v) => !v)}
 								style={{ position: 'relative', marginLeft: 10 }}
 							>
-								Queue <span style={{ background: '#222', color: '#fff', borderRadius: '50%', padding: '2px 8px', marginLeft: 4, fontSize: '0.9em' }}>{queue.length}</span>
+								{t('Queue', 'Warteschlange')} <span style={{ background: '#222', color: '#fff', borderRadius: '50%', padding: '2px 8px', marginLeft: 4, fontSize: '0.9em' }}>{queue.length}</span>
 							</button>
 							{showQueueDropdown && (
 								<div
@@ -362,7 +365,7 @@ function POS() {
 									}}
 								>
 									{queue.length === 0 && (
-										<div style={{ color: '#888', textAlign: 'center', padding: 12 }}>No carts in queue</div>
+										<div style={{ color: '#888', textAlign: 'center', padding: 12 }}>{t('No carts in queue', 'Keine Warenkörbe in der Warteschlange')}</div>
 									)}
 									{queue.map((q, idx) => (
 										<div
@@ -379,13 +382,13 @@ function POS() {
 											onClick={() => handleLoadQueuedCart(idx)}
 										>
 											<div style={{ fontWeight: 'bold', fontSize: '1em' }}>
-												Cart #{idx + 1} - {Object.values(q.cart).reduce((sum, item) => sum + item.quantity, 0)} items
+												{t('Cart', 'Warenkorb')} #{idx + 1} - {Object.values(q.cart).reduce((sum, item) => sum + item.quantity, 0)} {t('items', 'Artikel')}
 											</div>
 											<div style={{ fontSize: '0.95em', color: '#555' }}>
-												{Object.values(q.cart)[0]?.name || 'No items'}
+												{Object.values(q.cart)[0]?.name || t('No items', 'Keine Artikel')}
 											</div>
 											<div style={{ fontSize: '0.9em', color: '#888' }}>
-												Total: ${Object.values(q.cart).reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+												{t('Total', 'Gesamt')}: ${Object.values(q.cart).reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
 											</div>
 											<div style={{ fontSize: '0.85em', color: '#aaa' }}>
 												{new Date(q.timestamp).toLocaleTimeString()}
@@ -401,25 +404,25 @@ function POS() {
 
 				<div className='content'>
 					<div className='product-grid'>
-						{loading && <div>Loading products...</div>}
+						{loading && <div>{t('Loading products...', 'Produkte werden geladen...')}</div>}
 						{!loading && selectedProducts.length === 0 && (
 							<div style={{ color: '#888', textAlign: 'center', marginTop: '2em' }}>
-								Please search and select products to display.
+								{t('Please search and select products to display.', 'Bitte suchen und wählen Sie Produkte aus, um sie anzuzeigen.')}
 							</div>
 						)}
 						{selectedProducts.length > 0 && (
 							<table className='product-table'>
 								<thead>
 									<tr>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Category ID</th>
-										<th>Barcode</th>
-										<th>Price</th>
-										<th>VAT Rate</th>
-										<th>Stock</th>
-										<th>Quantity</th>
-										<th>Actions</th>
+										<th>{t('ID', 'ID')}</th>
+										<th>{t('Name', 'Name')}</th>
+										<th>{t('Category ID', 'Kategorie-ID')}</th>
+										<th>{t('Barcode', 'Barcode')}</th>
+										<th>{t('Price', 'Preis')}</th>
+										<th>{t('VAT Rate', 'MwSt-Satz')}</th>
+										<th>{t('Stock', 'Lager')}</th>
+										<th>{t('Quantity', 'Menge')}</th>
+										<th>{t('Actions', 'Aktionen')}</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -464,7 +467,7 @@ function POS() {
 														fontSize: '12px'
 													}}
 												>
-													Remove
+													{t('Remove', 'Entfernen')}
 												</button>
 											</td>
 										</tr>
@@ -491,7 +494,7 @@ function POS() {
 								{/* Cart Items */}
 								<div style={{ fontFamily: 'monospace', fontSize: '1em', marginBottom: '10px' }}>
 									{Object.values(cart).length === 0 && (
-										<div style={{ color: '#888', textAlign: 'center' }}>No items in cart</div>
+										<div style={{ color: '#888', textAlign: 'center' }}>{t('No items in cart', 'Keine Artikel im Warenkorb')}</div>
 									)}
 									{Object.values(cart).map((item, idx) => (
 										<div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
@@ -506,23 +509,28 @@ function POS() {
 								{/* Totals */}
 								<div style={{ fontFamily: 'monospace', fontSize: '1em' }}>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span>Subtotal:</span>
+										<span>{t('Subtotal:', 'Zwischensumme:')}</span>
 										<span>${subtotal.toFixed(2)}</span>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span>Tax:</span>
-										<span>${tax}</span>
+										<span>{t('Tax:', 'MwSt:')}</span>
+										<span>${tax.toFixed(2)}</span>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-										<span>Total:</span>
-										<span>${total}</span>
+										<span>{t('Total:', 'Gesamt:')}</span>
+										<span>${total.toFixed(2)}</span>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span>Paid:</span>
-										<span>${paidAmount.toFixed(2)}</span>
+										<span>{t('Paid:', 'Bezahlt:')}</span>
+										<input
+											type='number'
+											value={paidAmount}
+											onChange={e => setPaidAmount(Number(e.target.value))}
+											style={{ width: 80, marginLeft: 8 }}
+										/>
 									</div>
 									<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-										<span>Change:</span>
+										<span>{t('Change:', 'Wechselgeld:')}</span>
 										<span>${change.toFixed(2)}</span>
 									</div>
 								</div>
@@ -544,10 +552,10 @@ function POS() {
 
 								<div className="add-to-queue-print-btns">
 									<button className="add-to-queue" onClick={handleAddToQueue} style={{ marginTop: 8, marginBottom: 8 }}>
-										Add to queue
+										{t('Add to queue', 'Zur Warteschlange hinzufügen')}
 									</button>
 									<button className='print-btn' onClick={handlePrintInvoice}>
-										Print Invoice
+										{t('Print Invoice', 'Rechnung drucken')}
 									</button>
 								</div>
 							</div>
