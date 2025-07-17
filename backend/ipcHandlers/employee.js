@@ -26,9 +26,10 @@ module.exports = function registerEmployeeHandlers(ipcMain, db) {
   });
 
   // Add new employee
-  ipcMain.handle('employees:add', async (event, employeeData) => {
+  ipcMain.handle('employees:add', async (event, employeeData,currentUser) => {
     try {
-      return await employeeController.addEmployee(employeeData);
+      console.log("current user in ipc"+ currentUser);
+      return await employeeController.addEmployee(employeeData,currentUser);
     } catch (error) {
       console.error('Error adding employee:', error.message);
       throw error;

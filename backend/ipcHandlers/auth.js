@@ -1,8 +1,9 @@
 // ipcHandlers/auth.js
-const authController = require('../controllers/authController');
+const createAuthController = require('../controllers/authController');
 
-module.exports = function (ipcMain) {
-  // Login handler
+module.exports = function (ipcMain, db) {
+  const authController = createAuthController(db);
+
   ipcMain.handle('login', async (event, identifier, password) => {
     try {
       const result = await authController.login(identifier, password);
@@ -18,10 +19,10 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Register handler
-  ipcMain.handle('register', async (event, userData) => {
+  ipcMain.handle('register', async (event, userData, currentUser) => {
     try {
-      const result = await authController.register(userData);
+      console.log('currentUser in registerUser:', currentUser);
+      const result = await authController.register(userData, currentUser);
       return result;
     } catch (error) {
       console.error('Register IPC error:', error);
@@ -34,7 +35,6 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Logout handler
   ipcMain.handle('logout', async (event, userId, refreshToken) => {
     try {
       const result = await authController.logout(userId, refreshToken);
@@ -50,7 +50,6 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Validate session handler
   ipcMain.handle('validateSession', async (event, token) => {
     try {
       const result = await authController.validateSession(token);
@@ -66,7 +65,6 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Get profile handler
   ipcMain.handle('getProfile', async (event, userId) => {
     try {
       const result = await authController.getProfile(userId);
@@ -82,7 +80,6 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Update profile handler
   ipcMain.handle('updateProfile', async (event, userId, updateData) => {
     try {
       const result = await authController.updateProfile(userId, updateData);
@@ -98,7 +95,6 @@ module.exports = function (ipcMain) {
     }
   });
 
-  // Change password handler
   ipcMain.handle('changePassword', async (event, userId, currentPassword, newPassword) => {
     try {
       const result = await authController.changePassword(userId, currentPassword, newPassword);

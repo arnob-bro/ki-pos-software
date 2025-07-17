@@ -1,19 +1,13 @@
-const authService = require('../services/authService');
+const AuthService = require('../services/authService');
 
 class AuthController {
-  constructor() {
-    // Initialize any dependencies or configuration
+  constructor(db) {
+    this.authService = AuthService(db);
   }
 
-  /**
-   * Authenticate user login
-   * @param {string} identifier - Username, email, or user ID
-   * @param {string} password - User password
-   * @returns {Object} Login result with success status and user data or error message
-   */
   async login(identifier, password) {
     try {
-      const result = await authService.loginUser(identifier, password);
+      const result = await this.authService.loginUser(identifier, password);
       return result;
     } catch (error) {
       return {
@@ -25,14 +19,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Register a new user
-   * @param {Object} userData - User registration data
-   * @returns {Object} Registration result
-   */
-  async register(userData) {
+  async register(userData, currentUser) {
     try {
-      const result = await authService.registerUser(userData);
+      const result = await this.authService.registerUser(userData, currentUser);
       return result;
     } catch (error) {
       return {
@@ -44,15 +33,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Logout user
-   * @param {string} userId - User ID to logout
-   * @param {string} refreshToken - Refresh token to invalidate
-   * @returns {Object} Logout result
-   */
   async logout(userId, refreshToken) {
     try {
-      const result = await authService.logoutUser(userId, refreshToken);
+      const result = await this.authService.logoutUser(userId, refreshToken);
       return result;
     } catch (error) {
       return {
@@ -64,14 +47,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Validate user session/token
-   * @param {string} token - JWT token to validate
-   * @returns {Object} Validation result
-   */
   async validateSession(token) {
     try {
-      const result = await authService.validateToken(token);
+      const result = await this.authService.validateToken(token);
       return result;
     } catch (error) {
       return {
@@ -83,16 +61,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Change user password
-   * @param {string} userId - User ID
-   * @param {string} currentPassword - Current password
-   * @param {string} newPassword - New password
-   * @returns {Object} Password change result
-   */
   async changePassword(userId, currentPassword, newPassword) {
     try {
-      const result = await authService.changePassword(userId, currentPassword, newPassword);
+      const result = await this.authService.changePassword(userId, currentPassword, newPassword);
       return result;
     } catch (error) {
       return {
@@ -104,14 +75,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Get user profile
-   * @param {string} userId - User ID
-   * @returns {Object} User profile data
-   */
   async getProfile(userId) {
     try {
-      const result = await authService.getUserProfile(userId);
+      const result = await this.authService.getUserProfile(userId);
       return result;
     } catch (error) {
       return {
@@ -123,15 +89,9 @@ class AuthController {
     }
   }
 
-  /**
-   * Update user profile
-   * @param {string} userId - User ID
-   * @param {Object} updateData - Data to update
-   * @returns {Object} Update result
-   */
   async updateProfile(userId, updateData) {
     try {
-      const result = await authService.updateUserProfile(userId, updateData);
+      const result = await this.authService.updateUserProfile(userId, updateData);
       return result;
     } catch (error) {
       return {
@@ -144,7 +104,8 @@ class AuthController {
   }
 }
 
-// Create and export a singleton instance
-const authController = new AuthController();
+function createAuthController(db) {
+  return new AuthController(db);
+}
 
-module.exports = authController;
+module.exports = createAuthController;

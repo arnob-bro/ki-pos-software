@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const AuditLogService = require('./auditLogService');
 const { 
   findUserById, 
   findUserByEmail, 
@@ -16,10 +17,11 @@ const { hashPassword, comparePassword } = require('../utils/hash');
 const logger = require('../config/logger');
 
 class AuthService {
-  constructor() {
+  constructor(db) {
     this.saltRounds = 12;
     this.tokenExpiry = '24h';
     this.refreshTokenExpiry = '7d';
+    this.auditLogService = new AuditLogService(db);
   }
 
   /**
@@ -31,7 +33,7 @@ class AuthService {
    * @param {number} userData.role_id - Role ID
    * @returns {Object} Registration result
    */
-  async registerUser(userData) {
+  async registerUser(userData, currentUser) {
     try {
       // Validate input data
       if (!userData.name || !userData.password || !userData.email || !userData.role_id) {
@@ -76,6 +78,7 @@ class AuthService {
 
       // Save user to database
       const createdUser = createUser(newUser);
+      console.log('createdUser:', createdUser);
       if (!createdUser) {
         return {
           success: false,
@@ -98,6 +101,9 @@ class AuthService {
       const userPermissions = getUserPermissionsWithCodes(createdUser.id);
 
       logger.info(`User registered successfully: ${createdUser.name}`);
+
+      console.log('currentUser in registerUser:', currentUser);
+      
 
       return {
         success: true,
@@ -538,7 +544,4 @@ class AuthService {
   }
 }
 
-// Create and export a singleton instance
-const authService = new AuthService();
-
-module.exports = authService;
+module.exports = (db) => new AuthService(db);

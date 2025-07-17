@@ -41,6 +41,7 @@ const EmployeeManagement = () => {
   const [editingRole, setEditingRole] = useState(false);
   const { hasPermissionByCode } = useUserStore();
   const isAdmin = hasPermissionByCode(PERMISSION_CODES.ALL);
+  const currentUser = useUserStore((state) => state.user);
 
   useEffect(() => {
     fetchEmployees();
@@ -163,7 +164,7 @@ const EmployeeManagement = () => {
         await window.posAPI.updateEmployee(formData.id, formData);
       } else {
         // Add new employee
-        await window.posAPI.addEmployee(formData);
+        await window.posAPI.addEmployee(formData,currentUser);
       }
       
       // Refresh both employee list and roles (to update role usage)

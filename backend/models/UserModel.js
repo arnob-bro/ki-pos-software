@@ -61,10 +61,10 @@ function createUser(userData) {
       new Date().toISOString()
     );
 
-    if (result.changes > 0) {
+    console.log(result);
+
       return findUserById(id);
-    }
-    return null;
+   
   } catch (error) {
     console.error('Error creating user:', error);
     return null;
