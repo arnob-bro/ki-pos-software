@@ -3,11 +3,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Package, TrendingUp, TrendingDown, AlertTriangle, Search, X } from "lucide-react";
 import "./InventoryManagement.css";
 import Sidebar from "../../components/Sidebar";
-import useLanguageStore from '../../stores/languageStore';
 
 const InventoryManagement = () => {
-  const language = useLanguageStore((state) => state.language);
-  const t = (en, de) => language === 'de' ? de : en;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -105,18 +102,27 @@ const InventoryManagement = () => {
     { name: 'Out of Stock', value: outOfStockProducts.length, color: '#EF4444' }
   ];
 
-  const topStockProducts = products
-    .sort((a, b) => (b.stock_quantity || 0) - (a.stock_quantity || 0))
-    .slice(0, 10)
-    .map(p => ({
-      name: p.name.length > 15 ? p.name.substring(0, 15) + '...' : p.name,
-      stock: p.stock_quantity || 0
+  // Mock sales data generation - replace with actual API call when available
+  const generateMockSalesData = (products) => {
+    return products.map(product => ({
+      ...product,
+      itemsSold: Math.floor(Math.random() * 500) + 10, // Random sales between 10-510
+      totalRevenue: 0 // Will be calculated below
+    })).map(product => ({
+      ...product,
+      totalRevenue: product.itemsSold * parseFloat(product.price || 0)
     }));
+  };
+
+  // Get top 10 products by sales
+  const topProductsSold = generateMockSalesData(products)
+    .sort((a, b) => b.totalRevenue - a.totalRevenue)
+    .slice(0, 10);
 
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return { status: t('Out of Stock', 'Nicht vorrätig'), color: '#EF4444', class: 'out-of-stock' };
-    if (quantity < 10) return { status: t('Low Stock', 'Niedriger Bestand'), color: '#F59E0B', class: 'low-stock' };
-    return { status: t('In Stock', 'Auf Lager'), color: '#10B981', class: 'in-stock' };
+    if (quantity === 0) return { status: 'Out of Stock', color: '#EF4444', class: 'out-of-stock' };
+    if (quantity < 10) return { status: 'Low Stock', color: '#F59E0B', class: 'low-stock' };
+    return { status: 'In Stock', color: '#10B981', class: 'in-stock' };
   };
 
   const handleSort = (field) => {
@@ -151,8 +157,8 @@ const InventoryManagement = () => {
       <div className="inventory-management">
         {/* Header */}
         <div className="inventory-header">
-          <h1>📊 {t('Inventory Management', 'Lagerverwaltung')}</h1>
-          <p>{t('Monitor and manage your product stock levels', 'Überwachen und verwalten Sie Ihre Produktbestände')}</p>
+          <h1>📊 Inventory Management</h1>
+          <p>Monitor and manage your product stock levels</p>
         </div>
 
         {/* Statistics Cards */}
@@ -162,8 +168,8 @@ const InventoryManagement = () => {
               <Package size={24} />
             </div>
             <div className="stat-content">
-              <span className="stat-label">{t('Total Products', 'Produkte insgesamt')}</span>
-              <span className="stat-value">{products.length}</span>
+              <span className="stat-label">Total Products</span>
+              <span className="stat-value">{totalProducts}</span>
             </div>
           </div>
           
@@ -172,8 +178,8 @@ const InventoryManagement = () => {
               <TrendingUp size={24} />
             </div>
             <div className="stat-content">
-              <span className="stat-label">{t('Total Stock', 'Gesamtbestand')}</span>
-              <span className="stat-value">{products.reduce((sum, p) => sum + (p.stock_quantity || 0), 0)}</span>
+              <span className="stat-label">Total Stock</span>
+              <span className="stat-value">{totalStock}</span>
             </div>
           </div>
           
@@ -182,8 +188,8 @@ const InventoryManagement = () => {
               <TrendingDown size={24} />
             </div>
             <div className="stat-content">
-              <span className="stat-label">{t('Low Stock', 'Niedriger Bestand')}</span>
-              <span className="stat-value">{products.filter(p => (p.stock_quantity || 0) < 10).length}</span>
+              <span className="stat-label">Low Stock</span>
+              <span className="stat-value">{lowStockProducts.length}</span>
             </div>
           </div>
           
@@ -192,108 +198,128 @@ const InventoryManagement = () => {
               <AlertTriangle size={24} />
             </div>
             <div className="stat-content">
-              <span className="stat-label">{t('Out of Stock', 'Nicht vorrätig')}</span>
-              <span className="stat-value">{products.filter(p => (p.stock_quantity || 0) === 0).length}</span>
+              <span className="stat-label">Out of Stock</span>
+              <span className="stat-value">{outOfStockProducts.length}</span>
             </div>
           </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="charts-grid">
-          {/* Stock by Category Chart */}
-          <div className="chart-card">
-            <h3>{t('Stock by Category', 'Bestand nach Kategorie')}</h3>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stockByCategory}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="stock" fill="#3B82F6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        
 
-          {/* Stock Status Distribution */}
-          <div className="chart-card">
-            <h3>{t('Stock Status Distribution', 'Bestandsstatus-Verteilung')}</h3>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={stockLevels}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {stockLevels.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="chart-legend">
-              {stockLevels.map((item, index) => (
-                <div key={index} className="legend-item">
-                  <div className="legend-color" style={{ backgroundColor: item.color }}></div>
-                  <span>{item.name} ({item.value})</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Top Stock Products Chart */}
-        <div className="chart-card full-width">
-          <h3>{t('Top 10 Products by Stock', 'Top 10 Produkte nach Bestand')}</h3>
-          <div className="chart-container">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topStockProducts} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={150} />
-                <Tooltip />
-                <Bar dataKey="stock" fill="#10B981" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Filters Section */}
-        <div className="filters-section">
-          <div className="filters-header">
-            <div className="filters-title">
-              <h3>{t('Filter & Search', 'Filtern & Suchen')}</h3>
-              {activeFiltersCount > 0 && (
-                <span className="active-filters-badge">{activeFiltersCount} {t('active', 'aktiv')}</span>
-              )}
-            </div>
-            <div className="filters-controls">
-              {activeFiltersCount > 0 && (
-                <button className="clear-filters-btn" onClick={clearFilters}>
-                  <X size={16} />
-                  {t('Clear All', 'Alle löschen')}
-                </button>
-              )}
-            </div>
+        {/* Top Products Sold Table */}
+        <div className="table-card full-width">
+          <div className="table-header">
+            <h3>Top 10 Products Sold</h3>
+            <span className="table-count">Revenue & Sales Performance</span>
           </div>
           
+          <div className="table-container">
+            <table className="top-products-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Items Sold</th>
+                  <th>Unit Price</th>
+                  <th>Total Revenue</th>
+                  <th>Stock Remaining</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="loading-row">
+                      <div className="loading-spinner"></div>
+                      <span>Loading top products...</span>
+                    </td>
+                  </tr>
+                ) : topProductsSold.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="no-data">
+                      No sales data available
+                    </td>
+                  </tr>
+                ) : (
+                  topProductsSold.map((product, index) => (
+                    <tr key={product.id}>
+                      <td>
+                        <div className="rank-badge">
+                          #{index + 1}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="product-name">{product.name}</div>
+                      </td>
+                      <td>
+                        <div className="category-name">
+                          {categories.find((c) => c.id === product.category_id)?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="items-sold">
+                          {product.itemsSold?.toLocaleString() || 0}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="unit-price">
+                          ${parseFloat(product.price || 0).toFixed(2)}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="total-revenue">
+                          ${product.totalRevenue?.toLocaleString('en-US', { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                          }) || '0.00'}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="stock-remaining">
+                          {product.stock_quantity || 0}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Enhanced Filters Section */}
+        <div className="filters-section">
+          {/* Header */}
+          <div className="filters-header">
+            <div className="filters-title">
+              <h3>Filter & Search</h3>
+              {activeFiltersCount > 0 && (
+                <span className="active-filters-badge">{activeFiltersCount} active</span>
+              )}
+            </div>
+
+            {activeFiltersCount > 0 && (
+              <div className="filters-controls">
+                <button className="clear-filters-btn" onClick={clearFilters}>
+                  <X size={16} />
+                  Clear All
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Filter Content */}
           <div className="filters-content">
+            {/* Row 1 */}
             <div className="filter-row">
+              {/* Search */}
               <div className="filter-group">
-                <label>{t('Search Products', 'Produkte suchen')}</label>
+                <label>Search Products</label>
                 <div className="search-input-container">
                   <Search size={18} className="search-icon" />
                   <input
                     type="text"
-                    placeholder={t('Search by product name...', 'Nach Produktname suchen...')}
+                    placeholder="Search by product name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="search-input"
@@ -308,46 +334,52 @@ const InventoryManagement = () => {
                   )}
                 </div>
               </div>
-              
+
+              {/* Category */}
               <div className="filter-group">
-                <label>{t('Category', 'Kategorie')}</label>
+                <label>Category</label>
                 <div className="select-container">
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">{t('All Categories', 'Alle Kategorien')}</option>
+                    <option value="">All Categories</option>
                     {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
-              
+
+              {/* Stock Status */}
               <div className="filter-group">
-                <label>{t('Stock Status', 'Bestandsstatus')}</label>
+                <label>Stock Status</label>
                 <div className="select-container">
                   <select
                     value={selectedStockStatus}
                     onChange={(e) => setSelectedStockStatus(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">{t('All Status', 'Alle Status')}</option>
-                    <option value="in-stock">{t('In Stock', 'Auf Lager')}</option>
-                    <option value="low-stock">{t('Low Stock', 'Niedriger Bestand')}</option>
-                    <option value="out-of-stock">{t('Out of Stock', 'Nicht vorrätig')}</option>
+                    <option value="">All Status</option>
+                    <option value="in-stock">In Stock</option>
+                    <option value="low-stock">Low Stock</option>
+                    <option value="out-of-stock">Out of Stock</option>
                   </select>
                 </div>
               </div>
             </div>
-            
+
+            {/* Row 2 */}
             <div className="filter-row">
+              {/* Price Range */}
               <div className="filter-group">
-                <label>{t('Price Range', 'Preisspanne')}</label>
+                <label>Price Range</label>
                 <div className="price-range-container">
                   <div className="price-input-group">
-                    <span className="price-label">{t('Min', 'Min')}</span>
+                    <span className="price-label">Min</span>
                     <input
                       type="number"
                       placeholder="0.00"
@@ -358,9 +390,9 @@ const InventoryManagement = () => {
                       step="0.01"
                     />
                   </div>
-                  <span className="price-separator">{t('to', 'bis')}</span>
+                  <span className="price-separator">to</span>
                   <div className="price-input-group">
-                    <span className="price-label">{t('Max', 'Max')}</span>
+                    <span className="price-label">Max</span>
                     <input
                       type="number"
                       placeholder="999.99"
@@ -373,33 +405,35 @@ const InventoryManagement = () => {
                   </div>
                 </div>
               </div>
-              
+
+              {/* Sort By */}
               <div className="filter-group">
-                <label>{t('Sort By', 'Sortieren nach')}</label>
+                <label>Sort By</label>
                 <div className="select-container">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="name">{t('Name', 'Name')}</option>
-                    <option value="category_id">{t('Category', 'Kategorie')}</option>
-                    <option value="stock_quantity">{t('Stock Quantity', 'Lagerbestand')}</option>
-                    <option value="price">{t('Price', 'Preis')}</option>
+                    <option value="name">Name</option>
+                    <option value="category_id">Category</option>
+                    <option value="stock_quantity">Stock Quantity</option>
+                    <option value="price">Price</option>
                   </select>
                 </div>
               </div>
-              
+
+              {/* Sort Order */}
               <div className="filter-group">
-                <label>{t('Sort Order', 'Sortierreihenfolge')}</label>
+                <label>Sort Order</label>
                 <div className="select-container">
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="asc">{t('Ascending', 'Aufsteigend')}</option>
-                    <option value="desc">{t('Descending', 'Absteigend')}</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
                   </select>
                 </div>
               </div>
@@ -410,8 +444,8 @@ const InventoryManagement = () => {
         {/* Inventory Table */}
         <div className="table-card">
           <div className="table-header">
-            <h3>{t('Inventory Details', 'Lagerdetails')}</h3>
-            <span className="table-count">{filteredProducts.length} {t('items', 'Artikel')}</span>
+            <h3>Inventory Details</h3>
+            <span className="table-count">{filteredProducts.length} items</span>
           </div>
           
           <div className="table-container">
@@ -419,24 +453,24 @@ const InventoryManagement = () => {
               <thead>
                 <tr>
                   <th onClick={() => handleSort('name')}>
-                    {t('Product Name', 'Produktname')}
-                    {sortBy === 'name' && <span className="sort-indicator">{sortOrder === 'asc' ? ' ↑' : ' ↓'}</span>}
+                    Product Name 
+                    {sortBy === 'name' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                   </th>
                   <th onClick={() => handleSort('category_id')}>
-                    {t('Category', 'Kategorie')}
-                    {sortBy === 'category_id' && <span className="sort-indicator">{sortOrder === 'asc' ? ' ↑' : ' ↓'}</span>}
+                    Category
+                    {sortBy === 'category_id' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                   </th>
-                  <th className="hide-mobile">{t('Barcode', 'Barcode')}</th>
+                  <th className="hide-mobile">Barcode</th>
                   <th onClick={() => handleSort('stock_quantity')}>
-                    {t('Stock', 'Lager')}
-                    {sortBy === 'stock_quantity' && <span className="sort-indicator">{sortOrder === 'asc' ? ' ↑' : ' ↓'}</span>}
+                    Stock
+                    {sortBy === 'stock_quantity' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                   </th>
                   <th className="hide-mobile" onClick={() => handleSort('price')}>
-                    {t('Unit Price', 'Stückpreis')}
-                    {sortBy === 'price' && <span className="sort-indicator">{sortOrder === 'asc' ? ' ↑' : ' ↓'}</span>}
+                    Unit Price
+                    {sortBy === 'price' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
                   </th>
-                  <th className="hide-mobile">{t('Stock Value', 'Lagerwert')}</th>
-                  <th>{t('Status', 'Status')}</th>
+                  <th className="hide-mobile">Stock Value</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -444,13 +478,13 @@ const InventoryManagement = () => {
                   <tr>
                     <td colSpan="7" className="loading-row">
                       <div className="loading-spinner"></div>
-                      <span>{t('Loading...', 'Lädt...')}</span>
+                      <span>Loading...</span>
                     </td>
                   </tr>
                 ) : filteredProducts.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="no-data">
-                      {t('No products found', 'Keine Produkte gefunden')}
+                      No products found
                     </td>
                   </tr>
                 ) : (

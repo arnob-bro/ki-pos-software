@@ -582,23 +582,23 @@ const EmployeeManagement = () => {
         )}
 
         <div className="employee-stats">
-          <div className="stat-card">
+          <div className="stat-cards">
             <h4>Total Employees</h4>
             <span>{pagination.total}</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-cards">
             <h4>Active</h4>
             <span>{employees.filter((e) => e.status === "active").length}</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-cards">
             <h4>Inactive</h4>
             <span>{employees.filter((e) => e.status === "suspended").length}</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-cards">
             <h4>Managers</h4>
             <span>{employees.filter((e) => e.role_name === "manager").length}</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-cards">
             <h4>Showing Results</h4>
             <span>{filteredEmployees.length}</span>
           </div>
@@ -756,7 +756,7 @@ const EmployeeManagement = () => {
             </button>
           </div>
 
-          <div className="filters-section">
+          <div className="filter-section">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}

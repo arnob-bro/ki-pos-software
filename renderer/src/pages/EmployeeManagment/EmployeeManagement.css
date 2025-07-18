@@ -93,7 +93,7 @@
   margin-bottom: 30px;
 }
 
-.stat-card {
+.stat-cards {
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -114,7 +114,7 @@
   font-weight: 600;
 }
 
-.stat-card span {
+.stat-cards span {
   font-size: 24px;
   margin-left: 10px;
   font-weight: 700;
@@ -177,7 +177,7 @@
   background: #5a6268;
 }
 
-.filters-section {
+.filter-section {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -638,11 +638,11 @@
     padding: 16px;
   }
 
-  .stat-card {
+  .stat-cards {
     padding: 16px;
   }
 
-  .stat-card span {
+  .stat-cards span {
     font-size: 20px;
   }
 }
