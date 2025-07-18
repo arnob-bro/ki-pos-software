@@ -71,6 +71,7 @@ contextBridge.exposeInMainWorld("posAPI", {
   getTopProducts: (limit) => ipcRenderer.invoke('dashboard:getTopProducts', limit),
   getLowStockItems: (threshold) => ipcRenderer.invoke('dashboard:getLowStockItems', threshold),
   getAuditLogs: (page, limit) => ipcRenderer.invoke('dashboard:getAuditLogs', page, limit),
+  getTotalProducts: () => ipcRenderer.invoke('dashboard:getTotalProducts'),
   // Shifts
   startShift: (userId) => ipcRenderer.invoke('shift:start', userId),
   endShift: (shiftId) => ipcRenderer.invoke('shift:end', shiftId),

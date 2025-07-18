@@ -23,6 +23,7 @@ const Dashboard = () => {
   const logsPerPage = 10;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -32,13 +33,15 @@ const Dashboard = () => {
       window.posAPI.getSalesStats(salesView),
       window.posAPI.getTopProducts(5),
       window.posAPI.getLowStockItems(5),
-      window.posAPI.getAuditLogs(currentPage, logsPerPage)
-    ]).then(([stats, products, lowStock, audit]) => {
+      window.posAPI.getAuditLogs(currentPage, logsPerPage),
+      window.posAPI.getTotalProducts()
+    ]).then(([stats, products, lowStock, audit, totalProductsRes]) => {
       setSalesStats(stats);
       setTopProducts(products);
       setLowStockItems(lowStock);
       setAuditLogs(audit.logs);
       setAuditTotal(audit.total);
+      setTotalProducts(totalProductsRes.total || 0);
       setLoading(false);
     }).catch((err) => {
       setError("Failed to load dashboard data");
@@ -152,14 +155,14 @@ const Dashboard = () => {
                       <h2>{salesStats?.transactions || 0}</h2>
                       <span className="success">▲ 5.3%</span>
                     </div>
-                    <div className="card">
+                    {/* <div className="card">
                       <h4>{t("Total Customers", "Kunden insgesamt")}</h4>
                       <h2>208</h2>
                       <span className="error">▼ 2.6%</span>
-                    </div>
+                    </div> */}
                     <div className="card">
                       <h4>{t("Total Products", "Produkte insgesamt")}</h4>
-                      <h2>156</h2>
+                      <h2>{totalProducts}</h2>
                       <span className="success">+12</span>
                     </div>
                     <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
@@ -212,6 +215,7 @@ const Dashboard = () => {
                           <thead>
                             <tr>
                               <th>{t("Action", "Aktion")}</th>
+                              <th>{t("Table", "Tabelle")}</th>
                               <th>{t("User", "Benutzer")}</th>
                               <th>{t("Timestamp", "Zeitstempel")}</th>
                             </tr>
@@ -220,6 +224,7 @@ const Dashboard = () => {
                             {auditLogs.map((log, index) => (
                               <tr key={index}>
                                 <td>{log.action}</td>
+                                <td>{log.table_name || '-'}</td>
                                 <td>{log.user}</td>
                                 <td>{log.timestamp}</td>
                               </tr>

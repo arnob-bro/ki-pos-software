@@ -5,114 +5,6 @@ import html2pdf from "html2pdf.js";
 import Sidebar from "../../components/Sidebar";
 import useLanguageStore from '../../stores/languageStore';
 
-const sampleReceipts = [
-  {
-    id: 1,
-    date: "2025-06-01",
-    operator: "Admin",
-    total: 500,
-    tax: 75,
-    payment_method: "Cash",
-    taxpayerId: "TXP-239812",
-    jurisdiction: "Dhaka North",
-    vatRate: 15,
-    items: [
-      { name: "Latte", qty: 2, price: 5.0 },
-      { name: "Croissant", qty: 1, price: 3.0 },
-    ],
-  },
-  {
-    id: 2,
-    date: "2025-06-02",
-    operator: "Staff1",
-    total: 300,
-    tax: 45,
-    payment_method: "Cash",
-    taxpayerId: "TXP-239812",
-    jurisdiction: "Dhaka North",
-    vatRate: 15,
-    items: [
-      { name: "Espresso", qty: 3, price: 4.0 },
-      { name: "Cake", qty: 2, price: 6.0 },
-    ],
-  },
-  {
-    id: 3,
-    date: "2025-06-02",
-    operator: "Admin",
-    total: 150,
-    tax: 22.5,
-    taxpayerId: "TXP-239812",
-    payment_method: "Cash",
-    jurisdiction: "Dhaka North",
-    vatRate: 15,
-    items: [
-      { name: "Bread", qty: 1, price: 2.0 },
-      { name: "Apples", qty: 3, price: 5.0 },
-    ],
-  },
-  {
-    id: 4,
-    date: "2025-06-02",
-    operator: "Admin",
-    total: 150,
-    tax: 22.5,
-    payment_method: "Cash",
-    taxpayerId: "TXP-239812",
-    jurisdiction: "Dhaka North",
-    vatRate: 15,
-    items: [
-      { name: "Bread", qty: 1, price: 2.0 },
-      { name: "Apples", qty: 3, price: 5.0 },
-    ],
-  },
-  // Add more sample data to demonstrate pagination
-  // {
-  //   id: 5,
-  //   date: "2025-06-03",
-  //   operator: "Staff1",
-  //   total: 250,
-  //   tax: 37.5,
-  //   items: [
-  //     { name: "Coffee", qty: 2, price: 3.5 },
-  //     { name: "Sandwich", qty: 1, price: 8.0 },
-  //   ],
-  // },
-  // {
-  //   id: 6,
-  //   date: "2025-06-03",
-  //   operator: "Admin",
-  //   total: 180,
-  //   tax: 27,
-  //   items: [
-  //     { name: "Tea", qty: 1, price: 2.5 },
-  //     { name: "Cookie", qty: 2, price: 1.5 },
-  //   ],
-  // },
-  // {
-  //   id: 7,
-  //   date: "2025-06-04",
-  //   operator: "Staff1",
-  //   total: 320,
-  //   tax: 48,
-  //   items: [
-  //     { name: "Cappuccino", qty: 2, price: 4.5 },
-  //     { name: "Muffin", qty: 1, price: 3.0 },
-  //   ],
-  // },
-  // {
-  //   id: 8,
-  //   date: "2025-06-04",
-  //   operator: "Admin",
-  //   total: 420,
-  //   tax: 63,
-  //   items: [
-  //     { name: "Hot Chocolate", qty: 1, price: 4.0 },
-  //     { name: "Croissant", qty: 2, price: 3.5 },
-  //   ],
-  // },
-];
-
 const ReceiptArchive = () => {
   const language = useLanguageStore((state) => state.language);
   const t = (en, de) => language === 'de' ? de : en;
@@ -212,14 +104,14 @@ const ReceiptArchive = () => {
   }, [loading, hasMore, currentPage, dateFilter, operatorFilter, idFilter, fetchReceipts]);
 
   // Calculate pagination
-  const totalPages = Math.ceil(sampleReceipts.length / pageSize);
+  const totalPages = Math.ceil(receipts.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const currentReceipts = sampleReceipts.slice(startIndex, endIndex);
+  const currentReceipts = receipts.slice(startIndex, endIndex);
 
   // Calculate totals
-  const totalTax = sampleReceipts.reduce((sum, r) => sum + r.tax, 0);
-  const totalAmount = sampleReceipts.reduce((sum, r) => sum + r.total, 0);
+  const totalTax = receipts.reduce((sum, r) => sum + (r.tax || 0), 0);
+  const totalAmount = receipts.reduce((sum, r) => sum + (r.total || 0), 0);
 
   const handleDownload = () => {
     const element = document.querySelector(".receipt-style");
@@ -358,7 +250,7 @@ const ReceiptArchive = () => {
         <div className="tax-cards">
       <div className="tax-card">
         <h4>{t('Total Receipts', 'Belege insgesamt')}</h4>
-        <p>{sampleReceipts.length}</p>
+        <p>{receipts.length}</p>
       </div>
       <div className="tax-card">
         <h4>{t('Total Tax', 'Gesamte Steuer')}</h4>
@@ -411,11 +303,11 @@ const ReceiptArchive = () => {
 
         {loading && <div className="loading">{t('Loading receipts...', 'Belege werden geladen...')}</div>}
         
-        {!loading && sampleReceipts.length === 0 && (
+        {!loading && receipts.length === 0 && (
           <div className="no-receipts">{t('No receipts found', 'Keine Belege gefunden')}</div>
         )}
         
-        {!loading && sampleReceipts.length > 0 && (
+        {!loading && receipts.length > 0 && (
           <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
             <table className="receipt-table">
               <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
@@ -439,8 +331,8 @@ const ReceiptArchive = () => {
                     <td>{r.date}</td>
                     <td>{r.operator}</td>
                     <td>{r.payment_method}</td>
-                    <td>${r.total.toFixed(2)}</td>
-                    <td>${r.tax.toFixed(2)}</td>
+                    <td>${(r.total || 0).toFixed(2)}</td>
+                    <td>${(r.tax || 0).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -451,7 +343,7 @@ const ReceiptArchive = () => {
         {/* Pagination info */}
         <div className="pagination-info">
           <span>
-            {t('Showing', 'Anzeigen')} {startIndex + 1} {t('to', 'bis')} {Math.min(endIndex, filteredReceipts.length)} {t('of', 'von')} {filteredReceipts.length} {t('receipts', 'Belege')}
+            {t('Showing', 'Anzeigen')} {startIndex + 1} {t('to', 'bis')} {Math.min(endIndex, receipts.length)} {t('of', 'von')} {receipts.length} {t('receipts', 'Belege')}
           </span>
         </div>
 

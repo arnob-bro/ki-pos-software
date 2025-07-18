@@ -42,12 +42,17 @@ module.exports = function (ipcMain) {
   ipcMain.handle('dashboard:getAuditLogs', async (event, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
     const logs = db.prepare(`
-      SELECT action_type as action, user_id as user, timestamp
+      SELECT action_type as action, user_id as user, table_name as table_name, timestamp
       FROM audit_logs
       ORDER BY timestamp DESC
       LIMIT ? OFFSET ?
     `).all(limit, offset);
     const count = db.prepare('SELECT COUNT(*) as total FROM audit_logs').get().total;
     return { logs, total: count };
+  });
+
+  ipcMain.handle('dashboard:getTotalProducts', async () => {
+    const result = db.prepare('SELECT COUNT(*) as total FROM products').get();
+    return { total: result.total };
   });
 }; 
