@@ -1,11 +1,15 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useUserStore from "../stores/userStore";
+import useLanguageStore from "../stores/languageStore";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, hasPermissionByCode } = useUserStore();
+  const language = useLanguageStore((state) => state.language);
+  const setLanguage = useLanguageStore((state) => state.setLanguage);
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'de' : 'en');
 
   const handleLogout = async () => {
     const result = await logout();
@@ -141,6 +145,23 @@ const Sidebar = () => {
         </button>
       )}  
       
+      {/* Language Toggle */}
+      <button
+        style={{
+          marginTop: '16px',
+          backgroundColor: '#007bff',
+          color: '#fff',
+          border: 'none',
+          padding: '5px',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          transition: 'background-color 0.3s ease',
+        }}
+        onClick={toggleLanguage}
+      >
+        {language === 'en' ? '🇬🇧 English' : '🇩🇪 Deutsch'}
+      </button>
 
       <button 
         style={{
