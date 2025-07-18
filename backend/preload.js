@@ -65,4 +65,10 @@ contextBridge.exposeInMainWorld("posAPI", {
   syncData: () => ipcRenderer.invoke('hardware:syncData'),
   getAvailablePorts: () => ipcRenderer.invoke('hardware:getAvailablePorts'),
   getHardwareStatus: () => ipcRenderer.invoke('hardware:getStatus'),
+
+  // Dashboard
+  getSalesStats: (view) => ipcRenderer.invoke('dashboard:getSalesStats', view),
+  getTopProducts: (limit) => ipcRenderer.invoke('dashboard:getTopProducts', limit),
+  getLowStockItems: (threshold) => ipcRenderer.invoke('dashboard:getLowStockItems', threshold),
+  getAuditLogs: (page, limit) => ipcRenderer.invoke('dashboard:getAuditLogs', page, limit),
 }); 

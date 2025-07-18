@@ -5,10 +5,13 @@ import "./ProductManagement.css";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import * as XLSX from 'xlsx';
+import useLanguageStore from '../../stores/languageStore';
 import useUserStore from '../../stores/userStore';
         
 const ProductManagement = () => {
   const navigate = useNavigate();
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
@@ -78,7 +81,7 @@ const ProductManagement = () => {
       setEditing(false);
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Error saving product: ' + error.message);
+      alert(t('Error saving product: ', 'Fehler beim Speichern des Produkts: ') + error.message);
     }
   };
 
@@ -88,13 +91,13 @@ const ProductManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm(t('Are you sure you want to delete this product?', 'Möchten Sie dieses Produkt wirklich löschen?'))) {
       try {
         await window.posAPI.deleteProduct(id, currentUser);
         fetchProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
-        alert('Error deleting product: ' + error.message);
+        alert(t('Error deleting product: ', 'Fehler beim Löschen des Produkts: ') + error.message);
       }
     }
   };
@@ -119,10 +122,10 @@ const ProductManagement = () => {
           await window.posAPI.addProduct(product, currentUser);
         }
         fetchProducts(); // refresh product list
-        alert("Products imported successfully!");
+        alert(t('Products imported successfully!', 'Produkte erfolgreich importiert!'));
       } catch (error) {
         console.error("Error importing products:", error);
-        alert("Error importing products: " + error.message);
+        alert(t('Error importing products: ', 'Fehler beim Importieren der Produkte: ') + error.message);
       }
     };
   
@@ -133,33 +136,19 @@ const ProductManagement = () => {
     <div className="product-management-page">
       <Sidebar />
       <div className="product-management">
-        {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button> */}
-        <h2>📦 Product Management</h2>
+        {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>  Back</button> */}
+        <h2>📦 {t('Product Management', 'Produktverwaltung')}</h2>
 
-        {/* <form onSubmit={handleSubmit} className="product-form">
-          <input name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
-          <select name="category_id" value={formData.category_id} onChange={handleChange} required>
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-          <input name="barcode" placeholder="Barcode" value={formData.barcode} onChange={handleChange} />
-          <input type="number" step="0.01" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required />
-          <input type="number" step="0.01" name="vat_rate" placeholder="VAT %" value={formData.vat_rate} onChange={handleChange} />
-          <input type="number" name="stock_quantity" placeholder="Stock Qty" value={formData.stock_quantity} onChange={handleChange} />
-          <button type="submit">{editing ? "Update" : "Add Product"}</button>
-        </form> */}
         <form onSubmit={handleSubmit} className="product-form">
   <div className="form-group">
-    <label htmlFor="name">Product Name</label>
+    <label htmlFor="name">{t('Product Name', 'Produktname')}</label>
     <input id="name" name="name" value={formData.name} onChange={handleChange} required />
   </div>
 
   <div className="form-group">
-    <label htmlFor="category_id">Category</label>
+    <label htmlFor="category_id">{t('Category', 'Kategorie')}</label>
     <select id="category_id" name="category_id" value={formData.category_id} onChange={handleChange} required>
-      <option value="">Select Category</option>
+      <option value="">{t('Select Category', 'Kategorie wählen')}</option>
       {categories.map((cat) => (
         <option key={cat.id} value={cat.id}>{cat.name}</option>
       ))}
@@ -167,30 +156,30 @@ const ProductManagement = () => {
   </div>
 
   <div className="form-group">
-    <label htmlFor="barcode">Barcode</label>
+    <label htmlFor="barcode">{t('Barcode', 'Barcode')}</label>
     <input id="barcode" name="barcode" value={formData.barcode} onChange={handleChange} />
   </div>
 
   <div className="form-group">
-    <label htmlFor="price">Price ($)</label>
+    <label htmlFor="price">{t('Price ($)', 'Preis (€)')}</label>
     <input id="price" type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required />
   </div>
 
   <div className="form-group">
-    <label htmlFor="vat_rate">VAT (%)</label>
+    <label htmlFor="vat_rate">{t('VAT (%)', 'MwSt (%)')}</label>
     <input id="vat_rate" type="number" step="0.01" name="vat_rate" value={formData.vat_rate} onChange={handleChange} />
   </div>
 
   <div className="form-group">
-    <label htmlFor="stock_quantity">Stock Quantity</label>
+    <label htmlFor="stock_quantity">{t('Stock Quantity', 'Lagerbestand')}</label>
     <input id="stock_quantity" type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} />
   </div>
 
-  <button type="submit">{editing ? "Update" : "Add Product"}</button>
+  <button type="submit">{editing ? t('Update', 'Aktualisieren') : t('Add Product', 'Produkt hinzufügen')}</button>
 </form>
 <div className="excel">
   <label className="upload-btn">
-    📁 Import CSV/Excel
+    📁 {t('Import CSV/Excel', 'CSV/Excel importieren')}
     <input type="file" accept=".csv, .xlsx" onChange={handleFileUpload} hidden />
   </label>
 </div>
@@ -198,13 +187,13 @@ const ProductManagement = () => {
         <table className="product-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Barcode</th>
-              <th>Price</th>
-              <th>VAT %</th>
-              <th>Stock</th>
-              <th>Actions</th>
+              <th>{t('Name', 'Name')}</th>
+              <th>{t('Category', 'Kategorie')}</th>
+              <th>{t('Barcode', 'Barcode')}</th>
+              <th>{t('Price', 'Preis')}</th>
+              <th>{t('VAT %', 'MwSt %')}</th>
+              <th>{t('Stock', 'Lager')}</th>
+              <th>{t('Actions', 'Aktionen')}</th>
             </tr>
           </thead>
           <tbody>
@@ -217,8 +206,8 @@ const ProductManagement = () => {
                 <td>{p.vat_rate ? `${p.vat_rate}%` : '0%'}</td>
                 <td>{p.stock_quantity}</td>
                 <td>
-                  <button className="edit-btn"  onClick={() => handleEdit(p)}>✏️</button>
-                  <button className="delete-btn" onClick={() => handleDelete(p.id)}>🗑️</button>
+                  <button className="edit-btn"  onClick={() => handleEdit(p)} title={t('Edit', 'Bearbeiten')}> ✏️</button>
+                  <button className="delete-btn" onClick={() => handleDelete(p.id)} title={t('Delete', 'Löschen')}> 🗑️</button>
                 </td>
               </tr>
             ))}

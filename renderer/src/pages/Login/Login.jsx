@@ -3,8 +3,11 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../../stores/userStore";
 import "./Login.css";
+import useLanguageStore from '../../stores/languageStore';
 
 const Login = () => {
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,10 +35,10 @@ const Login = () => {
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit} className="login-form">
-        <h2>Login</h2>
+        <h2>{t('Login', 'Anmelden')}</h2>
         <input
           type="text"
-          placeholder="Username or Email"
+          placeholder={t('Username or Email', 'Benutzername oder E-Mail')}
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
           required
@@ -44,7 +47,7 @@ const Login = () => {
         <div className="password-wrapper">
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Password"
+            placeholder={t('Password', 'Passwort')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -57,12 +60,12 @@ const Login = () => {
 
         <div className="forgot-password">
           <a href="#" onClick={(e) => e.preventDefault()}>
-            Forgot Password?
+            {t('Forgot Password?', 'Passwort vergessen?')}
           </a>
         </div>
         
         <button type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? t('Logging in...', 'Einloggen...') : t('Login', 'Anmelden')}
         </button>
         
         {error && <p className="error">{error}</p>}

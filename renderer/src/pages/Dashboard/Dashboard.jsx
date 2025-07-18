@@ -1,222 +1,251 @@
 // File: Dashboard.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
-import { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import useUserStore from "../../stores/userStore";
+import useLanguageStore from "../../stores/languageStore";
 import { LineChart, Line, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 
 const Dashboard = () => {
   const user = useUserStore((state) => state.user);
   const role = user?.role_id;
+  const language = useLanguageStore((state) => state.language);
+  const [salesView, setSalesView] = useState("daily");
   
   const [showLowStockModal, setShowLowStockModal] = useState(false);
-  const salesData = [
-    { time: "6 AM", sales: 300 },
-    { time: "8 AM", sales: 600 },
-    { time: "10 AM", sales: 900 },
-    { time: "12 PM", sales: 1100 },
-    { time: "2 PM", sales: 1300 },
-    { time: "4 PM", sales: 1400 },
-    { time: "6 PM", sales: 1300 },
-    { time: "8 PM", sales: 1000 },
-    { time: "10 PM", sales: 700 },
-  ];
-  
-  const productData = [
-    { name: "Espresso", value: 400 },
-    { name: "Latte", value: 300 },
-    { name: "Cappuccino", value: 300 },
-    { name: "Croissant", value: 200 },
-  ];
-  const lowStockItems = [
-    { name: "Milk", quantity: 3 },
-    { name: "Sugar", quantity: 5 },
-    { name: "Coffee Beans", quantity: 2 },
-    { name: "Cups", quantity: 4 },
-    { name: "Napkins", quantity: 1 },
-    { name: "Straws", quantity: 6 },
-    { name: "Tea Leaves", quantity: 2 },
-    { name: "Chocolate Syrup", quantity: 3 }
-  ];
-  
+  const [salesStats, setSalesStats] = useState(null);
+  const [topProducts, setTopProducts] = useState([]);
+  const [lowStockItems, setLowStockItems] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditTotal, setAuditTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const logsPerPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      window.posAPI.getSalesStats(salesView),
+      window.posAPI.getTopProducts(5),
+      window.posAPI.getLowStockItems(5),
+      window.posAPI.getAuditLogs(currentPage, logsPerPage)
+    ]).then(([stats, products, lowStock, audit]) => {
+      setSalesStats(stats);
+      setTopProducts(products);
+      setLowStockItems(lowStock);
+      setAuditLogs(audit.logs);
+      setAuditTotal(audit.total);
+      setLoading(false);
+    }).catch((err) => {
+      setError("Failed to load dashboard data");
+      setLoading(false);
+    });
+  }, [salesView, currentPage]);
+
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-  
-  
-  
+  const t = (en, de) => language === 'de' ? de : en;
+
+  // Pagination for audit logs
+  const totalPages = Math.ceil(auditTotal / logsPerPage);
+
   return (
-   <div className="dashboard"> 
-   <Sidebar />
-    <div className="dashboard-container">
-     
-      <h1>{role === 1 ? "Admin Dashboard" : "Manager Dashboard"}</h1>
-
-      <div className="dashboard-cards">
-         
-        {/* Manager Features */}
-        {role != 1 && (
+    <div className="dashboard">
+      <Sidebar />
+      <div className="dashboard-container">
+        {loading ? (
+          <div className="loading">Loading dashboard...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
           <>
-              <div className="card">
-                <h4>Today's Sales</h4>
-                <h2>$4,385.00</h2>
-                <span className="success">▲ 12.5%</span>
-              </div>
-          
-              <div className="card">
-                <h4>Revenue Per Employee</h4>
-                <h2>$877.00</h2>
-                <span className="error">▼ 3.4%</span>
-              </div>
-              <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
-                <h4>Low Stock Items</h4>
-                <h2>{lowStockItems.length} items</h2>
-                <span className="error">▲ 2 items</span>
-            </div>
-        
-
-    
-
-              <div className="charts-section">
-                <div className="chart-box">
-                  <h3>Sales Overview</h3>
-                  <div className="tabs">
-                    <span className="tab active">Daily</span>
-                    
+            <h1>{role === 1 ? t("Admin Dashboard", "Admin-Dashboard") : t("Manager Dashboard", "Manager-Dashboard")}</h1>
+            <div className="dashboard-cards">
+              {role === 2 && (
+                <>
+                  <div className="dash-card">
+                    <div className="card">
+                      <h4>{t("Today's Sales", "Heutiger Umsatz")}</h4>
+                      <h2>${salesStats?.total?.toLocaleString() || '0.00'}</h2>
+                      <span className="success">▲ {salesStats?.transactions || 0} {t("transactions", "Transaktionen")}</span>
+                    </div>
+                    <div className="card">
+                      <h4>{t("Revenue Per Employee", "Umsatz pro Mitarbeiter")}</h4>
+                      <h2>$877.00</h2>
+                      <span className="error">▼ 3.4%</span>
+                    </div>
+                    <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
+                      <h4>{t("Low Stock Items", "Niedriger Lagerbestand")}</h4>
+                      <h2>{lowStockItems.length} {t("items", "Artikel")}</h2>
+                      <span className="error">▲ {lowStockItems.length} {t("items", "Artikel")}</span>
+                    </div>
                   </div>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={salesData}>
-                      <XAxis dataKey="time" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="sales" stroke="#007bff" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              <div className="chart-box">
-                        <h3>Top 5 Products</h3>
-                        <table className="product-table">
+                  <div className="charts-section">
+                    <div className="charts-box">
+                      <h3>{t("Daily Sales Overview", "Tägliche Umsatzübersicht")}</h3>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <LineChart data={[]}>
+                          <XAxis dataKey="time" />
+                          <YAxis />
+                          <Tooltip />
+                          {/* You can add a real sales trend here if you have time-based data */}
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="charts-box">
+                      <h3>{t("Top 5 Products", "Top 5 Produkte")}</h3>
+                      <table className="product-table">
+                        <thead>
+                          <tr>
+                            <th>{t("Product", "Produkt")}</th>
+                            <th>{t("Sold Unit", "Verkaufte Einheit")}</th>
+                            <th>{t("Revenue", "Umsatz")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {topProducts.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.name}</td>
+                              <td>{item.sold}</td>
+                              <td>{item.revenue}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+              {role === 1 && (
+                <>
+                  {/* KPIs */}
+                  <div className="dash-card">
+                    <div className="card">
+                      <h4>{t("Total Sales", "Gesamtumsatz")}</h4>
+                      <h2>${salesStats?.total?.toLocaleString() || '0.00'}</h2>
+                      <span className="success">▲ {salesStats?.transactions || 0} {t("transactions", "Transaktionen")}</span>
+                      <div className="radio-group">
+                        <label>
+                          <input
+                            type="radio"
+                            value="daily"
+                            checked={salesView === "daily"}
+                            onChange={(e) => setSalesView(e.target.value)} />
+                          {t("Daily", "Täglich")}
+                        </label>
+                        <label style={{ marginLeft: "10px" }}>
+                          <input
+                            type="radio"
+                            value="monthly"
+                            checked={salesView === "monthly"}
+                            onChange={(e) => setSalesView(e.target.value)}
+                          />
+                          {t("Monthly", "Monatlich")}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="card">
+                      <h4>{t("Total Transactions", "Transaktionen insgesamt")}</h4>
+                      <h2>{salesStats?.transactions || 0}</h2>
+                      <span className="success">▲ 5.3%</span>
+                    </div>
+                    <div className="card">
+                      <h4>{t("Total Customers", "Kunden insgesamt")}</h4>
+                      <h2>208</h2>
+                      <span className="error">▼ 2.6%</span>
+                    </div>
+                    <div className="card">
+                      <h4>{t("Total Products", "Produkte insgesamt")}</h4>
+                      <h2>156</h2>
+                      <span className="success">+12</span>
+                    </div>
+                    <div className="card clickable" onClick={() => setShowLowStockModal(true)}>
+                      <h4>{t("Low Stock Items", "Niedriger Lagerbestand")}</h4>
+                      <h2>{lowStockItems.length} {t("items", "Artikel")}</h2>
+                      <span className="error">▲ {lowStockItems.length} {t("items", "Artikel")}</span>
+                    </div>
+                  </div>
+                  {/* Z-Reports Section */}
+                  <div className="chart-row">
+                    <div className="chart-box z-reports">
+                      <h3>🧾 {t("Latest Z-Reports", "Neueste Z-Berichte")}</h3>
+                      <ul className="z-report-list">
+                        <li>
+                          <strong>{t("June 30, 2025", "30. Juni 2025")}</strong> – {t("Total Sales", "Gesamtumsatz")}: $4,200 – {t("Transactions", "Transaktionen")}: 86
+                        </li>
+                        <li>
+                          <strong>{t("June 29, 2025", "29. Juni 2025")}</strong> – {t("Total Sales", "Gesamtumsatz")}: $3,950 – {t("Transactions", "Transaktionen")}: 80
+                        </li>
+                        <li>
+                          <strong>{t("June 28, 2025", "28. Juni 2025")}</strong> – {t("Total Sales", "Gesamtumsatz")}: $4,100 – {t("Transactions", "Transaktionen")}: 84
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="chart-box">
+                      <h3>{t("Top 5 Products", "Top 5 Produkte")}</h3>
+                      <table className="product-table">
+                        <thead>
+                          <tr>
+                            <th>{t("Product", "Produkt")}</th>
+                            <th>{t("Sold Unit", "Verkaufte Einheit")}</th>
+                            <th>{t("Revenue", "Umsatz")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {topProducts.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.name}</td>
+                              <td>{item.sold}</td>
+                              <td>{item.revenue}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="audit-trail">
+                      <h3>🔍 {t("Audit Trail", "Prüfprotokoll")}</h3>
+                      <div className="audit-wrapper">
+                        <table className="audit-table">
                           <thead>
                             <tr>
-                              <th>Product</th>
-                              <th>Sales</th>
+                              <th>{t("Action", "Aktion")}</th>
+                              <th>{t("User", "Benutzer")}</th>
+                              <th>{t("Timestamp", "Zeitstempel")}</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {productData.map((item, index) => (
+                            {auditLogs.map((log, index) => (
                               <tr key={index}>
-                                <td>{item.name}</td>
-                                <td>{item.value}</td>
+                                <td>{log.action}</td>
+                                <td>{log.user}</td>
+                                <td>{log.timestamp}</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
-                </div>
-              {showLowStockModal && (
-                <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
-                  <div className="modal" onClick={(e) => e.stopPropagation()}>
-                  <button className="close-btn" onClick={() => setShowLowStockModal(false)}>X</button>
-                    <h2>📦 Low Stock Items</h2>
-                    <table className="product-table">
-                      <thead>
-                        <tr>
-                          <th>Item</th>
-                          <th>Remaining Qty</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {lowStockItems.map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.name}</td>
-                            <td style={{ color: item.quantity < 3 ? 'red' : 'orange' }}>{item.quantity}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    
+                        <div className="pagination-controls">
+                          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+                            ◀ {t("Prev", "Zurück")}
+                          </button>
+                          <span>
+                            {t("Page", "Seite")} {currentPage} {t("of", "von")} {totalPages}
+                          </span>
+                          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+                            {t("Next", "Weiter")} ▶
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
+            </div>
           </>
         )}
-
-        {/* Admin Features */}
-        {role === 1 && (
-          <>
-          {/* KPIs */}
-          <div className="card">
-            <h4>Total Sales</h4>
-            <h2>$25,789.00</h2>
-            <span className="success">▲ 7.1%</span>
-          </div>
-          <div className="card">
-            <h4>Total Transactions</h4>
-            <h2>562</h2>
-            <span className="success">▲ 5.3%</span>
-          </div>
-          <div className="card">
-            <h4>Total Customers</h4>
-            <h2>208</h2>
-            <span className="error">▼ 2.6%</span>
-          </div>
-          <div className="card">
-            <h4>Total Products</h4>
-            <h2>156</h2>
-            <span className="success">+12</span>
-          </div>
-        
-          {/* Z-Reports Section */}
-          <div className="chart-box z-reports">
-            <h3>🧾 Latest Z-Reports</h3>
-            <ul className="z-report-list">
-              <li>
-                <strong>June 30, 2025</strong> – Total Sales: $4,200 – Transactions: 86
-              </li>
-              <li>
-                <strong>June 29, 2025</strong> – Total Sales: $3,950 – Transactions: 80
-              </li>
-              <li>
-                <strong>June 28, 2025</strong> – Total Sales: $4,100 – Transactions: 84
-              </li>
-            </ul>
-          </div>
-        
-          {/* Device Status Section */}
-          <div className="chart-box device-statuses">
-            <h3>💻 Device Statuses</h3>
-            <table className="device-table">
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>POS #1</td>
-                  <td>Cashier Counter</td>
-                  <td><span className="status online">Online</span></td>
-                </tr>
-                <tr>
-                  <td>POS #2</td>
-                  <td>Beverage Corner</td>
-                  <td><span className="status offline">Offline</span></td>
-                </tr>
-                <tr>
-                  <td>POS #3</td>
-                  <td>Express Checkout</td>
-                  <td><span className="status online">Online</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </>
-        )}
       </div>
-    </div>
     </div>
   );
 };
