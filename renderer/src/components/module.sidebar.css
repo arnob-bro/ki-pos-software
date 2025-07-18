@@ -1,39 +1,48 @@
 .sidebar {
-  background: #d6e5dc;
+    background: #d6e5dc;
 
-  max-height: 100vh;
-  width: 200px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-right: 1px solid #ddd;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    max-height: 100vh;
+    width: 200px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-right: 1px solid #ddd;
 }
 
 .logo {
-  font-weight: bold;
-  margin-bottom: 20px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
 }
 
 .nav-btn {
-  background: none;
-  border: none;
+    background: none;
 
-  border-radius: 5px;
+    border-radius: 5px;
 
-  padding: 10px;
-  text-align: left;
-  cursor: pointer;
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
 
-  font-size: 1rem;
+    font-size: 1rem;
+
+    border: none;
+
+    /* border-bottom: 1px solid rgba(134, 134, 134, 0.212); */
+    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.1);
 }
 
 .nav-btn:hover {
-  background: rgba(0, 0, 0, 0.076);
+    background: rgba(0, 0, 0, 0.076);
 }
 
 .nav-btn.active {
-  background: rgb(29, 72, 29);
-  color: white;
-  border-radius: 5px;
+    background: linear-gradient(135deg, rgb(55, 92, 55), rgb(165, 126, 126));
+    color: white;
+    border-radius: 5px;
 }

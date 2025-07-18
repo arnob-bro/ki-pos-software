@@ -81,6 +81,7 @@ CREATE TABLE customers (
   email VARCHAR,
   address TEXT,
   loyalty_points INTEGER DEFAULT 0,
+  loyalty_tier VARCHAR, -- e.g., Silver, Gold, Platinum
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

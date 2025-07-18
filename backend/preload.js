@@ -74,4 +74,17 @@ contextBridge.exposeInMainWorld("posAPI", {
         ipcRenderer.invoke("roles:update", id, roleData),
     deleteRole: (id) => ipcRenderer.invoke("roles:delete", id),
     getRoleUsage: (id) => ipcRenderer.invoke("roles:getUsage", id),
+
+    // Customers
+    listCustomers: (page, limit) =>
+        ipcRenderer.invoke("customers:list", page, limit),
+    addCustomer: (customer) => ipcRenderer.invoke("customers:add", customer),
+    updateCustomer: (customer) =>
+        ipcRenderer.invoke("customers:update", customer),
+    deleteCustomer: (id, user) =>
+        ipcRenderer.invoke("customers:delete", id, user),
+    getCustomerHistory: (customerId) =>
+        ipcRenderer.invoke("customers:getHistory", customerId),
+    assignLoyaltyTier: (id, tier) =>
+        ipcRenderer.invoke("customers:assignLoyaltyTier", id, tier),
 })

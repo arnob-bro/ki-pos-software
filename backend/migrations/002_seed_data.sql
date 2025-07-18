@@ -202,7 +202,13 @@ INSERT OR IGNORE INTO products (id, name, category_id, barcode, price, vat_rate,
 VALUES ('prod-7', 'Orange Juice', 1, '1000000000006', 6.00, 5.00, 20);
 
 -- Customers
-INSERT OR IGNORE INTO customers (id, name) VALUES ('cust-1', 'Default Customer');
+INSERT OR IGNORE INTO customers (id, name, phone, email, address, loyalty_points, loyalty_tier) VALUES
+  ('cust-1', 'Default Customer', '0000000000', 'default@company.com', '123 Main St', 0, NULL),
+  ('cust-2', 'Alice Johnson', '5551234567', 'alice.johnson@example.com', '42 Oak Lane', 120, 'Silver'),
+  ('cust-3', 'Bob Smith', '5559876543', 'bob.smith@example.com', '77 Pine Ave', 250, 'Gold'),
+  ('cust-4', 'Carol Lee', '5555551234', 'carol.lee@example.com', '9 Maple Dr', 400, 'Platinum'),
+  ('cust-5', 'David Kim', '5552223333', 'david.kim@example.com', '88 Elm St', 60, 'Silver'),
+  ('cust-6', 'Eva Müller', '5554445555', 'eva.mueller@example.com', '5 Lindenweg', 310, 'Gold');
 
 -- Shifts
 INSERT OR IGNORE INTO shifts (id, user_id, start_time)
