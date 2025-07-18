@@ -1,5 +1,6 @@
 // ipcHandlers/auth.js
 const createAuthController = require('../controllers/authController');
+const ShiftModel = require('../models/ShiftModel');
 
 module.exports = function (ipcMain, db) {
   const authController = createAuthController(db);
@@ -107,6 +108,39 @@ module.exports = function (ipcMain, db) {
         code: 'IPC_ERROR',
         error: error.message
       };
+    }
+  });
+
+  // Start a shift
+  ipcMain.handle('shift:start', async (event, userId) => {
+    try {
+      const shift = ShiftModel.startShift(userId);
+      return { success: true, shift };
+    } catch (error) {
+      console.error('Start shift IPC error:', error);
+      return { success: false, message: 'Failed to start shift', error: error.message };
+    }
+  });
+
+  // End a shift
+  ipcMain.handle('shift:end', async (event, shiftId) => {
+    try {
+      ShiftModel.endShift(shiftId);
+      return { success: true };
+    } catch (error) {
+      console.error('End shift IPC error:', error);
+      return { success: false, message: 'Failed to end shift', error: error.message };
+    }
+  });
+
+  // Get current shift for a user
+  ipcMain.handle('shift:getCurrent', async (event, userId) => {
+    try {
+      const shift = ShiftModel.getCurrentShift(userId);
+      return { success: true, shift };
+    } catch (error) {
+      console.error('Get current shift IPC error:', error);
+      return { success: false, message: 'Failed to get current shift', error: error.message };
     }
   });
 };

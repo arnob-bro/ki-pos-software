@@ -1,5 +1,6 @@
 const EmployeeService = require('../services/employeeService');
 const EmployeeController = require('../controllers/employeeController');
+const ShiftModel = require('../models/ShiftModel');
 
 module.exports = function registerEmployeeHandlers(ipcMain, db) {
   const employeeService = new EmployeeService(db);
@@ -159,6 +160,77 @@ module.exports = function registerEmployeeHandlers(ipcMain, db) {
     } catch (error) {
       console.error('Error getting role usage:', error.message);
       throw error;
+    }
+  });
+
+  // --- Shift Management (Admin) ---
+  ipcMain.handle('shift:list', async (event) => {
+    try {
+      const shifts = ShiftModel.listShifts();
+      return { success: true, shifts };
+    } catch (error) {
+      console.error('Shift list IPC error:', error);
+      return { success: false, message: 'Failed to list shifts', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:create', async (event, shiftData, currentUserId) => {
+    try {
+      const shift = ShiftModel.createShift(shiftData, currentUserId);
+      return { success: true, shift };
+    } catch (error) {
+      console.error('Shift create IPC error:', error);
+      return { success: false, message: 'Failed to create shift', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:update', async (event, id, updateData, currentUserId) => {
+    try {
+      const shift = ShiftModel.updateShift(id, updateData, currentUserId);
+      return { success: true, shift };
+    } catch (error) {
+      console.error('Shift update IPC error:', error);
+      return { success: false, message: 'Failed to update shift', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:assign', async (event, shiftId, userId, currentUserId) => {
+    try {
+      const assignment = ShiftModel.assignUserToShift(shiftId, userId, currentUserId);
+      return { success: true, assignment };
+    } catch (error) {
+      console.error('Shift assign IPC error:', error);
+      return { success: false, message: 'Failed to assign shift', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:unassign', async (event, shiftId, userId, currentUserId) => {
+    try {
+      ShiftModel.unassignUserFromShift(shiftId, userId, currentUserId);
+      return { success: true };
+    } catch (error) {
+      console.error('Shift unassign IPC error:', error);
+      return { success: false, message: 'Failed to unassign shift', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:listAssignments', async (event, filter) => {
+    try {
+      const assignments = ShiftModel.listAssignments(filter || {});
+      return { success: true, assignments };
+    } catch (error) {
+      console.error('Shift listAssignments IPC error:', error);
+      return { success: false, message: 'Failed to list assignments', error: error.message };
+    }
+  });
+
+  ipcMain.handle('shift:getById', async (event, id) => {
+    try {
+      const shift = ShiftModel.getShiftById(id);
+      return { success: true, shift };
+    } catch (error) {
+      console.error('Shift getById IPC error:', error);
+      return { success: false, message: 'Failed to get shift', error: error.message };
     }
   });
 };

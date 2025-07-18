@@ -205,8 +205,12 @@ VALUES ('prod-7', 'Orange Juice', 1, '1000000000006', 6.00, 5.00, 20);
 INSERT OR IGNORE INTO customers (id, name) VALUES ('cust-1', 'Default Customer');
 
 -- Shifts
-INSERT OR IGNORE INTO shifts (id, user_id, start_time)
-VALUES ('shift-1', 'user-1', '2024-06-01 08:00:00');
+INSERT OR IGNORE INTO shifts (id, start_time)
+VALUES ('shift-1', '2024-06-01 08:00:00');
+
+-- Shift Assignments
+INSERT OR IGNORE INTO shift_assignments (id, shift_id, user_id)
+VALUES ('assign-1', 'shift-1', 'user-1');
 
 -- Transactions (insert with tse_signature NULL for now)
 INSERT OR IGNORE INTO transactions (id, user_id, customer_id, shift_id, payment_method, total_amount, tse_signature)

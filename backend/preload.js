@@ -71,4 +71,16 @@ contextBridge.exposeInMainWorld("posAPI", {
   getTopProducts: (limit) => ipcRenderer.invoke('dashboard:getTopProducts', limit),
   getLowStockItems: (threshold) => ipcRenderer.invoke('dashboard:getLowStockItems', threshold),
   getAuditLogs: (page, limit) => ipcRenderer.invoke('dashboard:getAuditLogs', page, limit),
+  // Shifts
+  startShift: (userId) => ipcRenderer.invoke('shift:start', userId),
+  endShift: (shiftId) => ipcRenderer.invoke('shift:end', shiftId),
+  getCurrentShift: (userId) => ipcRenderer.invoke('shift:getCurrent', userId),
+  // Admin Shift Management
+  listShifts: () => ipcRenderer.invoke('shift:list'),
+  createShift: (shiftData, currentUser) => ipcRenderer.invoke('shift:create', shiftData, currentUser?.id),
+  updateShift: (id, updateData, currentUser) => ipcRenderer.invoke('shift:update', id, updateData, currentUser?.id),
+  assignShift: (shiftId, userId, currentUser) => ipcRenderer.invoke('shift:assign', shiftId, userId, currentUser?.id),
+  unassignShift: (shiftId, userId, currentUser) => ipcRenderer.invoke('shift:unassign', shiftId, userId, currentUser?.id),
+  listShiftAssignments: (filter) => ipcRenderer.invoke('shift:listAssignments', filter),
+  getShiftById: (id) => ipcRenderer.invoke('shift:getById', id),
 }); 

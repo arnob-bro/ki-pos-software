@@ -25,6 +25,14 @@ function POS() {
 	const [queue, setQueue] = useState([]); // Array of carts (currently selected items)
 	const [showQueueDropdown, setShowQueueDropdown] = useState(false);
 	const currentUser = useUserStore((state) => state.user);
+  // Remove shift-related state
+  // const [shift, setShift] = useState(null);
+  // const [shiftLoading, setShiftLoading] = useState(false);
+  // const [shiftError, setShiftError] = useState(null);
+
+  // Remove fetchShift, handleStartShift, handleEndShift, and related useEffects
+
+  // Remove any shift info or buttons from the render
 
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
@@ -339,8 +347,10 @@ function POS() {
 						
 					</div>
 					<div className='cashier-section'>
+						{/* Shift Info */}
+						{/* Existing cashier name display */}
 						<div>
-							{t('Cashier:', 'Kassierer:')} <span className='cashier-name'>John Doe</span>
+							{t('Cashier:', 'Kassierer:')} <span className='cashier-name'>{currentUser?.name || 'N/A'}</span>
 						</div>
 						{/* Queue Button */}
 						<div style={{ position: 'relative' }}>

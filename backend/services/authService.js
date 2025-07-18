@@ -12,6 +12,7 @@ const {
   getUserWithRole,
   getUserPermissionsWithCodes
 } = require('../models/UserModel');
+const { getCurrentShift } = require('../models/ShiftModel');
 const { generateToken, verifyToken } = require('../utils/jwt');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const logger = require('../config/logger');
@@ -202,6 +203,9 @@ class AuthService {
       // Get user permissions
       const userPermissions = getUserPermissionsWithCodes(user.id);
 
+      // Get current shift
+      const currentShift = getCurrentShift(user.id);
+
       logger.info(`User logged in successfully: ${user.name}`);
 
       return {
@@ -212,7 +216,8 @@ class AuthService {
           name: user.name,
           email: user.email,
           role_id: user.role_id,
-          status: user.status
+          status: user.status,
+          shift: currentShift || null
         },
         permissions: userPermissions.permissions,
         permissionCodes: userPermissions.permissionCodes,
@@ -401,6 +406,8 @@ class AuthService {
 
       // Get user permissions
       const userPermissions = getUserPermissionsWithCodes(userId);
+      // Get current shift
+      const currentShift = getCurrentShift(userId);
 
       return {
         success: true,
@@ -413,7 +420,8 @@ class AuthService {
           role_name: user.role_name,
           status: user.status,
           created_at: user.created_at,
-          updated_at: user.updated_at
+          updated_at: user.updated_at,
+          shift: currentShift || null
         },
         permissions: userPermissions.permissions,
         permissionCodes: userPermissions.permissionCodes

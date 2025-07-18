@@ -46,11 +46,36 @@ const EmployeeManagement = () => {
   const isAdmin = hasPermissionByCode(PERMISSION_CODES.ALL);
   const currentUser = useUserStore((state) => state.user);
 
+  // --- Shift Management State ---
+  const [shifts, setShifts] = useState([]);
+  const [shiftModalOpen, setShiftModalOpen] = useState(false);
+  const [editingShift, setEditingShift] = useState(null);
+  const [shiftForm, setShiftForm] = useState({ startTime: '', endTime: '' });
+  const [shiftLoading, setShiftLoading] = useState(false);
+  const [shiftError, setShiftError] = useState(null);
+  // Assignment modal state
+  const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+  const [assignmentShift, setAssignmentShift] = useState(null);
+  const [assignments, setAssignments] = useState([]);
+  const [assignmentLoading, setAssignmentLoading] = useState(false);
+
+  // --- Employee Shift Assignment Modal State ---
+  const [shiftAssignModalOpen, setShiftAssignModalOpen] = useState(false);
+  const [shiftAssignEmployee, setShiftAssignEmployee] = useState(null);
+  const [employeeAssignments, setEmployeeAssignments] = useState([]);
+  const [shiftAssignLoading, setShiftAssignLoading] = useState(false);
+
+  // --- Shift assignment for employee form ---
+  const [formShiftAssignments, setFormShiftAssignments] = useState([]);
+  const [formShiftsLoading, setFormShiftsLoading] = useState(false);
+
   useEffect(() => {
     fetchEmployees();
     fetchRoles();
     fetchPermissions();
   }, [pagination.page, filterStatus, filterRole, searchTerm]);
+
+  useEffect(() => { if (isAdmin) fetchShifts(); }, [isAdmin]);
 
   const fetchEmployees = async () => {
     try {
@@ -140,6 +165,20 @@ const EmployeeManagement = () => {
     }
   };
 
+  const fetchShifts = async () => {
+    try {
+      setShiftLoading(true);
+      const res = await window.posAPI.listShifts();
+      if (res.success) setShifts(res.shifts);
+      else setShifts([]);
+    } catch (e) {
+      setShiftError('Failed to load shifts');
+      setShifts([]);
+    } finally {
+      setShiftLoading(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -159,46 +198,28 @@ const EmployeeManagement = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Fetch shifts and assignments when opening the form
+  const fetchFormShiftsAndAssignments = async (employeeId) => {
+    setFormShiftsLoading(true);
     try {
-      if (editing) {
-        // Update employee
-        await window.posAPI.updateEmployee(formData.id, formData);
-      } else {
-        // Add new employee
-        await window.posAPI.addEmployee(formData,currentUser);
-      }
-      
-      // Refresh both employee list and roles (to update role usage)
-      await Promise.all([fetchEmployees(), fetchRoles()]);
-      resetForm();
-      setShowForm(false);
-    } catch (error) {
-      console.error('Error saving employee:', error);
-      setError('Failed to save employee');
+      const [shiftsRes, assignmentsRes] = await Promise.all([
+        window.posAPI.listShifts(),
+        employeeId ? window.posAPI.listShiftAssignments({ userId: employeeId }) : Promise.resolve({ success: true, assignments: [] })
+      ]);
+      if (shiftsRes.success) setShifts(shiftsRes.shifts);
+      if (assignmentsRes.success) setFormShiftAssignments(assignmentsRes.assignments.map(a => a.shift_id));
+      else setFormShiftAssignments([]);
+    } finally {
+      setFormShiftsLoading(false);
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      id: "",
-      first_name: "",
-      last_name: "",
-      email: "",
-      role: "",
-      status: "active",
-      custom_permissions: []
-    });
-    setEditing(false);
-    setShowPermissions(false);
-    setError(null);
-  };
-
+  // When opening the form for edit/add
   const handleEdit = async (employee) => {
     try {
       // Fetch employee permissions
       const employeePermissions = await window.posAPI.getEmployeePermissions(employee.id);
+      await fetchFormShiftsAndAssignments(employee.id);
       
       setFormData({
         id: employee.id,
@@ -218,38 +239,31 @@ const EmployeeManagement = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
-      try {
-        await window.posAPI.deleteEmployee(id);
-        // Refresh both employee list and roles (to update role usage)
-        await Promise.all([fetchEmployees(), fetchRoles()]);
-      } catch (error) {
-        console.error('Error deleting employee:', error);
-        setError('Failed to delete employee');
-      }
-    }
-  };
-
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      await window.posAPI.updateEmployeeStatus(id, newStatus);
-      // Refresh both employee list and roles (to update role usage)
-      await Promise.all([fetchEmployees(), fetchRoles()]);
-    } catch (error) {
-      console.error('Error updating employee status:', error);
-      setError('Failed to update employee status');
-    }
-  };
-
-  const handleAddNew = () => {
+  const handleAddNew = async () => {
     resetForm();
+    await fetchFormShiftsAndAssignments(null);
     setShowForm(true);
   };
 
   const handleCloseForm = () => {
     setShowForm(false);
     resetForm();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      id: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      role: "",
+      status: "active",
+      custom_permissions: []
+    });
+    setFormShiftAssignments([]);
+    setEditing(false);
+    setShowPermissions(false);
+    setError(null);
   };
 
   const handlePageChange = (newPage) => {
@@ -355,6 +369,87 @@ const EmployeeManagement = () => {
     resetRoleForm();
   };
 
+  const openShiftModal = (shift = null) => {
+    setEditingShift(shift);
+    setShiftForm(shift ? {
+      startTime: shift.start_time ? shift.start_time.slice(0, 16) : '',
+      endTime: shift.end_time ? shift.end_time.slice(0, 16) : ''
+    } : { startTime: '', endTime: '' });
+    setShiftModalOpen(true);
+  };
+  const closeShiftModal = () => { setShiftModalOpen(false); setEditingShift(null); setShiftForm({ startTime: '', endTime: '' }); setShiftError(null); };
+
+  const handleShiftFormChange = e => {
+    const { name, value } = e.target;
+    setShiftForm(f => ({ ...f, [name]: value }));
+  };
+
+  const handleShiftSubmit = async e => {
+    e.preventDefault();
+    setShiftLoading(true);
+    setShiftError(null);
+    try {
+      if (editingShift) {
+        const res = await window.posAPI.updateShift(editingShift.id, {
+          startTime: shiftForm.startTime,
+          endTime: shiftForm.endTime || null
+        }, currentUser);
+        if (!res.success) throw new Error(res.message);
+      } else {
+        const res = await window.posAPI.createShift({
+          startTime: shiftForm.startTime,
+          endTime: shiftForm.endTime || null
+        }, currentUser);
+        if (!res.success) throw new Error(res.message);
+      }
+      await fetchShifts();
+      closeShiftModal();
+    } catch (e) {
+      setShiftError(e.message || 'Failed to save shift');
+    } finally {
+      setShiftLoading(false);
+    }
+  };
+
+  // Assignment modal logic
+  const openAssignmentModal = async (shift) => {
+    setAssignmentShift(shift);
+    setAssignmentModalOpen(true);
+    setAssignmentLoading(true);
+    try {
+      const res = await window.posAPI.listShiftAssignments({ shiftId: shift.id });
+      if (res.success) setAssignments(res.assignments);
+      else setAssignments([]);
+    } catch (e) {
+      setAssignments([]);
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+  const closeAssignmentModal = () => { setAssignmentModalOpen(false); setAssignmentShift(null); setAssignments([]); };
+
+  const isUserAssigned = (userId) => assignments.some(a => a.user_id === userId);
+  const handleAssignUser = async (userId) => {
+    setAssignmentLoading(true);
+    try {
+      await window.posAPI.assignShift(assignmentShift.id, userId);
+      const res = await window.posAPI.listShiftAssignments({ shiftId: assignmentShift.id });
+      setAssignments(res.success ? res.assignments : []);
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+  const handleUnassignUser = async (userId) => {
+    setAssignmentLoading(true);
+    try {
+      await window.posAPI.unassignShift(assignmentShift.id, userId);
+      const res = await window.posAPI.listShiftAssignments({ shiftId: assignmentShift.id });
+      setAssignments(res.success ? res.assignments : []);
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+
   // Get unique roles from backend data
   const getUniqueRoles = () => {
     return roles.map(role => role.name);
@@ -364,6 +459,95 @@ const EmployeeManagement = () => {
 
   const getRoleDisplayName = (roleName) => {
     return roleName ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : 'N/A';
+  };
+
+  const openShiftAssignModal = async (employee) => {
+    setShiftAssignEmployee(employee);
+    setShiftAssignModalOpen(true);
+    setShiftAssignLoading(true);
+    try {
+      const res = await window.posAPI.listShiftAssignments({ userId: employee.id });
+      if (res.success) setEmployeeAssignments(res.assignments);
+      else setEmployeeAssignments([]);
+    } catch (e) {
+      setEmployeeAssignments([]);
+    } finally {
+      setShiftAssignLoading(false);
+    }
+  };
+  const closeShiftAssignModal = () => { setShiftAssignModalOpen(false); setShiftAssignEmployee(null); setEmployeeAssignments([]); };
+
+  const isShiftAssigned = (shiftId) => employeeAssignments.some(a => a.shift_id === shiftId);
+  const handleAssignShiftToEmployee = async (shiftId) => {
+    setShiftAssignLoading(true);
+    try {
+      await window.posAPI.assignShift(shiftId, shiftAssignEmployee.id, currentUser);
+      const res = await window.posAPI.listShiftAssignments({ userId: shiftAssignEmployee.id });
+      setEmployeeAssignments(res.success ? res.assignments : []);
+    } finally {
+      setShiftAssignLoading(false);
+    }
+  };
+  const handleUnassignShiftFromEmployee = async (shiftId) => {
+    setShiftAssignLoading(true);
+    try {
+      await window.posAPI.unassignShift(shiftId, shiftAssignEmployee.id, currentUser);
+      const res = await window.posAPI.listShiftAssignments({ userId: shiftAssignEmployee.id });
+      setEmployeeAssignments(res.success ? res.assignments : []);
+    } finally {
+      setShiftAssignLoading(false);
+    }
+  };
+
+  const handleShiftDropdownChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setFormShiftAssignments(selected);
+  };
+
+  // On submit, update assignments after add/update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      let employeeId;
+      if (editing) {
+        await window.posAPI.updateEmployee(formData.id, formData);
+        employeeId = formData.id;
+      } else {
+        const res = await window.posAPI.addEmployee(formData, currentUser);
+        employeeId = res && res.user && res.user.id;
+      }
+      // Update shift assignment
+      if (employeeId) {
+        const currentAssignmentsRes = await window.posAPI.listShiftAssignments({ userId: employeeId });
+        const currentAssigned = currentAssignmentsRes.success ? currentAssignmentsRes.assignments.map(a => a.shift_id) : [];
+        const selectedShift = formShiftAssignments[0];
+        // Assign new if selected and not already assigned
+        if (selectedShift && !currentAssigned.includes(selectedShift)) {
+          await window.posAPI.assignShift(selectedShift, employeeId, currentUser);
+        }
+        // Unassign all others
+        for (const shiftId of currentAssigned) {
+          if (shiftId !== selectedShift) {
+            await window.posAPI.unassignShift(shiftId, employeeId, currentUser);
+          }
+        }
+      }
+      await Promise.all([fetchEmployees(), fetchRoles()]);
+      resetForm();
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error saving employee:', error);
+      setError('Failed to save employee');
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await window.posAPI.updateEmployeeStatus(id, newStatus);
+      await Promise.all([fetchEmployees(), fetchRoles()]);
+    } catch (error) {
+      setError('Failed to update employee status');
+    }
   };
 
   if (loading && employees.length === 0) {
@@ -489,9 +673,70 @@ const EmployeeManagement = () => {
             </table>
           </div>
         </div>
-        )
+        )}
 
-        }
+        {/* Shift Management Section (Admin only) */}
+        {isAdmin && (
+          <div className="shift-management-section">
+            <div className="shift-header">
+              <h3>🕒 {t('Shift Management', 'Schichtverwaltung')}</h3>
+              <button className="add-shift-btn" onClick={() => openShiftModal()}>{t('Add Shift', 'Schicht hinzufügen')}</button>
+            </div>
+            {shiftError && <div className="error-message">{shiftError}</div>}
+            {shiftLoading ? <div>{t('Loading shifts...', 'Schichten werden geladen...')}</div> : (
+              <div className="shift-table-container">
+                <table className="shift-table">
+                  <thead>
+                    <tr>
+                      <th>{t('Shift', 'Schicht')}</th>
+                      <th>{t('Start Time', 'Startzeit')}</th>
+                      <th>{t('End Time', 'Endzeit')}</th>
+                      <th>{t('Actions', 'Aktionen')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shifts.map(shift => (
+                      <tr key={shift.id}>
+                        <td>{shift.start_time ? (shift.end_time ? `${shift.start_time} - ${shift.end_time}` : shift.start_time) : '-'}</td>
+                        <td>{shift.start_time ? new Date(`1970-01-01T${shift.start_time}:00`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td>{shift.end_time ? new Date(`1970-01-01T${shift.end_time}:00`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td>
+                          <button onClick={() => openShiftModal(shift)}>{t('Edit', 'Bearbeiten')}</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {/* Shift Modal */}
+            {shiftModalOpen && (
+              <div className="modal-overlay">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h3>{editingShift ? t('Edit Shift', 'Schicht bearbeiten') : t('Add Shift', 'Schicht hinzufügen')}</h3>
+                    <button className="close-btn" onClick={closeShiftModal}>×</button>
+                  </div>
+                  <form onSubmit={handleShiftSubmit} className="shift-form">
+                    <div className="form-section">
+                      <label>{t('Start Time', 'Startzeit')}</label>
+                      <input type="time" name="startTime" value={shiftForm.startTime} onChange={handleShiftFormChange} required />
+                    </div>
+                    <div className="form-section">
+                      <label>{t('End Time', 'Endzeit')}</label>
+                      <input type="time" name="endTime" value={shiftForm.endTime} onChange={handleShiftFormChange} />
+                    </div>
+                    <div className="form-actions">
+                      <button type="submit" className="submit-btn" disabled={shiftLoading}>{editingShift ? t('Update Shift', 'Schicht aktualisieren') : t('Add Shift', 'Schicht hinzufügen')}</button>
+                      <button type="button" onClick={closeShiftModal} className="cancel-btn">{t('Cancel', 'Abbrechen')}</button>
+                    </div>
+                    {shiftError && <div className="error-message">{shiftError}</div>}
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="employee-controls">
           <div className="search-section">
@@ -538,6 +783,7 @@ const EmployeeManagement = () => {
           </div>
         </div>
 
+        {/* Employee Table */}
         <div className="employee-table-container">
           <table className="employee-table">
             <thead>
@@ -596,6 +842,35 @@ const EmployeeManagement = () => {
             </tbody>
           </table>
         </div>
+        {/* Shift Assign Modal */}
+        {shiftAssignModalOpen && shiftAssignEmployee && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>{t('Assign Shifts to Employee', 'Schichten dem Mitarbeiter zuweisen')}</h3>
+                <button className="close-btn" onClick={closeShiftAssignModal}>×</button>
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <strong>{t('Employee', 'Mitarbeiter')}:</strong> {shiftAssignEmployee.name}
+              </div>
+              {shiftAssignLoading ? <div>{t('Loading...', 'Lädt...')}</div> : (
+                <div>
+                  {shifts.map(shift => (
+                    <div key={shift.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                      <input
+                        type="checkbox"
+                        checked={isShiftAssigned(shift.id)}
+                        onChange={e => e.target.checked ? handleAssignShiftToEmployee(shift.id) : handleUnassignShiftFromEmployee(shift.id)}
+                        id={`shift-assign-${shift.id}`}
+                      />
+                      <label htmlFor={`shift-assign-${shift.id}`} style={{ marginLeft: 8 }}>{shift.id} ({shift.start_time ? new Date(shift.start_time).toLocaleString() : '-'})</label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
@@ -680,6 +955,26 @@ const EmployeeManagement = () => {
                       <option value="active">{t("Active", "Aktiv")}</option>
                       <option value="suspended">{t("Suspended", "Gesperrt")}</option>
                       <option value="deleted">{t("Deleted", "Gelöscht")}</option>
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <label style={{ marginRight: 8 }}>{t('Shift', 'Schicht')}:</label>
+                    <select
+                      value={formShiftAssignments[0] || ''}
+                      onChange={e => setFormShiftAssignments(e.target.value ? [e.target.value] : [])}
+                      className="shift-select"
+                      disabled={formShiftsLoading}
+                    >
+                      <option value="">{t('Select Shift', 'Schicht auswählen')}</option>
+                      {shifts.map(shift => {
+                        let label = shift.start_time || '';
+                        if (shift.end_time) {
+                          label = `${shift.start_time} - ${shift.end_time}`;
+                        }
+                        return (
+                          <option key={shift.id} value={shift.id}>{label}</option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
