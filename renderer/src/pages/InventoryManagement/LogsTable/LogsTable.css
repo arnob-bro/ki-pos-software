@@ -1,0 +1,82 @@
+/* LogsTable.css */
+.logs-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 20px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 20px 0;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.logs-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.logs-count {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.logs-container {
+  overflow-x: auto;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.logs-table th,
+.logs-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ececec;
+}
+
+.logs-table th {
+  background-color: #f9f9f9;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+}
+
+.logs-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.stock-cell {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.stock-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.stock-cell.added .stock-icon {
+  background-color: #d4f8e8;
+  color: #2ca77a;
+}
+
+.stock-cell.sold .stock-icon {
+  background-color: #fbd6d6;
+  color: #d64545;
+}

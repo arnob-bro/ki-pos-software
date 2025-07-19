@@ -1,8 +1,27 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Package, TrendingUp, TrendingDown, AlertTriangle, Search, X } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import {
+  Package,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Search,
+  X,
+} from "lucide-react";
 import "./InventoryManagement.css";
 import Sidebar from "../../components/Sidebar";
+import LogsTable from "./LogsTable/LogsTable";
 
 const InventoryManagement = () => {
   const [products, setProducts] = useState([]);
@@ -14,6 +33,23 @@ const InventoryManagement = () => {
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [salesView, setSalesView] = useState("daily");
+    const logsPerPage = 10;
+  useEffect(() => {
+    
+    Promise.all([window.posAPI.getAuditLogs(currentPage, logsPerPage)])
+      .then(([audit]) => {
+        setAuditLogs(audit.logs);
+      })
+      .catch((err) => {
+       console.log(err)
+        
+      });
+  }, [salesView, currentPage]);
+    console.log(auditLogs)
 
   useEffect(() => {
     fetchProducts();
@@ -38,80 +74,117 @@ const InventoryManagement = () => {
       const result = await window.posAPI.listProductCategories();
       setCategories(result.categories || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
       setCategories([]);
     }
   };
 
   // Get stock status for filtering
   const getStockStatusValue = (quantity) => {
-    if (quantity === 0) return 'out-of-stock';
-    if (quantity < 10) return 'low-stock';
-    return 'in-stock';
+    if (quantity === 0) return "out-of-stock";
+    if (quantity < 10) return "low-stock";
+    return "in-stock";
   };
 
   // Filter and sort products
   const filteredProducts = products
-    .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "" || product.category_id.toString() === selectedCategory;
-      const matchesStockStatus = selectedStockStatus === "" || getStockStatusValue(product.stock_quantity || 0) === selectedStockStatus;
-      
+    .filter((product) => {
+      const matchesSearch = product.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "" ||
+        product.category_id.toString() === selectedCategory;
+      const matchesStockStatus =
+        selectedStockStatus === "" ||
+        getStockStatusValue(product.stock_quantity || 0) ===
+          selectedStockStatus;
+
       const productPrice = parseFloat(product.price || 0);
-      const matchesPriceRange = (priceRange.min === "" || productPrice >= parseFloat(priceRange.min)) &&
-                               (priceRange.max === "" || productPrice <= parseFloat(priceRange.max));
-      
-      return matchesSearch && matchesCategory && matchesStockStatus && matchesPriceRange;
+      const matchesPriceRange =
+        (priceRange.min === "" || productPrice >= parseFloat(priceRange.min)) &&
+        (priceRange.max === "" || productPrice <= parseFloat(priceRange.max));
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesStockStatus &&
+        matchesPriceRange
+      );
     })
     .sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
-      
+
       if (sortBy === "category_id") {
-        aValue = categories.find(c => c.id === a.category_id)?.name || "";
-        bValue = categories.find(c => c.id === b.category_id)?.name || "";
+        aValue = categories.find((c) => c.id === a.category_id)?.name || "";
+        bValue = categories.find((c) => c.id === b.category_id)?.name || "";
       }
-      
-      if (typeof aValue === 'string') {
-        return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+
+      if (typeof aValue === "string") {
+        return sortOrder === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
       }
-      
-      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
     });
 
   // Calculate inventory statistics
   const totalProducts = products.length;
-  const totalStock = products.reduce((sum, p) => sum + (p.stock_quantity || 0), 0);
-  const lowStockProducts = products.filter(p => (p.stock_quantity || 0) < 10);
-  const outOfStockProducts = products.filter(p => (p.stock_quantity || 0) === 0);
+  const totalStock = products.reduce(
+    (sum, p) => sum + (p.stock_quantity || 0),
+    0
+  );
+  const lowStockProducts = products.filter((p) => (p.stock_quantity || 0) < 10);
+  const outOfStockProducts = products.filter(
+    (p) => (p.stock_quantity || 0) === 0
+  );
 
   // Prepare data for charts
-  const stockByCategory = categories.map(category => {
-    const categoryProducts = products.filter(p => p.category_id === category.id);
-    const totalCategoryStock = categoryProducts.reduce((sum, p) => sum + (p.stock_quantity || 0), 0);
-    return {
-      name: category.name,
-      stock: totalCategoryStock,
-      products: categoryProducts.length
-    };
-  }).filter(item => item.stock > 0);
+  const stockByCategory = categories
+    .map((category) => {
+      const categoryProducts = products.filter(
+        (p) => p.category_id === category.id
+      );
+      const totalCategoryStock = categoryProducts.reduce(
+        (sum, p) => sum + (p.stock_quantity || 0),
+        0
+      );
+      return {
+        name: category.name,
+        stock: totalCategoryStock,
+        products: categoryProducts.length,
+      };
+    })
+    .filter((item) => item.stock > 0);
 
   const stockLevels = [
-    { name: 'In Stock', value: products.filter(p => (p.stock_quantity || 0) > 10).length, color: '#10B981' },
-    { name: 'Low Stock', value: lowStockProducts.length, color: '#F59E0B' },
-    { name: 'Out of Stock', value: outOfStockProducts.length, color: '#EF4444' }
+    {
+      name: "In Stock",
+      value: products.filter((p) => (p.stock_quantity || 0) > 10).length,
+      color: "#10B981",
+    },
+    { name: "Low Stock", value: lowStockProducts.length, color: "#F59E0B" },
+    {
+      name: "Out of Stock",
+      value: outOfStockProducts.length,
+      color: "#EF4444",
+    },
   ];
 
   // Mock sales data generation - replace with actual API call when available
   const generateMockSalesData = (products) => {
-    return products.map(product => ({
-      ...product,
-      itemsSold: Math.floor(Math.random() * 500) + 10, // Random sales between 10-510
-      totalRevenue: 0 // Will be calculated below
-    })).map(product => ({
-      ...product,
-      totalRevenue: product.itemsSold * parseFloat(product.price || 0)
-    }));
+    return products
+      .map((product) => ({
+        ...product,
+        itemsSold: Math.floor(Math.random() * 500) + 10, // Random sales between 10-510
+        totalRevenue: 0, // Will be calculated below
+      }))
+      .map((product) => ({
+        ...product,
+        totalRevenue: product.itemsSold * parseFloat(product.price || 0),
+      }));
   };
 
   // Get top 10 products by sales
@@ -120,17 +193,23 @@ const InventoryManagement = () => {
     .slice(0, 10);
 
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return { status: 'Out of Stock', color: '#EF4444', class: 'out-of-stock' };
-    if (quantity < 10) return { status: 'Low Stock', color: '#F59E0B', class: 'low-stock' };
-    return { status: 'In Stock', color: '#10B981', class: 'in-stock' };
+    if (quantity === 0)
+      return {
+        status: "Out of Stock",
+        color: "#EF4444",
+        class: "out-of-stock",
+      };
+    if (quantity < 10)
+      return { status: "Low Stock", color: "#F59E0B", class: "low-stock" };
+    return { status: "In Stock", color: "#10B981", class: "in-stock" };
   };
 
   const handleSort = (field) => {
     if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortBy(field);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
   };
 
@@ -148,7 +227,7 @@ const InventoryManagement = () => {
     selectedCategory,
     selectedStockStatus,
     priceRange.min,
-    priceRange.max
+    priceRange.max,
   ].filter(Boolean).length;
 
   return (
@@ -172,7 +251,7 @@ const InventoryManagement = () => {
               <span className="stat-value">{totalProducts}</span>
             </div>
           </div>
-          
+
           <div className="stat-card">
             <div className="stat-icon green">
               <TrendingUp size={24} />
@@ -182,7 +261,7 @@ const InventoryManagement = () => {
               <span className="stat-value">{totalStock}</span>
             </div>
           </div>
-          
+
           <div className="stat-card">
             <div className="stat-icon orange">
               <TrendingDown size={24} />
@@ -192,7 +271,7 @@ const InventoryManagement = () => {
               <span className="stat-value">{lowStockProducts.length}</span>
             </div>
           </div>
-          
+
           <div className="stat-card">
             <div className="stat-icon red">
               <AlertTriangle size={24} />
@@ -204,15 +283,13 @@ const InventoryManagement = () => {
           </div>
         </div>
 
-        
-
         {/* Top Products Sold Table */}
         <div className="table-card full-width">
           <div className="table-header">
             <h3>Top 10 Products Sold</h3>
             <span className="table-count">Revenue & Sales Performance</span>
           </div>
-          
+
           <div className="table-container">
             <table className="top-products-table">
               <thead>
@@ -244,16 +321,15 @@ const InventoryManagement = () => {
                   topProductsSold.map((product, index) => (
                     <tr key={product.id}>
                       <td>
-                        <div className="rank-badge">
-                          #{index + 1}
-                        </div>
+                        <div className="rank-badge">#{index + 1}</div>
                       </td>
                       <td>
                         <div className="product-name">{product.name}</div>
                       </td>
                       <td>
                         <div className="category-name">
-                          {categories.find((c) => c.id === product.category_id)?.name || "N/A"}
+                          {categories.find((c) => c.id === product.category_id)
+                            ?.name || "N/A"}
                         </div>
                       </td>
                       <td>
@@ -268,10 +344,11 @@ const InventoryManagement = () => {
                       </td>
                       <td>
                         <div className="total-revenue">
-                          ${product.totalRevenue?.toLocaleString('en-US', { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
-                          }) || '0.00'}
+                          $
+                          {product.totalRevenue?.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }) || "0.00"}
                         </div>
                       </td>
                       <td>
@@ -294,7 +371,9 @@ const InventoryManagement = () => {
             <div className="filters-title">
               <h3>Filter & Search</h3>
               {activeFiltersCount > 0 && (
-                <span className="active-filters-badge">{activeFiltersCount} active</span>
+                <span className="active-filters-badge">
+                  {activeFiltersCount} active
+                </span>
               )}
             </div>
 
@@ -325,7 +404,7 @@ const InventoryManagement = () => {
                     className="search-input"
                   />
                   {searchTerm && (
-                    <button 
+                    <button
                       className="clear-search-btn"
                       onClick={() => setSearchTerm("")}
                     >
@@ -384,7 +463,12 @@ const InventoryManagement = () => {
                       type="number"
                       placeholder="0.00"
                       value={priceRange.min}
-                      onChange={(e) => setPriceRange(prev => ({ ...prev, min: e.target.value }))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          min: e.target.value,
+                        }))
+                      }
                       className="price-input"
                       min="0"
                       step="0.01"
@@ -397,7 +481,12 @@ const InventoryManagement = () => {
                       type="number"
                       placeholder="999.99"
                       value={priceRange.max}
-                      onChange={(e) => setPriceRange(prev => ({ ...prev, max: e.target.value }))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          max: e.target.value,
+                        }))
+                      }
                       className="price-input"
                       min="0"
                       step="0.01"
@@ -447,27 +536,46 @@ const InventoryManagement = () => {
             <h3>Inventory Details</h3>
             <span className="table-count">{filteredProducts.length} items</span>
           </div>
-          
+
           <div className="table-container">
             <table className="inventory-table">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('name')}>
-                    Product Name 
-                    {sortBy === 'name' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                  <th onClick={() => handleSort("name")}>
+                    Product Name
+                    {sortBy === "name" && (
+                      <span className="sort-indicator">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
                   </th>
-                  <th onClick={() => handleSort('category_id')}>
+                  <th onClick={() => handleSort("category_id")}>
                     Category
-                    {sortBy === 'category_id' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                    {sortBy === "category_id" && (
+                      <span className="sort-indicator">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
                   </th>
                   <th className="hide-mobile">Barcode</th>
-                  <th onClick={() => handleSort('stock_quantity')}>
+                  <th onClick={() => handleSort("stock_quantity")}>
                     Stock
-                    {sortBy === 'stock_quantity' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                    {sortBy === "stock_quantity" && (
+                      <span className="sort-indicator">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
                   </th>
-                  <th className="hide-mobile" onClick={() => handleSort('price')}>
+                  <th
+                    className="hide-mobile"
+                    onClick={() => handleSort("price")}
+                  >
                     Unit Price
-                    {sortBy === 'price' && <span className="sort-indicator">{sortOrder === 'asc' ? '↑' : '↓'}</span>}
+                    {sortBy === "price" && (
+                      <span className="sort-indicator">
+                        {sortOrder === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
                   </th>
                   <th className="hide-mobile">Stock Value</th>
                   <th>Status</th>
@@ -489,9 +597,13 @@ const InventoryManagement = () => {
                   </tr>
                 ) : (
                   filteredProducts.map((product) => {
-                    const stockStatus = getStockStatus(product.stock_quantity || 0);
-                    const stockValue = (product.stock_quantity || 0) * parseFloat(product.price || 0);
-                    
+                    const stockStatus = getStockStatus(
+                      product.stock_quantity || 0
+                    );
+                    const stockValue =
+                      (product.stock_quantity || 0) *
+                      parseFloat(product.price || 0);
+
                     return (
                       <tr key={product.id}>
                         <td>
@@ -499,7 +611,9 @@ const InventoryManagement = () => {
                         </td>
                         <td>
                           <div className="category-name">
-                            {categories.find((c) => c.id === product.category_id)?.name || "N/A"}
+                            {categories.find(
+                              (c) => c.id === product.category_id
+                            )?.name || "N/A"}
                           </div>
                         </td>
                         <td className="hide-mobile">
@@ -528,7 +642,9 @@ const InventoryManagement = () => {
               </tbody>
             </table>
           </div>
+          
         </div>
+        <LogsTable auditLogs={auditLogs} />;
       </div>
     </div>
   );

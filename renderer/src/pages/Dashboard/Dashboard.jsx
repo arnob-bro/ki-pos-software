@@ -54,6 +54,7 @@ const Dashboard = () => {
 
   // Pagination for audit logs
   const totalPages = Math.ceil(auditTotal / logsPerPage);
+  console.log(auditLogs)
 
   return (
     <div className="dashboard">

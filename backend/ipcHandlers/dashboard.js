@@ -42,7 +42,7 @@ module.exports = function (ipcMain) {
   ipcMain.handle('dashboard:getAuditLogs', async (event, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
     const logs = db.prepare(`
-      SELECT action_type as action, user_id as user, table_name as table_name, timestamp
+      SELECT action_type as action, user_id as user, table_name as table_name, timestamp ,new_data
       FROM audit_logs
       ORDER BY timestamp DESC
       LIMIT ? OFFSET ?
