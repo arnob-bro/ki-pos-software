@@ -1,8 +1,10 @@
 const { v4: uuidv4 } = require('uuid');
+const AuditLogService = require('./auditLogService');
 
 class EmployeeService {
   constructor(db) {
     this.db = db;
+    this.auditLogService = new AuditLogService(db);
   }
 
   // List all employees (users) with pagination
@@ -103,7 +105,7 @@ class EmployeeService {
   }
 
   // Add new employee (user)
-  async addEmployee(employeeData) {
+  async addEmployee(employeeData, currentUser) {
     const id = uuidv4();
     
     // Get role ID based on role name
@@ -140,11 +142,24 @@ class EmployeeService {
       await this.updateEmployeePermissions(id, employeeData.custom_permissions);
     }
     
-    return this.getEmployeeById(id);
+    const newEmployee = await this.getEmployeeById(id);
+    // Audit log
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'CREATE',
+        table_name: 'users',
+        record_id: id,
+        old_data: null,
+        new_data: newEmployee
+      });
+    }
+    return newEmployee;
   }
 
   // Update employee
-  async updateEmployee(id, employeeData) {
+  async updateEmployee(id, employeeData, currentUser) {
+    const oldEmployee = await this.getEmployeeById(id);
     // Get role ID based on role name
     const role = this.db.prepare('SELECT id FROM roles WHERE name = ?').get(employeeData.role);
     if (!role) {
@@ -174,11 +189,24 @@ class EmployeeService {
       await this.updateEmployeePermissions(id, employeeData.custom_permissions);
     }
     
-    return this.getEmployeeById(id);
+    const updatedEmployee = await this.getEmployeeById(id);
+    // Audit log
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'UPDATE',
+        table_name: 'users',
+        record_id: id,
+        old_data: oldEmployee,
+        new_data: updatedEmployee
+      });
+    }
+    return updatedEmployee;
   }
 
   // Delete employee
-  async deleteEmployee(id) {
+  async deleteEmployee(id, currentUser) {
+    const oldEmployee = await this.getEmployeeById(id);
     const stmt = this.db.prepare('DELETE FROM users WHERE id = ?');
     const result = stmt.run(id);
     
@@ -186,6 +214,17 @@ class EmployeeService {
       throw new Error('Employee not found');
     }
     
+    // Audit log
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'DELETE',
+        table_name: 'users',
+        record_id: id,
+        old_data: oldEmployee,
+        new_data: null
+      });
+    }
     return { success: true, message: 'Employee deleted successfully' };
   }
 
@@ -207,7 +246,7 @@ class EmployeeService {
   }
 
   // Add new role
-  async addRole(roleData) {
+  async addRole(roleData, currentUser) {
     const stmt = this.db.prepare('INSERT INTO roles (name) VALUES (?)');
     const result = stmt.run(roleData.name);
     
@@ -222,7 +261,18 @@ class EmployeeService {
       await this.addPermissionsToRole(roleId, roleData.permissions);
     }
     
-    return this.getRoleById(roleId);
+    const newRole = await this.getRoleById(roleId);
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'CREATE',
+        table_name: 'roles',
+        record_id: roleId,
+        old_data: null,
+        new_data: newRole
+      });
+    }
+    return newRole;
   }
 
   // Get role by ID
@@ -245,7 +295,8 @@ class EmployeeService {
   }
 
   // Update role
-  async updateRole(id, roleData) {
+  async updateRole(id, roleData, currentUser) {
+    const oldRole = await this.getRoleById(id);
     const stmt = this.db.prepare('UPDATE roles SET name = ? WHERE id = ?');
     const result = stmt.run(roleData.name, id);
     
@@ -264,11 +315,23 @@ class EmployeeService {
       }
     }
     
-    return this.getRoleById(id);
+    const updatedRole = await this.getRoleById(id);
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'UPDATE',
+        table_name: 'roles',
+        record_id: id,
+        old_data: oldRole,
+        new_data: updatedRole
+      });
+    }
+    return updatedRole;
   }
 
   // Delete role
-  async deleteRole(id) {
+  async deleteRole(id, currentUser) {
+    const oldRole = await this.getRoleById(id);
     // Check if role is being used by any users
     const usersWithRole = this.db.prepare('SELECT COUNT(*) as count FROM users WHERE role_id = ?').get(id);
     if (usersWithRole.count > 0) {
@@ -295,6 +358,16 @@ class EmployeeService {
       throw new Error('Role not found');
     }
     
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'DELETE',
+        table_name: 'roles',
+        record_id: id,
+        old_data: oldRole,
+        new_data: null
+      });
+    }
     return { success: true, message: 'Role deleted successfully' };
   }
 

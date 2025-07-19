@@ -1,0 +1,2 @@
+﻿Transaction_ID,Timestamp,User,Payment_Method,Gross_Amount,Net_Amount,VAT_Amount,VAT_Rate,Correction,Cancelled,Customer_ID,Receipt_Number
+txn-1,2025-07-19 11:53:06,user-1,cash,10,10.00,0.00,5,,,cust-1,txn-1

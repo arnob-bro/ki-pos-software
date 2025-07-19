@@ -19,8 +19,9 @@ class EmployeeController {
     }
   }
 
-  async addEmployee(employeeData) {
+  async addEmployee(employeeData,currentUser) {
     try {
+      console.log("current user-"+currentUser);
       // Validate required fields
       if (!employeeData.first_name || !employeeData.last_name || !employeeData.email) {
         throw new Error('First name, last name, and email are required');
@@ -39,7 +40,7 @@ class EmployeeController {
         role: employeeData.role || 'cashier'
       };
 
-      return await this.employeeService.addEmployee(employee);
+      return await this.employeeService.addEmployee(employee,currentUser);
     } catch (error) {
       throw new Error(`Failed to add employee: ${error.message}`);
     }

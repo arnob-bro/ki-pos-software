@@ -23,27 +23,27 @@ module.exports = function registerProductHandlers(ipcMain, db) {
     }
   });
 
-  ipcMain.handle('products:add', async (event, product) => {
+  ipcMain.handle('products:add', async (event, product, currentUser) => {
     try {
-      return await productController.addProduct(product);
+      return await productController.addProduct(product, currentUser);
     } catch (error) {
       console.error('Error adding product:', error.message);
       throw error;
     }
   });
 
-  ipcMain.handle('products:update', async (event, product) => {
+  ipcMain.handle('products:update', async (event, product, currentUser) => {
     try {
-      return await productController.updateProduct(product);
+      return await productController.updateProduct(product, currentUser);
     } catch (error) {
       console.error('Error updating product:', error.message);
       throw error;
     }
   });
 
-  ipcMain.handle('products:delete', async (event, id) => {
+  ipcMain.handle('products:delete', async (event, id, currentUser) => {
     try {
-      return await productController.deleteProduct(id);
+      return await productController.deleteProduct(id, currentUser);
     } catch (error) {
       console.error('Error deleting product:', error.message);
       throw error;

@@ -1,9 +1,12 @@
+const AuditLogService = require('./auditLogService');
+
 class ProductService {
   constructor(db) {
     this.db = db;
     this.cache = new Map();
     this.cacheTimeout = 30000; // 30 seconds
     this.lastCacheUpdate = 0;
+    this.auditLogService = new AuditLogService(db);
   }
 
   // Optimized list with pagination
@@ -76,7 +79,7 @@ class ProductService {
   }
 
   // Optimized add with minimal validation
-  async addProduct(product) {
+  async addProduct(product, currentUser) {
     console.log('DEBUG: Received product for addProduct:', product);
     // Inline validation with coercion
     const stockQty = Number(product.stock_quantity || 0);
@@ -94,7 +97,7 @@ class ProductService {
     const id = product.id || uuidv4();
     stmt.run(id, product.name.trim(), categoryId, product.barcode || null, price, vatRate, stockQty);
     this.cache.delete('products');
-    return { 
+    const newProduct = { 
       id, 
       name: product.name.trim(), 
       category_id: categoryId,
@@ -103,10 +106,21 @@ class ProductService {
       vat_rate: vatRate,
       stock_quantity: stockQty 
     };
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'CREATE',
+        table_name: 'products',
+        record_id: id,
+        old_data: null,
+        new_data: newProduct
+      });
+    }
+    return newProduct;
   }
 
   // Optimized update
-  async updateProduct(product) {
+  async updateProduct(product, currentUser) {
     // Inline validation with coercion
     const stockQty = Number(product.stock_quantity || 0);
     const price = Number(product.price);
@@ -120,12 +134,13 @@ class ProductService {
     if (isNaN(vatRate) || vatRate < 0) throw new Error('Invalid vat_rate');
     
     const stmt = this.db.prepare('UPDATE products SET name = ?, category_id = ?, barcode = ?, price = ?, vat_rate = ?, stock_quantity = ? WHERE id = ?');
+    const oldProduct = await this.getProductById(product.id);
     const result = stmt.run(product.name.trim(), categoryId, product.barcode || null, price, vatRate, stockQty, product.id);
     if (result.changes === 0) {
       throw new Error('Product not found');
     }
     this.cache.delete('products');
-    return { 
+    const updatedProduct = { 
       id: product.id, 
       name: product.name.trim(), 
       category_id: categoryId,
@@ -134,6 +149,17 @@ class ProductService {
       vat_rate: vatRate,
       stock_quantity: stockQty 
     };
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'UPDATE',
+        table_name: 'products',
+        record_id: product.id,
+        old_data: oldProduct,
+        new_data: updatedProduct
+      });
+    }
+    return updatedProduct;
   }
 
   // Optimized get by ID with caching
@@ -195,11 +221,11 @@ class ProductService {
   }
 
   // Delete product
-  async deleteProduct(id) {
+  async deleteProduct(id, currentUser) {
     if (typeof id !== 'string' || !id) {
       throw new Error('Invalid product ID');
     }
-    
+    const oldProduct = await this.getProductById(id);
     const stmt = this.db.prepare('DELETE FROM products WHERE id = ?');
     const result = stmt.run(id);
     
@@ -210,7 +236,16 @@ class ProductService {
     // Clear cache
     this.cache.delete('products');
     this.cache.delete(`product_${id}`);
-    
+    if (currentUser) {
+      await this.auditLogService.log({
+        user_id: currentUser.id,
+        action_type: 'DELETE',
+        table_name: 'products',
+        record_id: id,
+        old_data: oldProduct,
+        new_data: null
+      });
+    }
     return { success: true, message: 'Product deleted successfully' };
   }
 }
