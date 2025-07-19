@@ -26,9 +26,9 @@ module.exports = function registerReportHandlers(ipcMain, db) {
   });
 
   // Get all generated reports
-  ipcMain.handle('reports:list', async (event, page = 1, limit = 20) => {
+  ipcMain.handle('reports:list', async (event, userId, page = 1, limit = 20) => {
     try {
-      return await reportController.getGeneratedReports(page, limit);
+      return await reportController.getGeneratedReports(userId, page, limit);
     } catch (error) {
       console.error('Error listing reports:', error.message);
       throw error;
@@ -60,6 +60,16 @@ module.exports = function registerReportHandlers(ipcMain, db) {
     }
   });
 
+  // Generate CSV report
+  ipcMain.handle('reports:generateCSV', async (event, reportId) => {
+    try {
+      return await reportController.generateCSVReport(reportId);
+    } catch (error) {
+      console.error('Error generating CSV report:', error.message);
+      throw error;
+    }
+  });
+
   // Download report file
   ipcMain.handle('reports:downloadFile', async (event, filePath) => {
     try {
@@ -86,12 +96,52 @@ module.exports = function registerReportHandlers(ipcMain, db) {
   });
 
   // Get report statistics
-  ipcMain.handle('reports:getStats', async () => {
+  ipcMain.handle('reports:getStats', async (event, userId) => {
     try {
-      return await reportController.getReportStats();
+      return await reportController.getReportStats(userId);
     } catch (error) {
       console.error('Error getting report statistics:', error.message);
       throw error;
+    }
+  });
+
+  // Manager Reports: Sales by Category
+  ipcMain.handle('reports:salesByCategory', async (event, startDate, endDate) => {
+    try {
+      return await reportController.getSalesByCategory(startDate, endDate);
+    } catch (error) {
+      console.error('Error in salesByCategory:', error.message);
+      return { success: false, message: error.message };
+    }
+  });
+
+  // Manager Reports: Sales by Time
+  ipcMain.handle('reports:salesByTime', async (event, startDate, endDate, interval) => {
+    try {
+      return await reportController.getSalesByTime(startDate, endDate, interval);
+    } catch (error) {
+      console.error('Error in salesByTime:', error.message);
+      return { success: false, message: error.message };
+    }
+  });
+
+  // Manager Reports: Sales by Operator
+  ipcMain.handle('reports:salesByOperator', async (event, startDate, endDate) => {
+    try {
+      return await reportController.getSalesByOperator(startDate, endDate);
+    } catch (error) {
+      console.error('Error in salesByOperator:', error.message);
+      return { success: false, message: error.message };
+    }
+  });
+
+  // Manager Reports: Tax/VAT Breakdown
+  ipcMain.handle('reports:taxBreakdown', async (event, startDate, endDate) => {
+    try {
+      return await reportController.getTaxBreakdown(startDate, endDate);
+    } catch (error) {
+      console.error('Error in taxBreakdown:', error.message);
+      return { success: false, message: error.message };
     }
   });
 };

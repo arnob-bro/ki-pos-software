@@ -151,7 +151,7 @@ CREATE TABLE transaction_items (
 -- Table: generated_reports
 CREATE TABLE generated_reports (
   id TEXT PRIMARY KEY,
-  type VARCHAR NOT NULL CHECK (type IN ('x_report', 'z_report', 'daily', 'monthly', 'tax', 'employee')),
+  type VARCHAR NOT NULL CHECK (type IN ('x_report', 'z_report')),
   generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   data_blob TEXT,
   user_id TEXT,
