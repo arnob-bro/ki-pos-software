@@ -1,2 +1,0 @@
-﻿Transaction_ID,Item_ID,Product_ID,Product_Name,Category,SKU,Quantity,Unit_Price,VAT_Rate,VAT_Amount,Total_Net,Total_Gross
-txn-1,item-1,prod-1,Protein Powder,Default,1000000000000,1,10,5,,10.00,10.00
