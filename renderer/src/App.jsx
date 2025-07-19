@@ -16,7 +16,7 @@ import HardwareConfiguration from "./pages/HardwareConfiguration/HardwareConfigu
 function App() {
 	return (
 		<Routes>
-			<Route path='/' element={<POS />} />
+			<Route path='/' element={<Login />} />
 			
 			{/* POS - No specific permission required for authenticated users */}
 			<Route 
