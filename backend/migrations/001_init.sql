@@ -101,11 +101,19 @@ CREATE TABLE vouchers (
 -- Table: shifts
 CREATE TABLE shifts (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
   start_time TIMESTAMP NOT NULL,
   end_time TIMESTAMP,
   total_sales DECIMAL(10, 2) DEFAULT 0.00,
-  cash_handled DECIMAL(10, 2) DEFAULT 0.00,
+  cash_handled DECIMAL(10, 2) DEFAULT 0.00
+);
+
+-- Table: shift_assignments
+CREATE TABLE IF NOT EXISTS shift_assignments (
+  id TEXT PRIMARY KEY,
+  shift_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (shift_id) REFERENCES shifts(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

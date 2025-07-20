@@ -3,8 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom"
 import Sidebar from "../../components/Sidebar"
 import useCartStore from "../../stores/cartStore"
 import "./pos.css"
+import useLanguageStore from '../../stores/languageStore';
+import useUserStore from '../../stores/userStore';
 
 function POS() {
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
     const [products, setProducts] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
     const [barcodeSearch, setBarcodeSearch] = useState("")
@@ -35,6 +39,15 @@ function POS() {
         getTotal,
         removeFromQueue,
     } = useCartStore()
+	const currentUser = useUserStore((state) => state.user);
+  // Remove shift-related state
+  // const [shift, setShift] = useState(null);
+  // const [shiftLoading, setShiftLoading] = useState(false);
+  // const [shiftError, setShiftError] = useState(null);
+
+  // Remove fetchShift, handleStartShift, handleEndShift, and related useEffects
+
+  // Remove any shift info or buttons from the render
 
     // Fetch products from backend
     const fetchProducts = useCallback(async () => {
@@ -148,7 +161,7 @@ function POS() {
         )
 
         try {
-            const result = await window.posAPI.addTransaction(transactionData)
+            const result = await window.posAPI.addTransaction(transactionData, currentUser)
             console.log("DEBUG: Transaction result:", result)
             clearCart()
             fetchProducts()
@@ -489,7 +502,7 @@ function POS() {
                         </div>
 
                         <div className="product-grid">
-                            {loading && <div>Loading products...</div>}
+                            {loading && <div>{t('Loading products...', 'Produkte werden geladen...')}</div>}
                             {!loading && selectedProducts.length === 0 && (
                                 <div
                                     style={{
@@ -497,23 +510,23 @@ function POS() {
                                         textAlign: "center",
                                         marginTop: "2em",
                                     }}>
-                                    Please search and select products to
-                                    display.
+                                    {t('Please search and select products to
+                                    display.', 'Bitte suchen und wählen Sie Produkte aus, um sie anzuzeigen.')}
                                 </div>
                             )}
                             {selectedProducts.length > 0 && (
                                 <table className="product-table">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Category ID</th>
-                                            <th>Barcode</th>
-                                            <th>Price</th>
-                                            <th>VAT Rate</th>
-                                            <th>Stock</th>
-                                            <th>Quantity</th>
-                                            <th>Actions</th>
+                                            <th>{t('ID', 'ID')}</th>
+                                            <th>{t('Name', 'Name')}</th>
+                                            <th>{t('Category ID', 'Kategorie-ID')}</th>
+                                            <th>{t('Barcode', 'Barcode')}</th>
+                                            <th>{t('Price', 'Preis')}</th>
+                                            <th>{t('VAT Rate', 'MwSt-Satz')}</th>
+                                            <th>{t('Stock', 'Lager')}</th>
+                                            <th>{t('Quantity', 'Menge')}</th>
+                                            <th>{t('Actions', 'Aktionen')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -583,7 +596,7 @@ function POS() {
                                                             cursor: "pointer",
                                                             fontSize: "1rem",
                                                         }}>
-                                                        Remove
+                                                        {t('Remove', 'Entfernen')}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -633,8 +646,8 @@ function POS() {
                                             style={{
                                                 color: "#888",
                                                 textAlign: "center",
-                                            }}>
-                                            No items in cart
+                                            }}>{t('
+                                            No items in cart', 'Keine Artikel im Warenkorb')}
                                         </div>
                                     )}
                                     {Object.values(cart).map((item, idx) => (

@@ -1,12 +1,15 @@
+const AuditLogService = require('./auditLogService');
+
 class SaleService {
   constructor(db) {
     this.db = db;
     this.cache = new Map();
     this.cacheTimeout = 60000; // 1 minute for sales data
+    this.auditLogService = new AuditLogService(db);
   }
 
   // Optimized add sale with batch operations
-  async addSale(sale) {
+  async addSale(sale, currentUser) {
     // Inline validation
     if (!Array.isArray(sale.items) || sale.items.length === 0) throw new Error('Invalid items');
     if (typeof sale.total !== 'number' || sale.total <= 0) throw new Error('Invalid total');
@@ -35,6 +38,16 @@ class SaleService {
     try {
       const result = transaction();
       this.cache.delete('sales_list');
+      if (currentUser) {
+        await this.auditLogService.log({
+          user_id: currentUser.id,
+          action_type: 'CREATE',
+          table_name: 'sales',
+          record_id: result.id,
+          old_data: null,
+          new_data: result
+        });
+      }
       return result;
     } catch (error) {
       throw new Error(`Sale failed: ${error.message}`);

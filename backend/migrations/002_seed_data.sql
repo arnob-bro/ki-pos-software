@@ -211,8 +211,12 @@ INSERT OR IGNORE INTO customers (id, name, phone, email, address, loyalty_points
   ('cust-6', 'Eva Müller', '5554445555', 'eva.mueller@example.com', '5 Lindenweg', 310, 'Gold');
 
 -- Shifts
-INSERT OR IGNORE INTO shifts (id, user_id, start_time)
-VALUES ('shift-1', 'user-1', '2024-06-01 08:00:00');
+INSERT OR IGNORE INTO shifts (id, start_time)
+VALUES ('shift-1', '2024-06-01 08:00:00');
+
+-- Shift Assignments
+INSERT OR IGNORE INTO shift_assignments (id, shift_id, user_id)
+VALUES ('assign-1', 'shift-1', 'user-1');
 
 -- Transactions (insert with tse_signature NULL for now)
 INSERT OR IGNORE INTO transactions (id, user_id, customer_id, shift_id, payment_method, total_amount, tse_signature)

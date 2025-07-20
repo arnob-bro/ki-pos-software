@@ -48,6 +48,7 @@ require("./ipcHandlers/transactions")(ipcMain, db)
 require("./ipcHandlers/employee")(ipcMain, db)
 require("./ipcHandlers/auth")(ipcMain, db)
 require("./ipcHandlers/report")(ipcMain, db) // ← Add report IPC handler
+require("./ipcHandlers/dashboard")(ipcMain);
 require("./ipcHandlers/customer")(ipcMain, db)
 
 // Register hardware handlers

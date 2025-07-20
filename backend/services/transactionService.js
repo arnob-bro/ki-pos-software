@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const AuditLogService = require('./auditLogService');
 
 // Simple LRU Cache implementation
 class LRUCache {
@@ -39,10 +40,11 @@ class TransactionService {
     this.db = db;
     this.receiptCache = new LRUCache(50); // Cache last 50 receipt queries
     this.cacheTimeout = 30000; // 30 seconds
+    this.auditLogService = new AuditLogService(db);
   }
 
   // Add a transaction and its items
-  async addTransaction(transaction) {
+  async addTransaction(transaction, currentUser) {
     console.log('DEBUG: TransactionService.addTransaction called with:', JSON.stringify(transaction, null, 2));
     // transaction: { user_id, customer_id, shift_id, payment_method, total_amount, vat_amount, discount_amount, tse_signature_id, items: [{product_id, quantity, unit_price, vat_amount, discount_applied}] }
     if (!transaction || !Array.isArray(transaction.items) || transaction.items.length === 0) {
@@ -131,6 +133,16 @@ class TransactionService {
       // Clear receipt cache when new transaction is added
       this.clearReceiptCache();
       
+      if (currentUser) {
+        await this.auditLogService.log({
+          user_id: currentUser.id,
+          action_type: 'CREATE',
+          table_name: 'transactions',
+          record_id: result.id,
+          old_data: null,
+          new_data: result
+        });
+      }
       return result;
     } catch (error) {
       console.error('DEBUG: Transaction failed with error:', error.message);

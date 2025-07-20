@@ -93,7 +93,7 @@
   margin-bottom: 30px;
 }
 
-.stat-card {
+.stat-cards {
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -114,7 +114,7 @@
   font-weight: 600;
 }
 
-.stat-card span {
+.stat-cards span {
   font-size: 24px;
   margin-left: 10px;
   font-weight: 700;
@@ -125,16 +125,22 @@
 /* Controls Section */
 .employee-controls {
   display: flex;
-  gap: 20px;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 30px;
   padding: 20px;
   background: #f9f9f9;
   border-radius: 8px;
+  flex-wrap: wrap;
 }
 
 .search-section {
-  flex: 1;
-  position: relative;
+  flex: 1 1 240px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
 }
 
 .search-input {
@@ -171,10 +177,12 @@
   background: #5a6268;
 }
 
-.filters-section {
+.filter-section {
   display: flex;
-  gap: 12px;
+  flex-direction: row;
   align-items: center;
+  gap: 12px;
+  min-width: 220px;
 }
 
 .filter-select {
@@ -441,13 +449,26 @@
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
-
-.form-row input,
+.form-row input {
+  flex: 1 1 0;
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  transition: border 0.2s;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.form-row input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.12);
+}
 .form-row select {
   padding: 10px 12px;
   border: 1px solid #ccc;
@@ -456,7 +477,6 @@
   transition: 0.2s ease-in-out;
 }
 
-.form-row input:focus,
 .form-row select:focus {
   border-color: #007bff;
   outline: none;
@@ -618,11 +638,11 @@
     padding: 16px;
   }
 
-  .stat-card {
+  .stat-cards {
     padding: 16px;
   }
 
-  .stat-card span {
+  .stat-cards span {
     font-size: 20px;
   }
 }
@@ -832,5 +852,384 @@
 
   .role-form {
     padding: 16px;
+  }
+}
+
+/* --- Shift Management Section --- */
+.shift-management-section {
+  margin: 32px 0 36px 0;
+  background: #f8fafc;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 24px 20px 28px 20px;
+}
+
+.shift-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.shift-header h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+}
+
+.add-shift-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(40,167,69,0.08);
+}
+.add-shift-btn:hover {
+  background: #218838;
+}
+
+.shift-table-container {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e3e6ea;
+  margin-top: 8px;
+}
+
+.shift-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.shift-table th, .shift-table td {
+  padding: 12px 10px;
+  text-align: left;
+}
+
+.shift-table th {
+  background: #f1f5f9;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #e3e6ea;
+}
+
+.shift-table td {
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.shift-table tr:hover {
+  background: #f8f9fa;
+}
+
+.shift-table select {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  background: #f8fafc;
+  min-width: 120px;
+}
+
+.shift-table button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background 0.2s;
+}
+.shift-table button:hover {
+  background: #0056b3;
+}
+
+/* Shift Modal Form */
+.shift-form .form-section {
+  margin-bottom: 18px;
+}
+.shift-form label {
+  display: block;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.shift-form select, .shift-form input[type="datetime-local"] {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  background: #f8fafc;
+  margin-bottom: 2px;
+}
+.shift-form .form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+.shift-form .submit-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.shift-form .submit-btn:hover {
+  background: #218838;
+}
+.shift-form .cancel-btn {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.shift-form .cancel-btn:hover {
+  background: #bdbdbd;
+}
+
+@media screen and (max-width: 900px) {
+  .shift-management-section {
+    padding: 14px 4px 18px 4px;
+  }
+  .shift-header h3 {
+    font-size: 18px;
+  }
+  .add-shift-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .shift-table th, .shift-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .shift-management-section {
+    padding: 6px 0 10px 0;
+  }
+  .shift-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .shift-table-container {
+    border-radius: 0;
+    border: none;
+  }
+}
+
+/* --- Improved Shift Management Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(44, 62, 80, 0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(44,62,80,0.18), 0 1.5px 6px rgba(0,0,0,0.08);
+  padding: 36px 32px 28px 32px;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  animation: modalPop 0.22s cubic-bezier(.4,1.6,.6,1);
+}
+
+@keyframes modalPop {
+  from { transform: translateY(40px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  border-bottom: 1.5px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.modal-header h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.18s;
+  padding: 0 4px;
+  line-height: 1;
+}
+.close-btn:hover {
+  color: #e74c3c;
+  background: #fbeeea;
+  border-radius: 50%;
+}
+
+.shift-form .form-section {
+  margin-bottom: 20px;
+}
+.shift-form label {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+.shift-form select, .shift-form input[type="datetime-local"] {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 7px;
+  border: 1.5px solid #e3e6ea;
+  font-size: 15px;
+  background: #f8fafc;
+  margin-bottom: 2px;
+  transition: border 0.18s;
+}
+.shift-form select:focus, .shift-form input[type="datetime-local"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+.shift-form .form-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+.shift-form .submit-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 11px 26px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 1.5px 6px rgba(40,167,69,0.08);
+}
+.shift-form .submit-btn:hover {
+  background: #218838;
+}
+.shift-form .cancel-btn {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 11px 26px;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.shift-form .cancel-btn:hover {
+  background: #bdbdbd;
+}
+
+@media screen and (max-width: 600px) {
+  .modal-content {
+    padding: 18px 6px 16px 6px;
+    max-width: 98vw;
+  }
+  .modal-header h3 {
+    font-size: 17px;
+  }
+  .shift-form .submit-btn, .shift-form .cancel-btn {
+    padding: 9px 12px;
+    font-size: 14px;
+  }
+}
+
+/* Style for shift multi-select dropdown in employee form */
+.shift-select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  min-width: 180px;
+  min-height: 40px;
+  box-sizing: border-box;
+  color: #333;
+}
+.shift-select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+}
+
+/* Make selected options more visible */
+.shift-select option:checked {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+@media screen and (max-width: 600px) {
+  .shift-select {
+    min-width: 120px;
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .employee-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px;
+  }
+  .search-section, .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
+    gap: 6px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
   }
 }

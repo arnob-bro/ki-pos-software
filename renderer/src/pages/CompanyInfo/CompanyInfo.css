@@ -46,7 +46,7 @@
   background: #f8fafc;
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #c3c5c9;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
@@ -75,7 +75,7 @@
 .company-form input[type="file"],
 .company-form textarea {
   padding: 0.875rem 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #b6bac1;
   border-radius: 8px;
   font-size: 0.95rem;
   width: 100%;

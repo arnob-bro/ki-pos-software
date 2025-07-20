@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const AuditLogService = require('./auditLogService');
 const { 
   findUserById, 
   findUserByEmail, 
@@ -11,15 +12,17 @@ const {
   getUserWithRole,
   getUserPermissionsWithCodes
 } = require('../models/UserModel');
+const { getCurrentShift } = require('../models/ShiftModel');
 const { generateToken, verifyToken } = require('../utils/jwt');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const logger = require('../config/logger');
 
 class AuthService {
-  constructor() {
+  constructor(db) {
     this.saltRounds = 12;
     this.tokenExpiry = '24h';
     this.refreshTokenExpiry = '7d';
+    this.auditLogService = new AuditLogService(db);
   }
 
   /**
@@ -31,7 +34,7 @@ class AuthService {
    * @param {number} userData.role_id - Role ID
    * @returns {Object} Registration result
    */
-  async registerUser(userData) {
+  async registerUser(userData, currentUser) {
     try {
       // Validate input data
       if (!userData.name || !userData.password || !userData.email || !userData.role_id) {
@@ -76,6 +79,7 @@ class AuthService {
 
       // Save user to database
       const createdUser = createUser(newUser);
+      console.log('createdUser:', createdUser);
       if (!createdUser) {
         return {
           success: false,
@@ -98,6 +102,9 @@ class AuthService {
       const userPermissions = getUserPermissionsWithCodes(createdUser.id);
 
       logger.info(`User registered successfully: ${createdUser.name}`);
+
+      console.log('currentUser in registerUser:', currentUser);
+      
 
       return {
         success: true,
@@ -196,6 +203,9 @@ class AuthService {
       // Get user permissions
       const userPermissions = getUserPermissionsWithCodes(user.id);
 
+      // Get current shift
+      const currentShift = getCurrentShift(user.id);
+
       logger.info(`User logged in successfully: ${user.name}`);
 
       return {
@@ -206,7 +216,8 @@ class AuthService {
           name: user.name,
           email: user.email,
           role_id: user.role_id,
-          status: user.status
+          status: user.status,
+          shift: currentShift || null
         },
         permissions: userPermissions.permissions,
         permissionCodes: userPermissions.permissionCodes,
@@ -395,6 +406,8 @@ class AuthService {
 
       // Get user permissions
       const userPermissions = getUserPermissionsWithCodes(userId);
+      // Get current shift
+      const currentShift = getCurrentShift(userId);
 
       return {
         success: true,
@@ -407,7 +420,8 @@ class AuthService {
           role_name: user.role_name,
           status: user.status,
           created_at: user.created_at,
-          updated_at: user.updated_at
+          updated_at: user.updated_at,
+          shift: currentShift || null
         },
         permissions: userPermissions.permissions,
         permissionCodes: userPermissions.permissionCodes
@@ -538,7 +552,4 @@ class AuthService {
   }
 }
 
-// Create and export a singleton instance
-const authService = new AuthService();
-
-module.exports = authService;
+module.exports = (db) => new AuthService(db);

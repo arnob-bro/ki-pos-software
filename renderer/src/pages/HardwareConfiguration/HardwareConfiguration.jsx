@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import './HardwareConfiguration.css';
+import useLanguageStore from '../../stores/languageStore';
 
 const HardwareConfiguration = () => {
   const [config, setConfig] = useState({
@@ -71,6 +72,9 @@ const HardwareConfiguration = () => {
   ];
 
   const [ports, setPorts] = useState(['COM1', 'COM2', 'COM3', 'COM4', 'USB', 'Network']);
+
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
 
   useEffect(() => {
     loadConfiguration();
@@ -225,20 +229,39 @@ const HardwareConfiguration = () => {
       <Sidebar />
       <div className="hardware-config">
         <div className="header-section">
-          <h2>🔧 Hardware Configuration</h2>
+          <h2>{t('🔧 Hardware Configuration', '🔧 Hardware-Konfiguration')}</h2>
           <button 
             type="button" 
             onClick={loadAvailablePorts} 
             className="refresh-btn"
-            title="Refresh available ports"
+            title={t('Refresh available ports', 'Verfügbare Anschlüsse aktualisieren')}
           >
-            🔄 Refresh Ports
+            {t('🔄 Refresh Ports', '🔄 Anschlüsse aktualisieren')}
           </button>
         </div>
         
         {message.text && (
           <div className={`message ${message.type}`}>
-            {message.text}
+            {t(
+              message.text,
+              message.text
+                .replace('Configuration saved successfully!', 'Konfiguration erfolgreich gespeichert!')
+                .replace('Failed to load configuration', 'Konfiguration konnte nicht geladen werden')
+                .replace('Failed to save configuration', 'Konfiguration konnte nicht gespeichert werden')
+                .replace('Testing EC terminal connection...', 'EC-Terminal-Verbindung wird getestet...')
+                .replace('EC terminal test completed successfully!', 'EC-Terminal-Test erfolgreich abgeschlossen!')
+                .replace('EC terminal test failed', 'EC-Terminal-Test fehlgeschlagen')
+                .replace('Testing drawer...', 'Kassenschublade wird getestet...')
+                .replace('Drawer test completed successfully!', 'Kassenschubladentest erfolgreich abgeschlossen!')
+                .replace('Drawer test failed', 'Kassenschubladentest fehlgeschlagen')
+                .replace('Testing printer...', 'Drucker wird getestet...')
+                .replace('Printer test completed successfully!', 'Druckertest erfolgreich abgeschlossen!')
+                .replace('Printer test failed', 'Druckertest fehlgeschlagen')
+                .replace('Syncing data...', 'Daten werden synchronisiert...')
+                .replace('Data sync completed successfully!', 'Datensynchronisierung erfolgreich abgeschlossen!')
+                .replace('Data sync failed', 'Datensynchronisierung fehlgeschlagen')
+                .replace('Never', 'Nie')
+            )}
           </div>
         )}
 
@@ -246,7 +269,7 @@ const HardwareConfiguration = () => {
           
           {/* EC Terminal Configuration */}
           <fieldset className="config-section">
-            <legend>💳 EC Terminal Setup</legend>
+            <legend>{t('💳 EC Terminal Setup', '💳 EC-Terminal-Einrichtung')}</legend>
             
             <div className="form-group">
               <label>
@@ -255,19 +278,19 @@ const HardwareConfiguration = () => {
                   checked={config.ecTerminal.enabled}
                   onChange={(e) => handleChange('ecTerminal', 'enabled', e.target.checked)}
                 />
-                Enable EC Terminal
+                {t('Enable EC Terminal', 'EC-Terminal aktivieren')}
               </label>
             </div>
 
             {config.ecTerminal.enabled && (
               <>
                 <div className="form-group">
-                  <label>Terminal Model</label>
+                  <label>{t('Terminal Model', 'Terminalmodell')}</label>
                   <select
                     value={config.ecTerminal.model}
                     onChange={(e) => handleChange('ecTerminal', 'model', e.target.value)}
                   >
-                    <option value="">Select Model</option>
+                    <option value="">{t('Select Model', 'Modell wählen')}</option>
                     {ecTerminalModels.map(model => (
                       <option key={model} value={model}>{model}</option>
                     ))}
@@ -276,12 +299,12 @@ const HardwareConfiguration = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Port</label>
+                    <label>{t('Port', 'Anschluss')}</label>
                     <select
                       value={config.ecTerminal.port}
                       onChange={(e) => handleChange('ecTerminal', 'port', e.target.value)}
                     >
-                      <option value="">Select Port</option>
+                      <option value="">{t('Select Port', 'Anschluss wählen')}</option>
                       {ports.map(port => (
                         <option key={port} value={port}>{port}</option>
                       ))}
@@ -289,7 +312,7 @@ const HardwareConfiguration = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Baud Rate</label>
+                    <label>{t('Baud Rate', 'Baudrate')}</label>
                     <select
                       value={config.ecTerminal.baudRate}
                       onChange={(e) => handleChange('ecTerminal', 'baudRate', e.target.value)}
@@ -305,22 +328,22 @@ const HardwareConfiguration = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Merchant ID</label>
+                    <label>{t('Merchant ID', 'Händler-ID')}</label>
                     <input
                       type="text"
                       value={config.ecTerminal.merchantId}
                       onChange={(e) => handleChange('ecTerminal', 'merchantId', e.target.value)}
-                      placeholder="Enter Merchant ID"
+                      placeholder={t('Enter Merchant ID', 'Händler-ID eingeben')}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Terminal ID</label>
+                    <label>{t('Terminal ID', 'Terminal-ID')}</label>
                     <input
                       type="text"
                       value={config.ecTerminal.terminalId}
                       onChange={(e) => handleChange('ecTerminal', 'terminalId', e.target.value)}
-                      placeholder="Enter Terminal ID"
+                      placeholder={t('Enter Terminal ID', 'Terminal-ID eingeben')}
                     />
                   </div>
                 </div>
@@ -332,12 +355,12 @@ const HardwareConfiguration = () => {
                       checked={config.ecTerminal.testMode}
                       onChange={(e) => handleChange('ecTerminal', 'testMode', e.target.checked)}
                     />
-                    Test Mode
+                    {t('Test Mode', 'Testmodus')}
                   </label>
                 </div>
 
                 <button type="button" onClick={testECTerminal} className="test-btn">
-                  🧪 Test EC Terminal
+                  {t('🧪 Test EC Terminal', '🧪 EC-Terminal testen')}
                 </button>
               </>
             )}
@@ -345,7 +368,7 @@ const HardwareConfiguration = () => {
 
           {/* Drawer Control */}
           <fieldset className="config-section">
-            <legend>💰 Drawer Control</legend>
+            <legend>{t('�� Drawer Control', '💰 Kassenschublade')}</legend>
             
             <div className="form-group">
               <label>
@@ -354,19 +377,19 @@ const HardwareConfiguration = () => {
                   checked={config.drawer.enabled}
                   onChange={(e) => handleChange('drawer', 'enabled', e.target.checked)}
                 />
-                Enable Cash Drawer
+                {t('Enable Cash Drawer', 'Kassenschublade aktivieren')}
               </label>
             </div>
 
             {config.drawer.enabled && (
               <>
                 <div className="form-group">
-                  <label>Drawer Port</label>
+                  <label>{t('Drawer Port', 'Schubladenanschluss')}</label>
                   <select
                     value={config.drawer.port}
                     onChange={(e) => handleChange('drawer', 'port', e.target.value)}
                   >
-                    <option value="">Select Port</option>
+                    <option value="">{t('Select Port', 'Anschluss wählen')}</option>
                     {ports.map(port => (
                       <option key={port} value={port}>{port}</option>
                     ))}
@@ -375,22 +398,22 @@ const HardwareConfiguration = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Open Command (ESC/P)</label>
+                    <label>{t('Open Command (ESC/P)', 'Öffnungsbefehl (ESC/P)')}</label>
                     <input
                       type="text"
                       value={config.drawer.openCommand}
                       onChange={(e) => handleChange('drawer', 'openCommand', e.target.value)}
-                      placeholder="e.g., 27,112,0,25,250"
+                      placeholder={t('e.g., 27,112,0,25,250', 'z.B., 27,112,0,25,250')}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Close Command (ESC/P)</label>
+                    <label>{t('Close Command (ESC/P)', 'Schließbefehl (ESC/P)')}</label>
                     <input
                       type="text"
                       value={config.drawer.closeCommand}
                       onChange={(e) => handleChange('drawer', 'closeCommand', e.target.value)}
-                      placeholder="e.g., 27,112,1,25,250"
+                      placeholder={t('e.g., 27,112,1,25,250', 'z.B., 27,112,1,25,250')}
                     />
                   </div>
                 </div>
@@ -402,12 +425,12 @@ const HardwareConfiguration = () => {
                       checked={config.drawer.autoOpen}
                       onChange={(e) => handleChange('drawer', 'autoOpen', e.target.checked)}
                     />
-                    Auto-open drawer on payment completion
+                    {t('Auto-open drawer on payment completion', 'Schublade nach Zahlung automatisch öffnen')}
                   </label>
                 </div>
 
                 <button type="button" onClick={testDrawer} className="test-btn">
-                  🧪 Test Drawer
+                  {t('🧪 Test Drawer', '🧪 Schublade testen')}
                 </button>
               </>
             )}
@@ -415,7 +438,7 @@ const HardwareConfiguration = () => {
 
           {/* Receipt Printer Configuration */}
           <fieldset className="config-section">
-            <legend>🖨️ Receipt Printer Configuration</legend>
+            <legend>{t('🖨️ Receipt Printer Configuration', '🖨️ Belegdrucker-Konfiguration')}</legend>
             
             <div className="form-group">
               <label>
@@ -424,19 +447,19 @@ const HardwareConfiguration = () => {
                   checked={config.printer.enabled}
                   onChange={(e) => handleChange('printer', 'enabled', e.target.checked)}
                 />
-                Enable Receipt Printer
+                {t('Enable Receipt Printer', 'Belegdrucker aktivieren')}
               </label>
             </div>
 
             {config.printer.enabled && (
               <>
                 <div className="form-group">
-                  <label>Printer Model</label>
+                  <label>{t('Printer Model', 'Druckermodell')}</label>
                   <select
                     value={config.printer.model}
                     onChange={(e) => handleChange('printer', 'model', e.target.value)}
                   >
-                    <option value="">Select Model</option>
+                    <option value="">{t('Select Model', 'Modell wählen')}</option>
                     {printerModels.map(model => (
                       <option key={model} value={model}>{model}</option>
                     ))}
@@ -445,12 +468,12 @@ const HardwareConfiguration = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Port</label>
+                    <label>{t('Port', 'Anschluss')}</label>
                     <select
                       value={config.printer.port}
                       onChange={(e) => handleChange('printer', 'port', e.target.value)}
                     >
-                      <option value="">Select Port</option>
+                      <option value="">{t('Select Port', 'Anschluss wählen')}</option>
                       {ports.map(port => (
                         <option key={port} value={port}>{port}</option>
                       ))}
@@ -458,7 +481,7 @@ const HardwareConfiguration = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Baud Rate</label>
+                    <label>{t('Baud Rate', 'Baudrate')}</label>
                     <select
                       value={config.printer.baudRate}
                       onChange={(e) => handleChange('printer', 'baudRate', e.target.value)}
@@ -474,7 +497,7 @@ const HardwareConfiguration = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Paper Width (mm)</label>
+                    <label>{t('Paper Width (mm)', 'Papierbreite (mm)')}</label>
                     <select
                       value={config.printer.paperWidth}
                       onChange={(e) => handleChange('printer', 'paperWidth', e.target.value)}
@@ -487,21 +510,21 @@ const HardwareConfiguration = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Header Text</label>
+                  <label>{t('Header Text', 'Kopfzeile')}</label>
                   <textarea
                     value={config.printer.headerText}
                     onChange={(e) => handleChange('printer', 'headerText', e.target.value)}
-                    placeholder="Enter header text for receipts"
+                    placeholder={t('Enter header text for receipts', 'Kopfzeile für Belege eingeben')}
                     rows="2"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Footer Text</label>
+                  <label>{t('Footer Text', 'Fußzeile')}</label>
                   <textarea
                     value={config.printer.footerText}
                     onChange={(e) => handleChange('printer', 'footerText', e.target.value)}
-                    placeholder="Enter footer text for receipts"
+                    placeholder={t('Enter footer text for receipts', 'Fußzeile für Belege eingeben')}
                     rows="2"
                   />
                 </div>
@@ -513,7 +536,7 @@ const HardwareConfiguration = () => {
                       checked={config.printer.autoCut}
                       onChange={(e) => handleChange('printer', 'autoCut', e.target.checked)}
                     />
-                    Auto-cut paper after printing
+                    {t('Auto-cut paper after printing', 'Papier nach dem Drucken automatisch abschneiden')}
                   </label>
                 </div>
 
@@ -524,12 +547,12 @@ const HardwareConfiguration = () => {
                       checked={config.printer.printLogo}
                       onChange={(e) => handleChange('printer', 'printLogo', e.target.checked)}
                     />
-                    Print company logo on receipts
+                    {t('Print company logo on receipts', 'Firmenlogo auf Belegen drucken')}
                   </label>
                 </div>
 
                 <button type="button" onClick={testPrinter} className="test-btn">
-                  🧪 Test Printer
+                  {t('🧪 Test Printer', '🧪 Drucker testen')}
                 </button>
               </>
             )}
@@ -537,17 +560,17 @@ const HardwareConfiguration = () => {
 
           {/* Offline/Online Sync Settings */}
           <fieldset className="config-section">
-            <legend>🔄 Offline/Online Sync Settings</legend>
+            <legend>{t('🔄 Offline/Online Sync Settings', '🔄 Offline/Online-Synchronisation')}</legend>
             
             <div className="form-group">
-              <label>Sync Mode</label>
+              <label>{t('Sync Mode', 'Synchronisationsmodus')}</label>
               <select
                 value={config.sync.mode}
                 onChange={(e) => handleChange('sync', 'mode', e.target.value)}
               >
-                <option value="online">Online Mode</option>
-                <option value="offline">Offline Mode</option>
-                <option value="hybrid">Hybrid Mode</option>
+                <option value="online">{t('Online Mode', 'Online-Modus')}</option>
+                <option value="offline">{t('Offline Mode', 'Offline-Modus')}</option>
+                <option value="hybrid">{t('Hybrid Mode', 'Hybrid-Modus')}</option>
               </select>
             </div>
 
@@ -558,29 +581,29 @@ const HardwareConfiguration = () => {
                   checked={config.sync.autoSync}
                   onChange={(e) => handleChange('sync', 'autoSync', e.target.checked)}
                 />
-                Enable Auto Sync
+                {t('Enable Auto Sync', 'Automatische Synchronisation aktivieren')}
               </label>
             </div>
 
             {config.sync.autoSync && (
               <div className="form-group">
-                <label>Sync Interval (minutes)</label>
+                <label>{t('Sync Interval (minutes)', 'Synchronisationsintervall (Minuten)')}</label>
                 <select
                   value={config.sync.syncInterval}
                   onChange={(e) => handleChange('sync', 'syncInterval', e.target.value)}
                 >
-                  <option value="1">1 minute</option>
-                  <option value="5">5 minutes</option>
-                  <option value="15">15 minutes</option>
-                  <option value="30">30 minutes</option>
-                  <option value="60">1 hour</option>
+                  <option value="1">{t('1 minute', '1 Minute')}</option>
+                  <option value="5">{t('5 minutes', '5 Minuten')}</option>
+                  <option value="15">{t('15 minutes', '15 Minuten')}</option>
+                  <option value="30">{t('30 minutes', '30 Minuten')}</option>
+                  <option value="60">{t('1 hour', '1 Stunde')}</option>
                 </select>
               </div>
             )}
 
             <div className="form-row">
               <div className="form-group">
-                <label>Offline Timeout (seconds)</label>
+                <label>{t('Offline Timeout (seconds)', 'Offline-Timeout (Sekunden)')}</label>
                 <input
                   type="number"
                   value={config.sync.offlineTimeout}
@@ -591,7 +614,7 @@ const HardwareConfiguration = () => {
               </div>
 
               <div className="form-group">
-                <label>Retry Attempts</label>
+                <label>{t('Retry Attempts', 'Wiederholungsversuche')}</label>
                 <input
                   type="number"
                   value={config.sync.retryAttempts}
@@ -603,23 +626,23 @@ const HardwareConfiguration = () => {
             </div>
 
             <div className="form-group">
-              <label>Last Sync</label>
+              <label>{t('Last Sync', 'Letzte Synchronisation')}</label>
               <input
                 type="text"
-                value={config.sync.lastSync || 'Never'}
+                value={config.sync.lastSync || t('Never', 'Nie')}
                 readOnly
                 className="readonly"
               />
             </div>
 
             <button type="button" onClick={syncNow} className="test-btn">
-              🔄 Sync Now
+              {t('🔄 Sync Now', '🔄 Jetzt synchronisieren')}
             </button>
           </fieldset>
 
           <div className="form-actions">
             <button type="submit" disabled={isLoading} className="save-btn">
-              {isLoading ? '💾 Saving...' : '💾 Save Configuration'}
+              {isLoading ? t('💾 Saving...', '💾 Speichern...') : t('💾 Save Configuration', '💾 Konfiguration speichern')}
             </button>
           </div>
         </form>

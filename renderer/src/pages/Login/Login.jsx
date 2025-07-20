@@ -1,13 +1,16 @@
-import React, { useState } from "react"
-import { FaEye, FaEyeSlash, FaUser, FaLock, FaStore } from "react-icons/fa"
-import { useNavigate } from "react-router-dom"
-import useUserStore from "../../stores/userStore"
-import "./Login.css"
+import React, { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import useUserStore from "../../stores/userStore";
+import "./Login.css";
+import useLanguageStore from '../../stores/languageStore';
 
 const Login = () => {
-  const [identifier, setIdentifier] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const language = useLanguageStore((state) => state.language);
+  const t = (en, de) => language === 'de' ? de : en;
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate()
 
@@ -85,6 +88,29 @@ const Login = () => {
                 </span>
               </div>
             </div>
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2>{t('Login', 'Anmelden')}</h2>
+        <input
+          type="text"
+          placeholder={t('Username or Email', 'Benutzername oder E-Mail')}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          required
+          disabled={isLoading}
+        />
+        <div className="password-wrapper">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder={t('Password', 'Passwort')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <span className="password-toggle" onClick={togglePassword}>
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+        </div>
 
             <div className="form-options">
               {/* <label className="remember-me">
