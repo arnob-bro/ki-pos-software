@@ -85,10 +85,9 @@ class ReportController {
    * @param {number} limit - Items per page
    * @returns {Object} Reports result
    */
-  async getGeneratedReports(page = 1, limit = 20) {
+  async getGeneratedReports(userId, page = 1, limit = 20) {
     try {
-      const result = await this.reportService.getGeneratedReports(page, limit);
-      
+      const result = await this.reportService.getGeneratedReports(userId, page, limit);
       return {
         success: true,
         message: 'Reports retrieved successfully',
@@ -166,13 +165,37 @@ class ReportController {
   }
 
   /**
+   * Generate CSV report
+   * @param {string} reportId - Report ID
+   * @returns {Object} CSV generation result
+   */
+  async generateCSVReport(reportId) {
+    try {
+      if (!reportId) {
+        throw new Error('Report ID is required');
+      }
+      const result = await this.reportService.generateCSVReport(reportId);
+      return {
+        success: true,
+        message: 'CSV report generated successfully',
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+        code: 'CSV_GENERATION_ERROR'
+      };
+    }
+  }
+
+  /**
    * Get report statistics
    * @returns {Object} Statistics result
    */
-  async getReportStats() {
+  async getReportStats(userId) {
     try {
-      const stats = await this.reportService.getReportStats();
-      
+      const stats = await this.reportService.getReportStats(userId);
       return {
         success: true,
         message: 'Report statistics retrieved successfully',
@@ -185,6 +208,26 @@ class ReportController {
         code: 'STATS_ERROR'
       };
     }
+  }
+
+  // Manager Reports: Sales by Category
+  async getSalesByCategory(startDate, endDate) {
+    return await this.reportService.getSalesByCategory(startDate, endDate);
+  }
+
+  // Manager Reports: Sales by Time
+  async getSalesByTime(startDate, endDate, interval) {
+    return await this.reportService.getSalesByTime(startDate, endDate, interval);
+  }
+
+  // Manager Reports: Sales by Operator
+  async getSalesByOperator(startDate, endDate) {
+    return await this.reportService.getSalesByOperator(startDate, endDate);
+  }
+
+  // Manager Reports: Tax/VAT Breakdown
+  async getTaxBreakdown(startDate, endDate) {
+    return await this.reportService.getTaxBreakdown(startDate, endDate);
   }
 }
 
