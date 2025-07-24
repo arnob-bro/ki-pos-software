@@ -11,6 +11,9 @@ import InventoryManagement from "./pages/InventoryManagement/InventoryManagement
 import ProtectedRoute from "./components/ProtectedRoute"
 import CustomerManagement from "./pages/CustomerManagement/CustomerManagement"
 import PaymentSettings from "./pages/PaymentSettings/PaymentSettings"
+import CompanyProfile from "./pages/CompanyInfo/CompanyInfo"
+import SystemSettings from "./pages/SystemSettings/SystemSettings"
+import HardwareConfiguration from "./pages/HardwareConfiguration/HardwareConfiguration"
 
 function App() {
     return (
@@ -104,6 +107,36 @@ function App() {
                     </ProtectedRoute>
                 }
             />
+
+            {/* Company Info - Requires company:view permission */}
+			<Route 
+				path='/company-info' 
+				element={
+					<ProtectedRoute requiredPermission="company:view">
+						<CompanyProfile />
+					</ProtectedRoute>
+				} 
+			/>
+
+			{/* System Settings - Requires systemsettings:view permission */}
+			<Route 
+				path='/system-settings' 
+				element={
+					<ProtectedRoute requiredPermission="settings:view">
+						<SystemSettings />
+					</ProtectedRoute>
+				} 
+			/>
+
+			{/* Hardware Configuration - Requires settings:view permission */}
+			<Route 
+				path='/hardware-configuration' 
+				element={
+					<ProtectedRoute requiredPermission="settings:view">
+						<HardwareConfiguration />
+					</ProtectedRoute>
+				} 
+			/>
         </Routes>
     )
 }

@@ -1,36 +1,36 @@
 import React, { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaStore, FaUser, FaLock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../../stores/userStore";
 import "./Login.css";
-import useLanguageStore from '../../stores/languageStore';
+import useLanguageStore from "../../stores/languageStore";
 
 const Login = () => {
   const language = useLanguageStore((state) => state.language);
-  const t = (en, de) => language === 'de' ? de : en;
+  const t = (en, de) => (language === "de" ? de : en);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Get user store state and actions
-  const { login, isLoading, error, clearError } = useUserStore()
+  const { login, isLoading, error, clearError } = useUserStore();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    clearError()
+    e.preventDefault();
+    clearError();
 
-    const result = await login(identifier, password)
+    const result = await login(identifier, password);
 
     if (result.success) {
       // console.log('Login successful:', result.user);
       // console.log(result);
-      navigate("/sales-interface")
+      navigate("/sales-interface");
     }
-  }
+  };
 
-  const togglePassword = () => setShowPassword(!showPassword)
+  const togglePassword = () => setShowPassword(!showPassword);
 
   return (
     <div className="login-container">
@@ -56,12 +56,16 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
+            <h2>{t("Login", "Anmelden")}</h2>
             <div className="input-group">
               <div className="input-wrapper">
                 <FaUser className="input-icon" />
                 <input
                   type="text"
-                  placeholder="Username or Email"
+                  placeholder={t(
+                    "Username or Email",
+                    "Benutzername oder E-Mail"
+                  )}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
@@ -70,13 +74,12 @@ const Login = () => {
                 />
               </div>
             </div>
-
             <div className="input-group">
               <div className="input-wrapper">
                 <FaLock className="input-icon" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder={t("Password", "Passwort")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -88,30 +91,6 @@ const Login = () => {
                 </span>
               </div>
             </div>
-      <form onSubmit={handleSubmit} className="login-form">
-        <h2>{t('Login', 'Anmelden')}</h2>
-        <input
-          type="text"
-          placeholder={t('Username or Email', 'Benutzername oder E-Mail')}
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          required
-          disabled={isLoading}
-        />
-        <div className="password-wrapper">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder={t('Password', 'Passwort')}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={isLoading}
-          />
-          <span className="password-toggle" onClick={togglePassword}>
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
-
             <div className="form-options">
               {/* <label className="remember-me">
                 <input type="checkbox" />
@@ -121,11 +100,11 @@ const Login = () => {
               <a
                 href="#"
                 className="forgot-password"
-                onClick={(e) => e.preventDefault()}>
+                onClick={(e) => e.preventDefault()}
+              >
                 Forgot Password?
               </a>
             </div>
-
             <button type="submit" className="login-button" disabled={isLoading}>
               {isLoading ? (
                 <div className="loading-spinner">
@@ -136,7 +115,6 @@ const Login = () => {
                 "Sign In"
               )}
             </button>
-
             {error && (
               <div className="error-message">
                 <span className="error-icon">⚠</span>
@@ -151,7 +129,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
