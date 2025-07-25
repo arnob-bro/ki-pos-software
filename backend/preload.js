@@ -44,6 +44,7 @@ contextBridge.exposeInMainWorld("posAPI", {
   downloadReportFile: (filePath) => ipcRenderer.invoke('reports:downloadFile', filePath),
   getReportStats: (userId) => ipcRenderer.invoke('reports:getStats', userId),
   openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  fileExists: (filePath) => ipcRenderer.invoke('reports:fileExists', filePath),
   // Permissions
   listPermissions: () => ipcRenderer.invoke('employees:listPermissions'),
   getEmployeePermissions: (employeeId) => ipcRenderer.invoke('employees:getEmployeePermissions', employeeId),
