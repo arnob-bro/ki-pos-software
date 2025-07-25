@@ -47,6 +47,7 @@ contextBridge.exposeInMainWorld("posAPI", {
   getEmployeeStats: () => ipcRenderer.invoke("employees:getStats"),
 
   // Reports
+<<<<<<< HEAD
   generateXReport: (date, userId) =>
     ipcRenderer.invoke("reports:generateX", date, userId),
   generateZReport: (date, userId) =>
@@ -63,6 +64,18 @@ contextBridge.exposeInMainWorld("posAPI", {
     ipcRenderer.invoke("reports:downloadFile", filePath),
   getReportStats: (userId) => ipcRenderer.invoke("reports:getStats", userId),
   openFile: (filePath) => ipcRenderer.invoke("open-file", filePath),
+=======
+  generateXReport: (date, userId) => ipcRenderer.invoke('reports:generateX', date, userId),
+  generateZReport: (date, userId) => ipcRenderer.invoke('reports:generateZ', date, userId),
+  checkZReportExists: (date, userId) => ipcRenderer.invoke('reports:checkZReportExists', date, userId),
+  listReports: (userId, page, limit) => ipcRenderer.invoke('reports:list', userId, page, limit),
+  exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
+  generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
+  downloadReportFile: (filePath) => ipcRenderer.invoke('reports:downloadFile', filePath),
+  getReportStats: (userId) => ipcRenderer.invoke('reports:getStats', userId),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  fileExists: (filePath) => ipcRenderer.invoke('reports:fileExists', filePath),
+>>>>>>> new
   // Permissions
   listPermissions: () => ipcRenderer.invoke("employees:listPermissions"),
   getEmployeePermissions: (employeeId) =>
@@ -108,6 +121,7 @@ contextBridge.exposeInMainWorld("posAPI", {
   endShift: (shiftId) => ipcRenderer.invoke("shift:end", shiftId),
   getCurrentShift: (userId) => ipcRenderer.invoke("shift:getCurrent", userId),
   // Admin Shift Management
+<<<<<<< HEAD
   listShifts: () => ipcRenderer.invoke("shift:list"),
   createShift: (shiftData, currentUser) =>
     ipcRenderer.invoke("shift:create", shiftData, currentUser?.id),
@@ -120,6 +134,15 @@ contextBridge.exposeInMainWorld("posAPI", {
   listShiftAssignments: (filter) =>
     ipcRenderer.invoke("shift:listAssignments", filter),
   getShiftById: (id) => ipcRenderer.invoke("shift:getById", id),
+=======
+  listShifts: () => ipcRenderer.invoke('shift:list'),
+  createShift: (shiftData, currentUser) => ipcRenderer.invoke('shift:create', shiftData, currentUser?.id),
+  updateShift: (id, updateData, currentUser) => ipcRenderer.invoke('shift:update', id, updateData, currentUser?.id),
+  assignShift: (shiftId, userId, currentUser) => ipcRenderer.invoke('shift:assign', shiftId, userId, currentUser?.id),
+  unassignShift: (shiftId, userId, currentUser) => ipcRenderer.invoke('shift:unassign', shiftId, userId, currentUser?.id),
+  listShiftAssignments: (filter) => ipcRenderer.invoke('shift:listAssignments', filter),
+  getShiftById: (id) => ipcRenderer.invoke('shift:getById', id),
+>>>>>>> new
 
   // Customers
   listCustomers: (page, limit) =>
@@ -133,6 +156,7 @@ contextBridge.exposeInMainWorld("posAPI", {
     ipcRenderer.invoke("customers:getHistory", customerId),
   assignLoyaltyTier: (id, tier) =>
     ipcRenderer.invoke("customers:assignLoyaltyTier", id, tier),
+<<<<<<< HEAD
   reports_salesByCategory: (startDate, endDate) =>
     ipcRenderer.invoke("reports:salesByCategory", startDate, endDate),
   reports_salesByTime: (startDate, endDate, interval) =>
@@ -144,3 +168,11 @@ contextBridge.exposeInMainWorld("posAPI", {
   generateCSVReport: (reportId) =>
     ipcRenderer.invoke("reports:generateCSV", reportId),
 });
+=======
+  reports_salesByCategory: (startDate, endDate) => ipcRenderer.invoke('reports:salesByCategory', startDate, endDate),
+  reports_salesByTime: (startDate, endDate, interval) => ipcRenderer.invoke('reports:salesByTime', startDate, endDate, interval),
+  reports_salesByOperator: (startDate, endDate) => ipcRenderer.invoke('reports:salesByOperator', startDate, endDate),
+  reports_taxBreakdown: (startDate, endDate) => ipcRenderer.invoke('reports:taxBreakdown', startDate, endDate),
+  generateCSVReport: (reportId) => ipcRenderer.invoke('reports:generateCSV', reportId),
+}); 
+>>>>>>> new

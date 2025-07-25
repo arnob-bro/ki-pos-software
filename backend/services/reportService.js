@@ -402,7 +402,7 @@ class ReportService {
       };
 
       // Generate GoBD export files (detailed records)
-      const exportResult = await exportGoBD(summary, transactions, items);
+      const exportResult = await exportGoBD(summary, transactions, items, {}, this.db);
       console.log('GoBD exportResult:', exportResult); // DEBUG LOG
       // Return a plain serializable object
       return JSON.parse(JSON.stringify({
