@@ -88,6 +88,7 @@ const HardwareConfiguration = () => {
       }
       
       const result = await window.posAPI.getAvailablePorts();
+      console.log(result);
       if (result.success && result.ports) {
         const portNames = result.ports.map(port => port.path);
         setPorts(['', ...portNames, 'USB', 'Network']);
