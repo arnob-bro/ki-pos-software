@@ -44,7 +44,7 @@
 .reports-button {
     background-color: #007bff;
     color: white;
-    padding: 10px 18px;
+    padding: 12px 18px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -94,7 +94,7 @@
 /* Stats section */
 .stats-section {
     background-color: #f8f9fa;
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
     margin-bottom: 30px;
 }
@@ -102,18 +102,18 @@
 .stats-section h3 {
     margin-top: 0;
     color: #333;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+    gap: 10px;
 }
 
 .stat-item {
     text-align: center;
-    padding: 15px;
+    padding: 10px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -148,7 +148,7 @@
 .button-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 20px;
 }
 
 /* Reports list */
@@ -169,7 +169,7 @@
 .download-btn {
     background-color: #28a745;
     color: white;
-    padding: 6px 12px;
+    padding: 12px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -237,6 +237,10 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 30px;
+    padding-bottom: 30px;
 }
 
 .form-group {
@@ -279,5 +283,148 @@
 .cancel-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* Manager Reports Styles */
+.manager-reports {
+    margin-top: 30px;
+}
+
+.manager-date-range {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.manager-date-range label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.manager-date-range input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.manager-report-block {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.manager-report-block h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.manager-time-interval {
+    margin-bottom: 15px;
+}
+
+.manager-time-interval label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+.manager-time-interval select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.manager-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.manager-table thead {
+    background-color: #007bff;
+    color: white;
+}
+
+.manager-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #0056b3;
+}
+
+.manager-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+}
+
+.manager-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.manager-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.manager-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.placeholder {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-style: italic;
+}
+
+.placeholder.loading {
+    color: #007bff;
+}
+
+.error {
+    color: #dc3545;
+    text-align: center;
+    padding: 15px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+/* Responsive design for manager tables */
+@media (max-width: 768px) {
+    .manager-date-range {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .manager-table {
+        font-size: 12px;
+    }
+    
+    .manager-table th,
+    .manager-table td {
+        padding: 8px 10px;
+    }
+    
+    .manager-report-block {
+        padding: 15px;
+    }
 }
   

@@ -38,12 +38,13 @@ contextBridge.exposeInMainWorld("posAPI", {
   generateXReport: (date, userId) => ipcRenderer.invoke('reports:generateX', date, userId),
   generateZReport: (date, userId) => ipcRenderer.invoke('reports:generateZ', date, userId),
   checkZReportExists: (date, userId) => ipcRenderer.invoke('reports:checkZReportExists', date, userId),
-  listReports: (page, limit) => ipcRenderer.invoke('reports:list', page, limit),
+  listReports: (userId, page, limit) => ipcRenderer.invoke('reports:list', userId, page, limit),
   exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
   generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
   downloadReportFile: (filePath) => ipcRenderer.invoke('reports:downloadFile', filePath),
-  getReportStats: () => ipcRenderer.invoke('reports:getStats'),
+  getReportStats: (userId) => ipcRenderer.invoke('reports:getStats', userId),
   openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  fileExists: (filePath) => ipcRenderer.invoke('reports:fileExists', filePath),
   // Permissions
   listPermissions: () => ipcRenderer.invoke('employees:listPermissions'),
   getEmployeePermissions: (employeeId) => ipcRenderer.invoke('employees:getEmployeePermissions', employeeId),
@@ -97,4 +98,9 @@ getCustomerHistory: (customerId) =>
     ipcRenderer.invoke("customers:getHistory", customerId),
 assignLoyaltyTier: (id, tier) =>
     ipcRenderer.invoke("customers:assignLoyaltyTier", id, tier),
+  reports_salesByCategory: (startDate, endDate) => ipcRenderer.invoke('reports:salesByCategory', startDate, endDate),
+  reports_salesByTime: (startDate, endDate, interval) => ipcRenderer.invoke('reports:salesByTime', startDate, endDate, interval),
+  reports_salesByOperator: (startDate, endDate) => ipcRenderer.invoke('reports:salesByOperator', startDate, endDate),
+  reports_taxBreakdown: (startDate, endDate) => ipcRenderer.invoke('reports:taxBreakdown', startDate, endDate),
+  generateCSVReport: (reportId) => ipcRenderer.invoke('reports:generateCSV', reportId),
 }); 
