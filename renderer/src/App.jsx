@@ -72,7 +72,7 @@ function App() {
             <Route
                 path="/product-management"
                 element={
-                    <ProtectedRoute requiredPermission="product:view">
+                    <ProtectedRoute requiredPermission="productmanagement:view">
                         <ProductManagement />
                     </ProtectedRoute>
                 }

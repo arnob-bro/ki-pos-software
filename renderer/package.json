@@ -11,8 +11,9 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"ki-pos-system": "file:..",
 		"html2pdf.js": "^0.10.3",
+		"ki-pos-system": "file:..",
+		"lucide-react": "^0.532.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-icons": "^5.5.0",

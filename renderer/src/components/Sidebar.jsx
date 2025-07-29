@@ -78,7 +78,7 @@ const Sidebar = () => {
             )}
 
             {/* Product Management - Requires product:view permission */}
-            {hasPermissionByCode("product:view") && (
+            {hasPermissionByCode("productmanagement:view") && (
                 <button
                     className={`nav-btn${
                         location.pathname === "/product-management"
