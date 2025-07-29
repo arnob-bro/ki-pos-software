@@ -9,7 +9,7 @@ const path = require('path');
  * @param {Object} [options] - Optional: { companyInfo, softwareInfo }
  * @returns {Object} Export result
  */
-async function exportGoBD(summary, transactions, items, options = {}) {
+async function exportGoBD(summary, transactions, items, options = {}, db) {
   try {
     // Create exports directory if it doesn't exist
     const exportsDir = path.join(__dirname, '../exports');
@@ -67,7 +67,72 @@ async function exportGoBD(summary, transactions, items, options = {}) {
     const itemFile = path.join(exportsDir, `${baseName}-transaction_items.csv`);
     fs.writeFileSync(itemFile, '\uFEFF' + itemRows.join('\n'), { encoding: 'utf8' });
 
-    // 3. Write metadata.txt
+    // 4. Write users.csv
+    const usersFile = path.join(exportsDir, `${baseName}-users.csv`);
+    const usersHeaders = ['User_ID','Username','Role','Full_Name','Email','Status','Created_At'];
+    const usersRows = [usersHeaders.join(',')];
+    const users = db.prepare(`
+      SELECT u.id as User_ID, u.name as Username, r.name as Role, u.name as Full_Name, u.email as Email, u.status as Status, u.created_at as Created_At
+      FROM users u LEFT JOIN roles r ON u.role_id = r.id
+    `).all();
+    users.forEach(u => {
+      usersRows.push([
+        u.User_ID,
+        u.Username,
+        u.Role,
+        u.Full_Name,
+        u.Email,
+        u.Status,
+        u.Created_At
+      ].join(','));
+    });
+    fs.writeFileSync(usersFile, '\uFEFF' + usersRows.join('\n'), { encoding: 'utf8' });
+
+    // 5. Write products.csv
+    const productsFile = path.join(exportsDir, `${baseName}-products.csv`);
+    const productsHeaders = ['Product_ID','Product_Name','Category','SKU','Unit_Price','Net_Price','VAT_Rate','Status'];
+    const productsRows = [productsHeaders.join(',')];
+    const products = db.prepare(`
+      SELECT p.id as Product_ID, p.name as Product_Name, c.name as Category, p.barcode as SKU, p.price as Unit_Price, p.price as Net_Price, p.vat_rate as VAT_Rate, 'Active' as Status
+      FROM products p LEFT JOIN categories c ON p.category_id = c.id
+    `).all();
+    products.forEach(p => {
+      productsRows.push([
+        p.Product_ID,
+        p.Product_Name,
+        p.Category,
+        p.SKU,
+        p.Unit_Price,
+        p.Net_Price,
+        p.VAT_Rate + '%',
+        p.Status
+      ].join(','));
+    });
+    fs.writeFileSync(productsFile, '\uFEFF' + productsRows.join('\n'), { encoding: 'utf8' });
+
+    // 6. Write audit_log.csv
+    const auditFile = path.join(exportsDir, `${baseName}-audit_log.csv`);
+    const auditHeaders = ['Log_ID','Timestamp','User_ID','Action_Type','Entity','Entity_ID','Description'];
+    const auditRows = [auditHeaders.join(',')];
+    const audits = db.prepare(`
+      SELECT id as Log_ID, timestamp as Timestamp, user_id as User_ID, action_type as Action_Type, table_name as Entity, record_id as Entity_ID, 
+        ('Old: ' || IFNULL(old_data, '') || '; New: ' || IFNULL(new_data, '')) as Description
+      FROM audit_logs
+    `).all();
+    audits.forEach(a => {
+      auditRows.push([
+        a.Log_ID,
+        a.Timestamp,
+        a.User_ID,
+        a.Action_Type,
+        a.Entity,
+        a.Entity_ID,
+        '"' + a.Description.replace(/"/g, '""') + '"'
+      ].join(','));
+    });
+    fs.writeFileSync(auditFile, '\uFEFF' + auditRows.join('\n'), { encoding: 'utf8' });
+
+    // Update metadata.txt (new format)
     const metaFile = path.join(exportsDir, `${baseName}-metadata.txt`);
     const meta = [];
     meta.push('GoBD Export Metadata');
@@ -95,6 +160,9 @@ async function exportGoBD(summary, transactions, items, options = {}) {
     meta.push('Files Included:');
     meta.push('  - transactions.csv         (Header-level transaction data)');
     meta.push('  - transaction_items.csv    (Line-item breakdown of products sold)');
+    meta.push('  - users.csv                (List of system users and their roles)');
+    meta.push('  - products.csv             (Master product catalog)');
+    meta.push('  - audit_log.csv            (Full audit trail of data actions)');
     meta.push('  - export_summary.txt       (Readable summary of totals and stats)');
     meta.push('  - metadata.txt             (This file)');
     meta.push('');
@@ -114,7 +182,7 @@ async function exportGoBD(summary, transactions, items, options = {}) {
 
     return {
       success: true,
-      files: [txFile, itemFile, metaFile],
+      files: [txFile, itemFile, usersFile, productsFile, auditFile, metaFile],
       baseName
     };
   } catch (error) {

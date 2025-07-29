@@ -1,5 +1,7 @@
 const ReportService = require('../services/reportService');
 const ReportController = require('../controllers/reportController');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = function registerReportHandlers(ipcMain, db) {
   const reportService = new ReportService(db);
@@ -73,9 +75,6 @@ module.exports = function registerReportHandlers(ipcMain, db) {
   // Download report file
   ipcMain.handle('reports:downloadFile', async (event, filePath) => {
     try {
-      const fs = require('fs');
-      const path = require('path');
-      
       if (!fs.existsSync(filePath)) {
         throw new Error('File not found');
       }
@@ -92,6 +91,15 @@ module.exports = function registerReportHandlers(ipcMain, db) {
     } catch (error) {
       console.error('Error downloading file:', error.message);
       throw error;
+    }
+  });
+
+  // Check if a file exists (for GoBD export buttons)
+  ipcMain.handle('reports:fileExists', async (event, filePath) => {
+    try {
+      return fs.existsSync(filePath);
+    } catch {
+      return false;
     }
   });
 

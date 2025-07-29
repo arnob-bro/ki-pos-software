@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
-import useUserStore from '../../stores/userStore';
 import useLanguageStore from '../../stores/languageStore';
+import useUserStore from '../../stores/userStore';
 import './Reports.css';
 
 const Reports = () => {
@@ -47,6 +47,9 @@ const Reports = () => {
 
   const [gobdExportFiles, setGobdExportFiles] = useState([]);
 
+  // Manager report dropdown state
+  const [managerReportType, setManagerReportType] = useState('category');
+
   const getUserId = () => user?.id;
 
   useEffect(() => {
@@ -64,6 +67,32 @@ const Reports = () => {
     }
     // eslint-disable-next-line
   }, [managerDateRange, timeInterval, user]);
+
+  // Persistent GoBD export files (with existence check)
+  useEffect(() => {
+    const checkFiles = async () => {
+      const stored = localStorage.getItem('gobdExportFiles');
+      if (stored) {
+        try {
+          const files = JSON.parse(stored);
+          const checks = await Promise.all(files.map(f => window.posAPI.fileExists(f)));
+          const existing = files.filter((f, i) => checks[i]);
+          setGobdExportFiles(existing);
+          localStorage.setItem('gobdExportFiles', JSON.stringify(existing));
+        } catch {
+          setGobdExportFiles([]);
+        }
+      }
+    };
+    checkFiles();
+  }, []);
+
+  const updateGobdExportFiles = async (files) => {
+    const checks = await Promise.all(files.map(f => window.posAPI.fileExists(f)));
+    const existing = files.filter((f, i) => checks[i]);
+    setGobdExportFiles(existing);
+    localStorage.setItem('gobdExportFiles', JSON.stringify(existing));
+  };
 
   const checkZReportExists = async () => {
     try {
@@ -166,7 +195,6 @@ const Reports = () => {
   const exportGoBD = async () => {
     setLoading(true);
     setMessage('');
-    setGobdExportFiles([]);
     try {
       const result = await window.posAPI.exportGoBD(exportDates.startDate, exportDates.endDate);
       console.log('GoBD export result:', result);
@@ -177,7 +205,7 @@ const Reports = () => {
       console.log('Files extracted:', files);
       if (result.success && files.length > 0) {
         setMessage('GoBD export completed successfully!');
-        setGobdExportFiles(files);
+        await updateGobdExportFiles(files);
         setShowExportModal(false);
       } else if (result.success) {
         setMessage('GoBD export completed successfully, but file path is missing.');
@@ -237,9 +265,9 @@ const Reports = () => {
     }
   };
 
-  const configureSchedule = () => {
-    setMessage('Report scheduling feature coming soon!');
-  };
+  // const configureSchedule = () => {
+  //   setMessage('Report scheduling feature coming soon!');
+  // };
 
   const fetchCategoryData = async () => {
     setCategoryLoading(true); setCategoryError('');
@@ -287,23 +315,6 @@ const Reports = () => {
         {message && (
           <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
             {message}
-            {gobdExportFiles.length > 0 && (
-              <div style={{ marginTop: 10, display: 'flex', gap: 10 }}>
-                {gobdExportFiles.map((file) => {
-                  const fileName = file.split(/[/\\]/).pop();
-                  return (
-                    <button
-                      key={file}
-                      className="download-btn"
-                      onClick={() => window.posAPI.openFile(file)}
-                      style={{ minWidth: 160 }}
-                    >
-                      Open {fileName}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
         )}
 
@@ -361,15 +372,33 @@ const Reports = () => {
         {/* GoBD Export Section - Only for non-managers */}
         {user?.role_id !== 2 && (
           <div className="reports-section">
-            <h2>Export GoBD-compliant</h2>
-            <p>Generate export files compliant with German tax audit standards.</p>
+            <h2>{t('Export GoBD / GDPdU', 'GoBD / GDPdU Exportieren')}</h2>
+            <p>{t('Generate export files compliant with German tax audit standards.', 'Erstellen Sie Exportdateien gemäß den deutschen GoBD-Standards.')}</p>
             <button 
               className="reports-button" 
               onClick={() => setShowExportModal(true)}
               disabled={loading}
             >
-              Export Formats
+              {t('Export Formats', 'Exportformate')}
             </button>
+            {/* Persistent GoBD export file buttons */}
+            {gobdExportFiles.length > 0 && (
+              <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
+                {gobdExportFiles.map((file) => {
+                  const fileName = file.split(/[/\\]/).pop();
+                  return (
+                    <button
+                      key={file}
+                      className="download-btn"
+                      onClick={() => window.posAPI.openFile(file)}
+                      style={{ minWidth: 160 }}
+                    >
+                      Open {fileName}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -407,77 +436,86 @@ const Reports = () => {
         </div>
 
         {/* Configure Report Schedule - Only for non-managers */}
+        {/*
         {user?.role_id !== 2 && (
           <div className="reports-section">
-            <h2>Configure Report Schedule</h2>
-            <p>Set up and manage automatic report generation and delivery.</p>
+            <h2>{t('Configure Report Schedule', 'Berichtszeitplan konfigurieren')}</h2>
+            <p>{t('Set up and manage automatic report generation and delivery.', 'Richten Sie die automatische Berichtserstellung und -zustellung ein.')}</p>
             <button 
               className="reports-button" 
               onClick={configureSchedule}
               disabled={loading}
             >
-              Configure Schedule
+              {t('Configure Schedule', 'Zeitplan konfigurieren')}
             </button>
           </div>
         )}
+*/}
 
         {/* Manager-Only Reports Section */}
         {user?.role_id === 2 &&  (
           <div className="reports-section manager-reports">
-            <h2>Manager-Only Reports</h2>
+            <h2>{t('Manager-Only Reports', 'Nur für Manager: Berichte')}</h2>
             {/* Date Range Picker */}
             <div className="manager-date-range">
               <label>Start Date: <input type="date" value={managerDateRange.startDate} onChange={e => setManagerDateRange(d => ({...d, startDate: e.target.value}))} /></label>
               <label>End Date: <input type="date" value={managerDateRange.endDate} onChange={e => setManagerDateRange(d => ({...d, endDate: e.target.value}))} /></label>
             </div>
-            {/* Sales by Category */}
-            <div className="manager-report-block">
-              <h3>Sales by Category</h3>
-              {categoryLoading ? <div className="placeholder loading">Loading...</div> :
-                categoryError ? <div className="error">{categoryError}</div> :
-                <table className="manager-table"><thead><tr><th>Category</th><th>Total Sales</th><th>Quantity Sold</th></tr></thead><tbody>
-                  {categoryData.length === 0 ? <tr><td colSpan="3">No data</td></tr> :
-                    categoryData.map((row, i) => <tr key={i}><td>{row.category}</td><td>{row.total_sales?.toFixed(2)}</td><td>{row.quantity_sold}</td></tr>)}
-                </tbody></table>}
-            </div>
-            {/* Sales by Time */}
-            <div className="manager-report-block">
-              <h3>Sales by Time</h3>
-              <div className="manager-time-interval">
-                <label>Interval: 
-                  <select value={timeInterval} onChange={e => setTimeInterval(e.target.value)}>
-                    <option value="hour">Hour</option>
-                    <option value="day">Day</option>
-                    <option value="week">Week</option>
+            {/* Dropdown for report type */}
+            <div style={{ margin: '18px 0' }}>
+              <label style={{ fontWeight: 500 }}>{t('Select Report Type:', 'Berichtstyp auswählen:')} </label>
+              <select value={managerReportType} onChange={e => setManagerReportType(e.target.value)} style={{ marginLeft: 8, padding: '8px 8px' }}>
+                <option value="category">{t('Sales by Category', 'Umsatz nach Kategorie')}</option>
+                <option value="time">{t('Sales by Time', 'Umsatz nach Zeit')}</option>
+                <option value="operator">{t('Sales by Operator', 'Umsatz nach Bediener')}</option>
+                <option value="tax">{t('Tax/VAT Breakdown', 'Steuer-/MwSt.-Aufschlüsselung')}</option>
+              </select>
+              {/* Show interval dropdown if 'Sales by Time' is selected */}
+              {managerReportType === 'time' && (
+                <span style={{ marginLeft: 24 }}>
+                  <label style={{ fontWeight: 500 }}>{t('Interval:', 'Intervall:')} </label>
+                  <select value={timeInterval} onChange={e => setTimeInterval(e.target.value)} style={{ marginLeft: 8, padding: '8px 8px' }}>
+                    <option value="hour">{t('Hour', 'Stunde')}</option>
+                    <option value="day">{t('Day', 'Tag')}</option>
+                    <option value="week">{t('Week', 'Woche')}</option>
                   </select>
-                </label>
-              </div>
-              {timeLoading ? <div className="placeholder loading">Loading...</div> :
+                </span>
+              )}
+            </div>
+            {/* Single dynamic table */}
+            <div className="manager-report-block">
+              {managerReportType === 'category' && (
+                categoryLoading ? <div className="placeholder loading">{t('Loading...', 'Lädt...')}</div> :
+                categoryError ? <div className="error">{categoryError}</div> :
+                <table className="manager-table"><thead><tr><th>{t('Category', 'Kategorie')}</th><th>{t('Total Sales', 'Gesamtumsatz')}</th><th>{t('Quantity Sold', 'Verkaufte Menge')}</th></tr></thead><tbody>
+                  {categoryData.length === 0 ? <tr><td colSpan="3">{t('No data', 'Keine Daten')}</td></tr> :
+                    categoryData.map((row, i) => <tr key={i}><td>{row.category}</td><td>{row.total_sales?.toFixed(2)}</td><td>{row.quantity_sold}</td></tr>)}
+                </tbody></table>
+              )}
+              {managerReportType === 'time' && (
+                timeLoading ? <div className="placeholder loading">{t('Loading...', 'Lädt...')}</div> :
                 timeError ? <div className="error">{timeError}</div> :
-                <table className="manager-table"><thead><tr><th>Interval</th><th>Total Sales</th><th>Transactions</th></tr></thead><tbody>
-                  {timeData.length === 0 ? <tr><td colSpan="3">No data</td></tr> :
+                <table className="manager-table"><thead><tr><th>{t('Interval', 'Intervall')}</th><th>{t('Total Sales', 'Gesamtumsatz')}</th><th>{t('Transactions', 'Transaktionen')}</th></tr></thead><tbody>
+                  {timeData.length === 0 ? <tr><td colSpan="3">{t('No data', 'Keine Daten')}</td></tr> :
                     timeData.map((row, i) => <tr key={i}><td>{row.interval_label}</td><td>{row.total_sales?.toFixed(2)}</td><td>{row.transactions}</td></tr>)}
-                </tbody></table>}
-            </div>
-            {/* Sales by Operator */}
-            <div className="manager-report-block">
-              <h3>Sales by Operator</h3>
-              {operatorLoading ? <div className="placeholder loading">Loading...</div> :
+                </tbody></table>
+              )}
+              {managerReportType === 'operator' && (
+                operatorLoading ? <div className="placeholder loading">{t('Loading...', 'Lädt...')}</div> :
                 operatorError ? <div className="error">{operatorError}</div> :
-                <table className="manager-table"><thead><tr><th>Operator</th><th>Total Sales</th><th>Transactions</th></tr></thead><tbody>
-                  {operatorData.length === 0 ? <tr><td colSpan="3">No data</td></tr> :
+                <table className="manager-table"><thead><tr><th>{t('Operator', 'Bediener')}</th><th>{t('Total Sales', 'Gesamtumsatz')}</th><th>{t('Transactions', 'Transaktionen')}</th></tr></thead><tbody>
+                  {operatorData.length === 0 ? <tr><td colSpan="3">{t('No data', 'Keine Daten')}</td></tr> :
                     operatorData.map((row, i) => <tr key={i}><td>{row.operator_name}</td><td>{row.total_sales?.toFixed(2)}</td><td>{row.transactions}</td></tr>)}
-                </tbody></table>}
-            </div>
-            {/* Tax/VAT Breakdown */}
-            <div className="manager-report-block">
-              <h3>Tax/VAT Breakdown</h3>
-              {taxLoading ? <div className="placeholder loading">Loading...</div> :
+                </tbody></table>
+              )}
+              {managerReportType === 'tax' && (
+                taxLoading ? <div className="placeholder loading">{t('Loading...', 'Lädt...')}</div> :
                 taxError ? <div className="error">{taxError}</div> :
-                <table className="manager-table"><thead><tr><th>Tax Rate</th><th>Net Sales</th><th>Tax Amount</th><th>Gross Sales</th></tr></thead><tbody>
-                  {taxData.length === 0 ? <tr><td colSpan="4">No data</td></tr> :
+                <table className="manager-table"><thead><tr><th>{t('Tax Rate', 'Steuersatz')}</th><th>{t('Net Sales', 'Nettoumsatz')}</th><th>{t('Tax Amount', 'Steuerbetrag')}</th><th>{t('Gross Sales', 'Bruttoumsatz')}</th></tr></thead><tbody>
+                  {taxData.length === 0 ? <tr><td colSpan="4">{t('No data', 'Keine Daten')}</td></tr> :
                     taxData.map((row, i) => <tr key={i}><td>{row.tax_label}</td><td>{row.net_sales?.toFixed(2)}</td><td>{row.tax_amount?.toFixed(2)}</td><td>{row.gross_sales?.toFixed(2)}</td></tr>)}
-                </tbody></table>}
+                </tbody></table>
+              )}
             </div>
           </div>
         )}

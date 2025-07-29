@@ -47,22 +47,16 @@ contextBridge.exposeInMainWorld("posAPI", {
   getEmployeeStats: () => ipcRenderer.invoke("employees:getStats"),
 
   // Reports
-  generateXReport: (date, userId) =>
-    ipcRenderer.invoke("reports:generateX", date, userId),
-  generateZReport: (date, userId) =>
-    ipcRenderer.invoke("reports:generateZ", date, userId),
-  checkZReportExists: (date, userId) =>
-    ipcRenderer.invoke("reports:checkZReportExists", date, userId),
-  listReports: (userId, page, limit) =>
-    ipcRenderer.invoke("reports:list", userId, page, limit),
-  exportGoBD: (startDate, endDate) =>
-    ipcRenderer.invoke("reports:exportGoBD", startDate, endDate),
-  generatePDFReport: (reportId) =>
-    ipcRenderer.invoke("reports:generatePDF", reportId),
-  downloadReportFile: (filePath) =>
-    ipcRenderer.invoke("reports:downloadFile", filePath),
-  getReportStats: (userId) => ipcRenderer.invoke("reports:getStats", userId),
-  openFile: (filePath) => ipcRenderer.invoke("open-file", filePath),
+  generateXReport: (date, userId) => ipcRenderer.invoke('reports:generateX', date, userId),
+  generateZReport: (date, userId) => ipcRenderer.invoke('reports:generateZ', date, userId),
+  checkZReportExists: (date, userId) => ipcRenderer.invoke('reports:checkZReportExists', date, userId),
+  listReports: (userId, page, limit) => ipcRenderer.invoke('reports:list', userId, page, limit),
+  exportGoBD: (startDate, endDate) => ipcRenderer.invoke('reports:exportGoBD', startDate, endDate),
+  generatePDFReport: (reportId) => ipcRenderer.invoke('reports:generatePDF', reportId),
+  downloadReportFile: (filePath) => ipcRenderer.invoke('reports:downloadFile', filePath),
+  getReportStats: (userId) => ipcRenderer.invoke('reports:getStats', userId),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  fileExists: (filePath) => ipcRenderer.invoke('reports:fileExists', filePath),
   // Permissions
   listPermissions: () => ipcRenderer.invoke("employees:listPermissions"),
   getEmployeePermissions: (employeeId) =>
