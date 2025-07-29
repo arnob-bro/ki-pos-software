@@ -3,6 +3,8 @@
   /* gap: 20px; */
   font-family: 'Segoe UI', sans-serif;
   min-height: 100vh;
+  max-height: 100vh;
+
   /* background-color: #f7f7f7; Optional: light background behind cards */
 }
 .tax-cards {
@@ -11,6 +13,11 @@
   margin-bottom: 20px;
   margin-top: 10px;
   flex-wrap: wrap;
+
+  border-radius: 20px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
 }
 
 .tax-card {
@@ -30,7 +37,7 @@
 
 .tax-card h4 {
   margin-bottom: 8px;
-  font-size: 16px;
+  font-size: 1rem;
   color: #007bff;
 }
 
@@ -116,13 +123,23 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+
+    
   }
   
-  .receipt-table th,
+  .receipt-table th {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #c5c2c2;
+    background: #313030;
+    color: white;
+  }
+
+  
   .receipt-table td {
     padding: 10px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border: 1px solid #c5c2c2;
   }
   
   .receipt-table tr:hover {

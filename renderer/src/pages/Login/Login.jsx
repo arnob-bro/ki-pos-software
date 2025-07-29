@@ -49,28 +49,24 @@ const Login = () => {
               <FaStore className="logo-icon" />
               <h1 className="logo-text">KI POS</h1>
             </div>
-            <h2 className="welcome-text">Welcome Back</h2>
-            <p className="welcome-subtitle">
-              Sign in to your account to continue
-            </p>
+            <h2 className="welcome-text">
+              {t("Login", "Anmelden")}
+            </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
-            <h2>{t("Login", "Anmelden")}</h2>
             <div className="input-group">
               <div className="input-wrapper">
                 <FaUser className="input-icon" />
+
                 <input
                   type="text"
-                  placeholder={t(
-                    "Username or Email",
-                    "Benutzername oder E-Mail"
-                  )}
+                  placeholder={t("Username or Email", "Benutzername oder E-Mail")}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="form-input"
+                  id="username-input"
                 />
               </div>
             </div>
@@ -84,7 +80,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="form-input"
+                  id="password-input"
                 />
                 <span className="password-toggle" onClick={togglePassword}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}

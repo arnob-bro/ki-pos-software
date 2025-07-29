@@ -2,7 +2,12 @@
 .inventory-management-page {
   display: flex;
   min-height: 100vh;
+  max-height: 100vh;
   background-color: #f8fafc;
+
+  font-family: sans-serif;
+
+
 }
 
 .inventory-management {
@@ -18,7 +23,7 @@
 }
 
 .inventory-header h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 0.5rem;
@@ -26,7 +31,9 @@
 
 .inventory-header p {
   color: #6b7280;
-  font-size: 1.1rem;
+  font-size: 1rem;
+
+  margin-left: 3.5rem;
 }
 
 /* Statistics Grid */
@@ -41,7 +48,7 @@
   background: white;
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: -2px 8px 15px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -149,12 +156,12 @@
 
 /* Enhanced Filters Section */
 .filters-section {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #c4c6c8;
 }
 
 .filters-header {
@@ -253,7 +260,7 @@
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 0.75rem 0.75rem 2.75rem;
+  padding: 0.75rem 0.75rem 0.75rem 2.75rem !IMPORTANT;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -405,35 +412,37 @@
 .table-container {
   overflow-x: auto;
   max-width: 100%;
+
+  border-radius: 10px;
 }
 
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+
+
 }
 
 .inventory-table th,
 .inventory-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border: 1px solid #e5e7eb;
   white-space: nowrap;
 }
 
 .inventory-table th {
-  background: #f9fafb;
+  color: #f9fafb;
   font-weight: 600;
-  color: #374151;
+  background: #374151;
+
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
   position: relative;
 }
 
-.inventory-table th:hover {
-  background: #f3f4f6;
-}
 
 .sort-indicator {
   margin-left: 0.5rem;
@@ -627,18 +636,19 @@
 
 /* Top Products Table Styles */
 .top-products-table {
+
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
 }
 
 .top-products-table th {
-  background: #f8f9fa;
-  color: #374151;
+  color: #f8f9fa;
+  background: #374151;
   padding: 16px 12px;
   text-align: left;
   font-weight: 600;
@@ -659,7 +669,7 @@
 
 .top-products-table td {
   padding: 16px 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border: 1px solid #e0e2e6;
   vertical-align: middle;
 }
 
@@ -803,20 +813,25 @@
   border: 1px solid #e5e7eb;
 }
 
+
 .table-card.full-width .table-header {
-  background: #f8f9fa;
+  background: rgb(106, 178, 194);
+  color: white;
   padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #545454;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .table-card.full-width .table-header h3 {
-  color: #111827;
-  font-size: 20px;
+  color: white;
+  margin-left: 50px;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
+  
+
 }
 
 .table-card.full-width .table-header .table-count {

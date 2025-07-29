@@ -701,13 +701,25 @@ function POS() {
             <div className="payment-section">
               <div className="add-to-queue-pay-btns">
                 {/* CASH - CARD - VOUCHER */}
-                <div className="pay-buttons">
+
+                <div className="pay-options">
+                  <label htmlFor="payment-options">Payment:</label>
+                  <select id="payment-options" onChange={(e) => handleCheckout(e.target.value)} defaultValue="">
+                    <option value="" disabled>Select Payment Method</option>
+                    <option value="cash">Cash</option>
+                    <option value="ec">EC</option>
+                    <option value="visa">Visa</option>
+                    <option value="voucher">Voucher</option>
+                  </select>
+                </div>
+
+                {/* <div className="pay-buttons">
                   <button onClick={() => handleCheckout("cash")}>Cash</button>
                   <button onClick={() => handleCheckout("card")}>Card</button>
                   <button onClick={() => handleCheckout("voucher")}>
                     Voucher
                   </button>
-                </div>
+                </div> */}
 
                 {/* TOTAL - PAID - CHANGE */}
                 <div className="transaction-amount-section">

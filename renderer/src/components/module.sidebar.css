@@ -10,6 +10,8 @@
     flex-direction: column;
     gap: 15px;
     border-right: 1px solid #ddd;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .logo {
