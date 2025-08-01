@@ -14,9 +14,13 @@ class EmployeeService {
         let query = `
       SELECT 
         u.*,
-        r.name as role_name
+        r.name as role_name,
+        s.start_time as shift_start_time,
+        s.end_time as shift_end_time
       FROM users u
       LEFT JOIN roles r ON u.role_id = r.id
+      LEFT JOIN shift_assignments sa ON u.id = sa.user_id
+      LEFT JOIN shifts s ON sa.shift_id = s.id
       WHERE 1=1
     `
 

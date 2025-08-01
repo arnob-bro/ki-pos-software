@@ -211,8 +211,8 @@ INSERT OR IGNORE INTO customers (id, name, phone, email, address, loyalty_points
   ('cust-6', 'Eva Müller', '5554445555', 'eva.mueller@example.com', '5 Lindenweg', 310, 'Gold');
 
 -- Shifts
-INSERT OR IGNORE INTO shifts (id, start_time)
-VALUES ('shift-1', '2024-06-01 08:00:00');
+INSERT OR IGNORE INTO shifts (id, start_time,end_time)
+VALUES ('shift-1', '08:00','16:00');
 
 -- Shift Assignments
 INSERT OR IGNORE INTO shift_assignments (id, shift_id, user_id)

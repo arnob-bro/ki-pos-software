@@ -1020,7 +1020,7 @@ const EmployeeManagement = () => {
                                         </span>
                                     </td>
                                     {/* TODO: FIX IT */}
-                                    <td>{employee.shift_name}</td>
+                                    <td>{employee.shift_start_time+" - "+employee.shift_end_time}</td>
                                     <td>
                                         <select
                                             value={employee.status}
