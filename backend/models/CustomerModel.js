@@ -14,15 +14,15 @@
  */
 
 const CustomerModel = {
-    id: "string",
-    name: "string",
-    phone: "string",
-    email: "string",
-    address: "string",
-    loyalty_points: "number",
-    loyalty_tier: "string",
-    created_at: "string",
-    updated_at: "string",
-}
+	id: "string",
+	name: "string",
+	phone: "string",
+	email: "string",
+	address: "string",
+	loyalty_points: "number",
+	loyalty_tier: "string",
+	created_at: "string",
+	updated_at: "string",
+};
 
-module.exports = CustomerModel
+module.exports = CustomerModel;

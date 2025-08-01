@@ -1,22 +1,3 @@
--- CREATE TABLE IF NOT EXISTS users (
---   id INTEGER PRIMARY KEY AUTOINCREMENT,
---   name TEXT NOT NULL,
---   price REAL NOT NULL,
---   stock INTEGER NOT NULL
--- );
-
--- CREATE TABLE IF NOT EXISTS sales (
---   id INTEGER PRIMARY KEY AUTOINCREMENT,
---   items TEXT NOT NULL, -- JSON string of items
---   total REAL NOT NULL,
---   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
--- );
-
--- CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
--- CREATE INDEX IF NOT EXISTS idx_products_stock ON products(stock);
--- CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at);
--- CREATE INDEX IF NOT EXISTS idx_sales_date ON sales(DATE(created_at)); 
-
 -- Table: roles
 CREATE TABLE roles (
   id INTEGER PRIMARY KEY,
