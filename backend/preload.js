@@ -118,15 +118,17 @@ contextBridge.exposeInMainWorld("posAPI", {
   // Customers
   listCustomers: (page, limit) =>
     ipcRenderer.invoke("customers:list", page, limit),
-  addCustomer: (customer) => ipcRenderer.invoke("customers:add", customer),
-  updateCustomer: (customer) =>
-    ipcRenderer.invoke("customers:update", customer),
-  deleteCustomer: (id, user) =>
-    ipcRenderer.invoke("customers:delete", id, user),
+  addCustomer: (customer,currentUser) => ipcRenderer.invoke("customers:add", customer,currentUser),
+  updateCustomer: (customer,currentUser) =>
+    ipcRenderer.invoke("customers:update", customer,currentUser),
+  deleteCustomer: (id, currentUser) =>
+    ipcRenderer.invoke("customers:delete", id, currentUser),
   getCustomerHistory: (customerId) =>
     ipcRenderer.invoke("customers:getHistory", customerId),
-  assignLoyaltyTier: (id, tier) =>
-    ipcRenderer.invoke("customers:assignLoyaltyTier", id, tier),
+  assignLoyaltyTier: (id, tier, currentUser) =>
+    ipcRenderer.invoke("customers:assignLoyaltyTier", id, tier, currentUser),
+
+  //reports for manager
   reports_salesByCategory: (startDate, endDate) =>
     ipcRenderer.invoke("reports:salesByCategory", startDate, endDate),
   reports_salesByTime: (startDate, endDate, interval) =>

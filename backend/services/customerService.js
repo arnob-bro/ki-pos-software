@@ -1,6 +1,7 @@
 class CustomerService {
-    constructor(db) {
+    constructor(db, auditLogService) {
         this.db = db
+        this.auditLogService = auditLogService
         this.cache = new Map()
         this.cacheTimeout = 30000 // 30 seconds
         this.lastCacheUpdate = 0
@@ -46,7 +47,7 @@ class CustomerService {
     }
 
     // Add customer
-    async addCustomer(customer) {
+    async addCustomer(customer, currentUserId) {
         const { v4: uuidv4 } = require("uuid")
         if (typeof customer.name !== "string" || !customer.name.trim())
             throw new Error("Invalid name")
@@ -74,16 +75,39 @@ class CustomerService {
             Number(customer.loyalty_points) || 0,
             customer.loyalty_tier || null
         )
+        
+        // Log the create operation
+        if (this.auditLogService && currentUserId) {
+            try {
+                await this.auditLogService.log({
+                    user_id: currentUserId,
+                    action_type: 'CREATE',
+                    table_name: 'customers',
+                    record_id: id,
+                    old_data: null,
+                    new_data: { ...customer, id }
+                })
+            } catch (error) {
+                console.error('Failed to log customer creation:', error)
+            }
+        }
+        
         this.cache.delete("customers")
         return { ...customer, id }
     }
 
     // Update customer
-    async updateCustomer(customer) {
+    async updateCustomer(customer, currentUserId) {
         if (typeof customer.id !== "string" || !customer.id)
             throw new Error("Invalid id")
         if (typeof customer.name !== "string" || !customer.name.trim())
             throw new Error("Invalid name")
+        
+        // Get the old data before update
+        const oldData = this.db
+            .prepare("SELECT * FROM customers WHERE id = ?")
+            .get(customer.id)
+        
         const stmt = this.db.prepare(
             "UPDATE customers SET name = ?, phone = ?, email = ?, address = ?, loyalty_points = ?, loyalty_tier = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
         )
@@ -99,30 +123,76 @@ class CustomerService {
         if (result.changes === 0) {
             throw new Error("Customer not found")
         }
+        
+        // Log the update operation
+        if (this.auditLogService && currentUserId) {
+            try {
+                await this.auditLogService.log({
+                    user_id: currentUserId,
+                    action_type: 'UPDATE',
+                    table_name: 'customers',
+                    record_id: customer.id,
+                    old_data: oldData,
+                    new_data: { ...customer }
+                })
+            } catch (error) {
+                console.error('Failed to log customer update:', error)
+            }
+        }
+        
         this.cache.delete("customers")
         this.cache.delete(`customer_${customer.id}`)
         return { ...customer }
     }
 
     // Delete customer
-    async deleteCustomer(id) {
+    async deleteCustomer(id, currentUserId) {
         if (typeof id !== "string" || !id) {
             throw new Error("Invalid customer ID")
         }
+        
+        // Get the old data before deletion
+        const oldData = this.db
+            .prepare("SELECT * FROM customers WHERE id = ?")
+            .get(id)
+        
         const stmt = this.db.prepare("DELETE FROM customers WHERE id = ?")
         const result = stmt.run(id)
         if (result.changes === 0) {
             throw new Error("Customer not found")
         }
+        
+        // Log the delete operation
+        if (this.auditLogService && currentUserId) {
+            try {
+                await this.auditLogService.log({
+                    user_id: currentUserId,
+                    action_type: 'DELETE',
+                    table_name: 'customers',
+                    record_id: id,
+                    old_data: oldData,
+                    new_data: null
+                })
+            } catch (error) {
+                console.error('Failed to log customer deletion:', error)
+            }
+        }
+        
         this.cache.delete("customers")
         this.cache.delete(`customer_${id}`)
         return { success: true, message: "Customer deleted successfully" }
     }
 
     // Assign loyalty tier
-    async assignLoyaltyTier(id, tier) {
+    async assignLoyaltyTier(id, tier, currentUserId) {
         if (typeof id !== "string" || !id)
             throw new Error("Invalid customer ID")
+        
+        // Get the old data before update
+        const oldData = this.db
+            .prepare("SELECT * FROM customers WHERE id = ?")
+            .get(id)
+        
         const stmt = this.db.prepare(
             "UPDATE customers SET loyalty_tier = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
         )
@@ -130,6 +200,24 @@ class CustomerService {
         if (result.changes === 0) {
             throw new Error("Customer not found")
         }
+        
+        // Log the loyalty tier assignment as an update operation
+        if (this.auditLogService && currentUserId) {
+            try {
+                const newData = { ...oldData, loyalty_tier: tier }
+                await this.auditLogService.log({
+                    user_id: currentUserId,
+                    action_type: 'UPDATE',
+                    table_name: 'customers',
+                    record_id: id,
+                    old_data: oldData,
+                    new_data: newData
+                })
+            } catch (error) {
+                console.error('Failed to log loyalty tier assignment:', error)
+            }
+        }
+        
         this.cache.delete("customers")
         this.cache.delete(`customer_${id}`)
         return { id, loyalty_tier: tier }

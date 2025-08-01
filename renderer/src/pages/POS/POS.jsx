@@ -757,7 +757,7 @@ function POS() {
                   >
                     Add to queue
                   </button>
-                  <button className="print-btn" onClick={handlePrintInvoice}>
+                  <button className="checkout-btn" onClick={handlePrintInvoice}>
                     Checkout
                   </button>
                 </div>
