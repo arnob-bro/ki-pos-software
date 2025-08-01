@@ -285,7 +285,51 @@ label {
 }
 
 /* cash card voucher */
-.pay-buttons {
+.pay-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin: 10px 0px;
+  }
+
+  .pay-options label {
+    text-align: center;
+  }
+
+  
+  .pay-options select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='70,100 20,40 120,40' fill='%23999'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+  }
+  
+  .pay-options select:focus {
+    border-color: #6666ff;
+    box-shadow: 0 0 0 3px rgba(102, 102, 255, 0.2);
+    outline: none;
+  }
+  
+  .pay-options option[disabled] {
+    color: #aaa;
+  }
+  
+
+
+/* .pay-buttons {
     display: flex;
     gap: 10px;
 }
@@ -303,7 +347,7 @@ label {
 
 .pay-buttons button:hover {
     background: rgb(64, 64, 64);
-}
+} */
 
 .cashier-section {
     display: flex;
@@ -426,7 +470,7 @@ label {
     background: rgb(131, 77, 67);
     color: white;
 }
-.print-btn {
+.checkout-btn {
     background: rgb(69, 136, 30);
     color: white;
 }

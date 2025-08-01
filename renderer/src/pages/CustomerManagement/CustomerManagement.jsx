@@ -42,8 +42,8 @@ export default function CustomerManagement() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [modalMode, setModalMode] = useState("add") // or "edit"
-    const user = useUserStore((s) => s.user)
-    const canDelete = user && user.role_id === 1
+    const currentUser = useUserStore((s) => s.user)
+    const canDelete = currentUser && currentUser.role_id === 1
     const [showSidebar, setShowSidebar] = useState(false)
     const [sortBy, setSortBy] = useState(null)
     const [sortOrder, setSortOrder] = useState("asc")
@@ -101,9 +101,9 @@ export default function CustomerManagement() {
         setError("")
         try {
             if (modalMode === "edit") {
-                await window.posAPI.updateCustomer(formCustomer)
+                await window.posAPI.updateCustomer(formCustomer, currentUser)
             } else {
-                await window.posAPI.addCustomer(formCustomer)
+                await window.posAPI.addCustomer(formCustomer, currentUser)
             }
             setShowForm(false)
             fetchCustomers()
@@ -128,7 +128,7 @@ export default function CustomerManagement() {
         setLoading(true)
         setError("")
         try {
-            await window.posAPI.deleteCustomer(customer.id, user)
+            await window.posAPI.deleteCustomer(customer.id, currentUser)
             setSelectedCustomer(null)
             fetchCustomers()
         } catch (e) {
@@ -142,7 +142,7 @@ export default function CustomerManagement() {
         setLoading(true)
         setError("")
         try {
-            await window.posAPI.assignLoyaltyTier(id, tier)
+            await window.posAPI.assignLoyaltyTier(id, tier, currentUser)
             fetchCustomers()
         } catch (e) {
             setError("Failed to assign loyalty tier")

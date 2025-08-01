@@ -13,6 +13,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #e7e7e7;
+  box-shadow: 0 8px 12px rgba(0,0,0,0.3);
 }
 
 .logs-header h3 {
@@ -28,6 +32,8 @@
 
 .logs-container {
   overflow-x: auto;
+
+  border-radius: 10px;
 }
 
 .logs-table {
@@ -43,10 +49,10 @@
 }
 
 .logs-table th {
-  background-color: #f9f9f9;
+  color: #f9f9f9;
   text-align: left;
   font-weight: 600;
-  color: #555;
+  background: #518f9d;
 }
 
 .logs-table tbody tr:hover {

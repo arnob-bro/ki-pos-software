@@ -19,18 +19,19 @@ class CustomerController {
         }
     }
 
-    async addCustomer(customerData) {
+    async addCustomer(customerData, currentUser) {
         try {
             if (!customerData.name || customerData.name.trim().length === 0) {
                 throw new Error("Customer name cannot be empty")
             }
-            return await this.customerService.addCustomer(customerData)
+            const currentUserId = currentUser ? currentUser.id : null
+            return await this.customerService.addCustomer(customerData, currentUserId)
         } catch (error) {
             throw new Error(`Failed to add customer: ${error.message}`)
         }
     }
 
-    async updateCustomer(customerData) {
+    async updateCustomer(customerData, currentUser) {
         try {
             if (!customerData.id) {
                 throw new Error("Customer ID is required for update")
@@ -38,24 +39,26 @@ class CustomerController {
             if (!customerData.name || customerData.name.trim().length === 0) {
                 throw new Error("Customer name cannot be empty")
             }
-            return await this.customerService.updateCustomer(customerData)
+            const currentUserId = currentUser ? currentUser.id : null
+            return await this.customerService.updateCustomer(customerData, currentUserId)
         } catch (error) {
             throw new Error(`Failed to update customer: ${error.message}`)
         }
     }
 
-    async deleteCustomer(id) {
+    async deleteCustomer(id, currentUser) {
         try {
             if (!id) {
                 throw new Error("Customer ID is required for deletion")
             }
-            return await this.customerService.deleteCustomer(id)
+                const currentUserId = currentUser ? currentUser.id : null
+            return await this.customerService.deleteCustomer(id, currentUserId)
         } catch (error) {
             throw new Error(`Failed to delete customer: ${error.message}`)
         }
     }
 
-    async assignLoyaltyTier(id, tier) {
+    async assignLoyaltyTier(id, tier, currentUser) {
         try {
             if (!id) {
                 throw new Error(
@@ -65,7 +68,8 @@ class CustomerController {
             if (!tier) {
                 throw new Error("Loyalty tier is required")
             }
-            return await this.customerService.assignLoyaltyTier(id, tier)
+            const currentUserId = currentUser ? currentUser.id : null
+            return await this.customerService.assignLoyaltyTier(id, tier, currentUserId)
         } catch (error) {
             throw new Error(`Failed to assign loyalty tier: ${error.message}`)
         }
