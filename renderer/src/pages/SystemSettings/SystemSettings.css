@@ -1,61 +1,59 @@
 .system-settings-page {
-  display: flex;
-  background-color: #f9f9f9;
-  min-height: 100vh;
-  max-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+	display: flex;
+	background-color: #f9f9f9;
+	min-height: 100vh;
+	max-height: 100vh;
+	font-family: "Segoe UI", sans-serif;
 }
 
-
 .system-settings {
-  flex: 1;
-  padding: 30px 40px;
-  background-color: #ffffff;
-  overflow-y: auto;
+	flex: 1;
+	padding: 30px 40px;
+	background-color: #ffffff;
+	overflow-y: auto;
 }
 
 .system-settings h2 {
-  margin-bottom: 20px;
-  font-size: 28px;
-  color: #333;
+	margin-bottom: 20px;
+	font-size: 28px;
+	color: #333;
 }
 
 .settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .flex-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
 }
 
 .flex-row .form-group {
-  flex: 1;
-  min-width: 200px;
+	flex: 1;
+	min-width: 200px;
 }
 
 fieldset.form-group {
-  border: 1px solid #ddd;
-  padding: 15px 20px;
-  border-radius: 8px;
+	border: 1px solid #ddd;
+	padding: 15px 20px;
+	border-radius: 8px;
 
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 fieldset legend {
-  padding: 0 8px;
-  font-weight: 600;
-  color: #555;
+	padding: 0 8px;
+	font-weight: 600;
+	color: #555;
 }
 
 input[type="text"],
@@ -63,41 +61,40 @@ input[type="number"],
 input[type="file"],
 select,
 textarea {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  width: 100%;
-  
+	padding: 10px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	font-size: 14px;
+	width: 100%;
 }
 
 textarea {
-  resize: vertical;
-  min-height: 80px;
+	resize: vertical;
+	min-height: 80px;
 }
 
 .save-btn {
-  padding: 12px 20px;
-  background-color: #007bff;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: background-color 0.3s ease;
+	padding: 12px 20px;
+	background-color: #007bff;
+	border: none;
+	border-radius: 6px;
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	align-self: flex-start;
+	transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
-  background-color: #0056b3;
+	background-color: #0056b3;
 }
 .flex-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
 }
 
 .flex-row .form-group {
-  flex: 1;
-  min-width: 200px;
+	flex: 1;
+	min-width: 200px;
 }

@@ -1,427 +1,472 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./ReceiptArchive.css";
-import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import Sidebar from "../../components/Sidebar";
-import useLanguageStore from '../../stores/languageStore';
+import useLanguageStore from "../../stores/languageStore";
 
 const ReceiptArchive = () => {
-  const language = useLanguageStore((state) => state.language);
-  const t = (en, de) => language === 'de' ? de : en;
-  const [receipts, setReceipts] = useState([]);
-  const [filteredReceipts, setFilteredReceipts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [operators, setOperators] = useState([]);
-  const [selectedReceipt, setSelectedReceipt] = useState(null);
-  const [dateFilter, setDateFilter] = useState("");
-  const [operatorFilter, setOperatorFilter] = useState("");
-  const [idFilter, setIdFilter] = useState("");
-  const [hasMore, setHasMore] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+	const language = useLanguageStore((state) => state.language);
+	const t = (en, de) => (language === "de" ? de : en);
+	const [receipts, setReceipts] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [operators, setOperators] = useState([]);
+	const [selectedReceipt, setSelectedReceipt] = useState(null);
+	const [dateFilter, setDateFilter] = useState("");
+	const [operatorFilter, setOperatorFilter] = useState("");
+	const [idFilter, setIdFilter] = useState("");
+	const [hasMore, setHasMore] = useState(true);
 
-  const navigate = useNavigate();
+	// Pagination state
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
 
-  // Fetch receipts from database with pagination
-  const fetchReceipts = useCallback(async (filters = {}, page = 1, append = false) => {
-    setLoading(true);
-    try {
-      const limit = 50; // Items per page
-      const offset = (page - 1) * limit;
-      
-      const result = await window.posAPI.getReceipts({
-        ...filters,
-        limit,
-        offset
-      });
-      
-      if (append) {
-        setReceipts(prev => [...prev, ...result]);
-        setFilteredReceipts(prev => [...prev, ...result]);
-      } else {
-        setReceipts(result);
-        setFilteredReceipts(result);
-      }
-      
-      // Check if there are more results
-      setHasMore(result.length === limit);
-      setTotalCount(prev => append ? prev + result.length : result.length);
-      
-      // Extract unique operators for the dropdown
-      const uniqueOperators = [...new Set(result.map(r => r.operator))];
-      setOperators(prev => {
-        const combined = [...new Set([...prev, ...uniqueOperators])];
-        return combined;
-      });
-    } catch (error) {
-      console.error('Error fetching receipts:', error);
-      if (!append) {
-        setReceipts([]);
-        setFilteredReceipts([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+	// Fetch receipts from database with pagination
+	const fetchReceipts = useCallback(
+		async (filters = {}, page = 1, append = false) => {
+			setLoading(true);
+			try {
+				const limit = 50; // Items per page
+				const offset = (page - 1) * limit;
 
-  // Initial load
-  useEffect(() => {
-    fetchReceipts({}, 1, false);
-    setCurrentPage(1);
-  }, [fetchReceipts]);
+				const result = await window.posAPI.getReceipts({
+					...filters,
+					limit,
+					offset,
+				});
 
-  // Apply filters with debouncing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const filters = {};
-      if (dateFilter) filters.date = dateFilter;
-      if (operatorFilter) filters.operator = operatorFilter;
-      if (idFilter) filters.id = idFilter;
-      
-      // Reset pagination when filters change
-      setCurrentPage(1);
-      fetchReceipts(filters, 1, false);
-    }, 300); // 300ms debounce
+				if (append) {
+					setReceipts((prev) => [...prev, ...result]);
+				} else {
+					setReceipts(result);
+				}
 
-    return () => clearTimeout(timeoutId);
-  }, [dateFilter, operatorFilter, idFilter, fetchReceipts]);
+				// Check if there are more results
+				setHasMore(result.length === limit);
 
-  // Load more function
-  const loadMore = useCallback(() => {
-    if (!loading && hasMore) {
-      const filters = {};
-      if (dateFilter) filters.date = dateFilter;
-      if (operatorFilter) filters.operator = operatorFilter;
-      if (idFilter) filters.id = idFilter;
-      
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      fetchReceipts(filters, nextPage, true);
-    }
-  }, [loading, hasMore, currentPage, dateFilter, operatorFilter, idFilter, fetchReceipts]);
+				// Extract unique operators for the dropdown
+				const uniqueOperators = [...new Set(result.map((r) => r.operator))];
+				setOperators((prev) => {
+					const combined = [...new Set([...prev, ...uniqueOperators])];
+					return combined;
+				});
+			} catch (error) {
+				console.error("Error fetching receipts:", error);
+				if (!append) {
+					setReceipts([]);
+				}
+			} finally {
+				setLoading(false);
+			}
+		},
+		[]
+	);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(receipts.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const currentReceipts = receipts.slice(startIndex, endIndex);
+	// Initial load
+	useEffect(() => {
+		fetchReceipts({}, 1, false);
+		setCurrentPage(1);
+	}, [fetchReceipts]);
 
-  // Calculate totals
-  const totalTax = receipts.reduce((sum, r) => sum + (r.tax || 0), 0);
-  const totalAmount = receipts.reduce((sum, r) => sum + (r.total || 0), 0);
+	// Apply filters with debouncing
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			const filters = {};
+			if (dateFilter) filters.date = dateFilter;
+			if (operatorFilter) filters.operator = operatorFilter;
+			if (idFilter) filters.id = idFilter;
 
-  const handleDownload = () => {
-    const element = document.querySelector(".receipt-style");
+			// Reset pagination when filters change
+			setCurrentPage(1);
+			fetchReceipts(filters, 1, false);
+		}, 300); // 300ms debounce
 
-  const opt = {
-    margin:       0.5,
-    filename:     `receipt-${selectedReceipt.id}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
+		return () => clearTimeout(timeoutId);
+	}, [dateFilter, operatorFilter, idFilter, fetchReceipts]);
 
-  html2pdf().set(opt).from(element).save();
+	// Calculate pagination
+	const totalPages = Math.ceil(receipts.length / pageSize);
+	const startIndex = (currentPage - 1) * pageSize;
+	const endIndex = startIndex + pageSize;
+	const currentReceipts = receipts.slice(startIndex, endIndex);
 
-  }
+	// Calculate totals
+	const totalTax = receipts.reduce((sum, r) => sum + (r.tax || 0), 0);
+	const totalAmount = receipts.reduce((sum, r) => sum + (r.total || 0), 0);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+	const handleDownload = () => {
+		const element = document.querySelector(".receipt-style");
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when page size changes
-  };
+		const opt = {
+			margin: 0.5,
+			filename: `receipt-${selectedReceipt.id}.pdf`,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+		};
 
-  const renderPaginationButtons = () => {
-    const buttons = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
+		html2pdf().set(opt).from(element).save();
+	};
 
-    // Previous button
-    buttons.push(
-      <button
-        key="prev"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="pagination-btn"
-      >
-        ← {t('Previous', 'Zurück')}
-      </button>
-    );
+	const handlePageChange = (page) => {
+		setCurrentPage(page);
+	};
 
-    // First page button (if not visible)
-    if (startPage > 1) {
-      buttons.push(
-        <button
-          key="first"
-          onClick={() => handlePageChange(1)}
-          className="pagination-btn"
-        >
-          1
-        </button>
-      );
-      if (startPage > 2) {
-        buttons.push(<span key="dots1" className="pagination-dots">...</span>);
-      }
-    }
+	const handlePageSizeChange = (newPageSize) => {
+		setPageSize(newPageSize);
+		setCurrentPage(1); // Reset to first page when page size changes
+	};
 
-    // Page number buttons
-    for (let i = startPage; i <= endPage; i++) {
-      buttons.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`pagination-btn ${currentPage === i ? 'active' : ''}`}
-        >
-          {i}
-        </button>
-      );
-    }
+	const renderPaginationButtons = () => {
+		const buttons = [];
+		const maxVisiblePages = 5;
 
-    // Last page button (if not visible)
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        buttons.push(<span key="dots2" className="pagination-dots">...</span>);
-      }
-      buttons.push(
-        <button
-          key="last"
-          onClick={() => handlePageChange(totalPages)}
-          className="pagination-btn"
-        >
-          {totalPages}
-        </button>
-      );
-    }
+		let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+		let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-    // Next button
-    buttons.push(
-      <button
-        key="next"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="pagination-btn"
-      >
-        {t('Next', 'Weiter')} →
-      </button>
-    );
+		if (endPage - startPage + 1 < maxVisiblePages) {
+			startPage = Math.max(1, endPage - maxVisiblePages + 1);
+		}
 
-    return buttons;
-  };
-  
+		// Previous button
+		buttons.push(
+			<button
+				key='prev'
+				onClick={() => handlePageChange(currentPage - 1)}
+				disabled={currentPage === 1}
+				className='pagination-btn'
+			>
+				← {t("Previous", "Zurück")}
+			</button>
+		);
 
-  return (
-    <div className="receipt-archive">
-      <Sidebar />
-      <div className="receipt-list-section">
-        {/* <button className="back-btn" onClick={() => navigate("/dashboard")}>← Back</button> */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2>🗾 {t('Receipt Archive', 'Belegarchiv')}</h2>
-          <button 
-            onClick={() => {
-              setCurrentPage(1);
-              fetchReceipts({}, 1, false);
-            }} 
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px', 
-              cursor: 'pointer' 
-            }}
-            disabled={loading}
-          >
-            {loading ? t('Loading...', 'Lädt...') : '🔄 ' + t('Refresh', 'Aktualisieren')}
-          </button>
-        </div>
-       
-        <div className="tax-cards">
-      <div className="tax-card">
-        <h4>{t('Total Receipts', 'Belege insgesamt')}</h4>
-        <p>{receipts.length}</p>
-      </div>
-      <div className="tax-card">
-        <h4>{t('Total Tax', 'Gesamte Steuer')}</h4>
-        <p>${totalTax.toFixed(2)}</p>
-      </div>
-      <div className="tax-card">
-        <h4>{t('Total Amount', 'Gesamtbetrag')}</h4>
-        <p>${totalAmount.toFixed(2)}</p>
-      </div>
-      </div>
+		// First page button (if not visible)
+		if (startPage > 1) {
+			buttons.push(
+				<button
+					key='first'
+					onClick={() => handlePageChange(1)}
+					className='pagination-btn'
+				>
+					1
+				</button>
+			);
+			if (startPage > 2) {
+				buttons.push(
+					<span key='dots1' className='pagination-dots'>
+						...
+					</span>
+				);
+			}
+		}
 
-        <div className="filters">
-          <input
-            type="text"
-            placeholder={'🔍 ' + t('Search by ID', 'Nach ID suchen')}
-            value={idFilter}
-            onChange={(e) => setIdFilter(e.target.value)}
-          />
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-          />
-          <select
-            value={operatorFilter}
-            onChange={(e) => setOperatorFilter(e.target.value)}
-          >
-            <option value="">{t('All Operators', 'Alle Bediener')}</option>
-            {operators.map((operator) => (
-              <option key={operator} value={operator}>
-                {operator}
-              </option>
-            ))}
-          </select>
-        </div>
+		// Page number buttons
+		for (let i = startPage; i <= endPage; i++) {
+			buttons.push(
+				<button
+					key={i}
+					onClick={() => handlePageChange(i)}
+					className={`pagination-btn ${currentPage === i ? "active" : ""}`}
+				>
+					{i}
+				</button>
+			);
+		}
 
-        {/* Page size selector */}
-        <div className="page-size-selector">
-          <label>{t('Show:', 'Anzeigen:')}</label>
-          <select
-            value={pageSize}
-            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-          >
-            <option value={5}>{t('5 per page', '5 pro Seite')}</option>
-            <option value={10}>{t('10 per page', '10 pro Seite')}</option>
-            <option value={20}>{t('20 per page', '20 pro Seite')}</option>
-            
-          </select>
-        </div>
+		// Last page button (if not visible)
+		if (endPage < totalPages) {
+			if (endPage < totalPages - 1) {
+				buttons.push(
+					<span key='dots2' className='pagination-dots'>
+						...
+					</span>
+				);
+			}
+			buttons.push(
+				<button
+					key='last'
+					onClick={() => handlePageChange(totalPages)}
+					className='pagination-btn'
+				>
+					{totalPages}
+				</button>
+			);
+		}
 
-        {loading && <div className="loading">{t('Loading receipts...', 'Belege werden geladen...')}</div>}
-        
-        {!loading && receipts.length === 0 && (
-          <div className="no-receipts">{t('No receipts found', 'Keine Belege gefunden')}</div>
-        )}
-        
-        {!loading && receipts.length > 0 && (
-          <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-            <table className="receipt-table">
-              <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-                <tr>
-                  <th>{t('ID', 'ID')}</th>
-                  <th>{t('Date', 'Datum')}</th>
-                  <th>{t('Operator', 'Bediener')}</th>
-                  <th>{t('Payment Method', 'Zahlungsmethode')}</th>
-                  <th>{t('Total', 'Gesamt')}</th>
-                  <th>{t('Tax', 'Steuer')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentReceipts.map((r) => (
-                  <tr
-                    key={r.id}
-                    onClick={() => setSelectedReceipt(r)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <td>{r.id}</td>
-                    <td>{r.date}</td>
-                    <td>{r.operator}</td>
-                    <td>{r.payment_method}</td>
-                    <td>${(r.total || 0).toFixed(2)}</td>
-                    <td>${(r.tax || 0).toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+		// Next button
+		buttons.push(
+			<button
+				key='next'
+				onClick={() => handlePageChange(currentPage + 1)}
+				disabled={currentPage === totalPages}
+				className='pagination-btn'
+			>
+				{t("Next", "Weiter")} →
+			</button>
+		);
 
-        {/* Pagination info */}
-        <div className="pagination-info">
-          <span>
-            {t('Showing', 'Anzeigen')} {startIndex + 1} {t('to', 'bis')} {Math.min(endIndex, receipts.length)} {t('of', 'von')} {receipts.length} {t('receipts', 'Belege')}
-          </span>
-        </div>
+		return buttons;
+	};
 
-        {/* Pagination controls */}
-        {totalPages > 1 && (
-          <div className="pagination-controls">
-            {renderPaginationButtons()}
-          </div>
-        )}
-      </div>
+	return (
+		<div className='receipt-archive'>
+			<Sidebar />
+			<div className='receipt-list-section'>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						marginBottom: "20px",
+					}}
+				>
+					<h2>🗾 {t("Receipt Archive", "Belegarchiv")}</h2>
+					<button
+						onClick={() => {
+							setCurrentPage(1);
+							fetchReceipts({}, 1, false);
+						}}
+						style={{
+							padding: "8px 16px",
+							backgroundColor: "#007bff",
+							color: "white",
+							border: "none",
+							borderRadius: "6px",
+							cursor: "pointer",
+						}}
+						disabled={loading}
+					>
+						{loading
+							? t("Loading...", "Lädt...")
+							: "🔄 " + t("Refresh", "Aktualisieren")}
+					</button>
+				</div>
 
-      {selectedReceipt && (
-        <div className="receipt-details-panel receipt-style">
-          <button className="close-btn" onClick={() => setSelectedReceipt(null)}>✖</button>
-          <h2 className="store-title">SUPERMARKET</h2>
-          <p className="store-info">Lorem ipsum 258</p>
-          <p className="store-info">City Index - 02025</p>
-          <p className="store-info">Tel.: +456-468-987-02</p>
+				<div className='tax-cards'>
+					<div className='tax-card'>
+						<h4>{t("Total Receipts", "Belege insgesamt")}</h4>
+						<p>{receipts.length}</p>
+					</div>
+					<div className='tax-card'>
+						<h4>{t("Total Tax", "Gesamte Steuer")}</h4>
+						<p>${totalTax.toFixed(2)}</p>
+					</div>
+					<div className='tax-card'>
+						<h4>{t("Total Amount", "Gesamtbetrag")}</h4>
+						<p>${totalAmount.toFixed(2)}</p>
+					</div>
+				</div>
 
-          <hr className="dotted" />
+				<div className='filters'>
+					<input
+						type='text'
+						placeholder={"🔍 " + t("Search by ID", "Nach ID suchen")}
+						value={idFilter}
+						onChange={(e) => setIdFilter(e.target.value)}
+					/>
+					<input
+						type='date'
+						value={dateFilter}
+						onChange={(e) => setDateFilter(e.target.value)}
+					/>
+					<select
+						value={operatorFilter}
+						onChange={(e) => setOperatorFilter(e.target.value)}
+					>
+						<option value=''>{t("All Operators", "Alle Bediener")}</option>
+						{operators.map((operator) => (
+							<option key={operator} value={operator}>
+								{operator}
+							</option>
+						))}
+					</select>
+				</div>
 
-          <p><strong>{t('Receipt ID:', 'Belegnummer:')}</strong> {selectedReceipt.id}</p>
-          <p><strong>{t('Cashier:', 'Kassierer:')}</strong> {selectedReceipt.operator}</p>
-          <p><strong>{t('Payment Method:', 'Zahlungsmethode:')}</strong> {selectedReceipt.payment_method}</p>
-          <div className="tax-info">
-                       <h4>🗾 {t('Tax Compliance Info', 'Steuerkonformitätsinfo')}</h4>
-                        <p><strong>{t('Taxpayer ID:', 'Steuerzahler-ID:')}</strong> {selectedReceipt.taxpayerId || "N/A"}</p>
-                        <p><strong>{t('Jurisdiction:', 'Gerichtsbarkeit:')}</strong> {selectedReceipt.jurisdiction || "N/A"}</p>
-                        <p><strong>{t('VAT Rate:', 'MwSt-Satz:')}</strong> {selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}</p>
-                    </div>
-                    
+				{/* Page size selector */}
+				<div className='page-size-selector'>
+					<label>{t("Show:", "Anzeigen:")}</label>
+					<select
+						value={pageSize}
+						onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+					>
+						<option value={5}>{t("5 per page", "5 pro Seite")}</option>
+						<option value={10}>{t("10 per page", "10 pro Seite")}</option>
+						<option value={20}>{t("20 per page", "20 pro Seite")}</option>
+					</select>
+				</div>
 
-          <hr className="dotted" />
+				{loading && (
+					<div className='loading'>
+						{t("Loading receipts...", "Belege werden geladen...")}
+					</div>
+				)}
 
-          <table className="items-table">
-            <thead>
-              <tr>
-                <th>{t('Name', 'Name')}</th>
-                <th>{t('Qty', 'Menge')}</th>
-                <th>{t('Price', 'Preis')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedReceipt.items.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.name}</td>
-                  <td>{item.qty}</td>
-                  <td>${(item.price * item.qty).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+				{!loading && receipts.length === 0 && (
+					<div className='no-receipts'>
+						{t("No receipts found", "Keine Belege gefunden")}
+					</div>
+				)}
 
-          <hr className="dotted" />
+				{!loading && receipts.length > 0 && (
+					<div style={{ maxHeight: "600px", overflowY: "auto" }}>
+						<table className='receipt-table'>
+							<thead
+								style={{
+									position: "sticky",
+									top: 0,
+									backgroundColor: "white",
+									zIndex: 1,
+								}}
+							>
+								<tr>
+									<th>{t("ID", "ID")}</th>
+									<th>{t("Date", "Datum")}</th>
+									<th>{t("Operator", "Bediener")}</th>
+									<th>{t("Payment Method", "Zahlungsmethode")}</th>
+									<th>{t("Total", "Gesamt")}</th>
+									<th>{t("Tax", "Steuer")}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{currentReceipts.map((r) => (
+									<tr
+										key={r.id}
+										onClick={() => setSelectedReceipt(r)}
+										style={{ cursor: "pointer" }}
+									>
+										<td>{r.id}</td>
+										<td>{r.date}</td>
+										<td>{r.operator}</td>
+										<td>{r.payment_method}</td>
+										<td>${(r.total || 0).toFixed(2)}</td>
+										<td>${(r.tax || 0).toFixed(2)}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
 
-          <div className="summary">
-            <p><strong>{t('Sub Total:', 'Zwischensumme:')}</strong> ${(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}</p>
-            <p><strong>{t('Tax:', 'Steuer:')}</strong> ${selectedReceipt.tax.toFixed(2)}</p>
-            <p><strong>{t('Total:', 'Gesamt:')}</strong> ${selectedReceipt.total.toFixed(2)}</p>
-            <p><strong>{t('Cash:', 'Bar:')}</strong> ${(selectedReceipt.total + 20).toFixed(2)}</p>
-            <p><strong>{t('Change:', 'Wechselgeld:')}</strong> $20.00</p>
-            <button onClick={() => window.print()}>🖨️ {t('Print Receipt', 'Beleg drucken')}</button>
-            <button onClick={handleDownload}>🖨️ {t('Download', 'Herunterladen')}</button>
-          </div>
+				{/* Pagination info */}
+				<div className='pagination-info'>
+					<span>
+						{t("Showing", "Anzeigen")} {startIndex + 1} {t("to", "bis")}{" "}
+						{Math.min(endIndex, receipts.length)} {t("of", "von")}{" "}
+						{receipts.length} {t("receipts", "Belege")}
+					</span>
+				</div>
 
-          <hr className="dotted" />
+				{/* Pagination controls */}
+				{totalPages > 1 && (
+					<div className='pagination-controls'>{renderPaginationButtons()}</div>
+				)}
+			</div>
 
-          <div className="barcode">[||||||||||||||||||||||]</div>
+			{selectedReceipt && (
+				<div className='receipt-details-panel receipt-style'>
+					<button
+						className='close-btn'
+						onClick={() => setSelectedReceipt(null)}
+					>
+						✖
+					</button>
+					<h2 className='store-title'>SUPERMARKET</h2>
+					<p className='store-info'>Lorem ipsum 258</p>
+					<p className='store-info'>City Index - 02025</p>
+					<p className='store-info'>Tel.: +456-468-987-02</p>
 
-          <div className="thank-you">
-            <p>{t('THANK YOU!', 'DANKE!')}</p>
-            <p>{t('Glad to see you again!', 'Schön, Sie wiederzusehen!')}</p>
-          </div>
+					<hr className='dotted' />
 
-        </div>
-      )}
-    </div>
-  );
+					<p>
+						<strong>{t("Receipt ID:", "Belegnummer:")}</strong>{" "}
+						{selectedReceipt.id}
+					</p>
+					<p>
+						<strong>{t("Cashier:", "Kassierer:")}</strong>{" "}
+						{selectedReceipt.operator}
+					</p>
+					<p>
+						<strong>{t("Payment Method:", "Zahlungsmethode:")}</strong>{" "}
+						{selectedReceipt.payment_method}
+					</p>
+					<div className='tax-info'>
+						<h4>🗾 {t("Tax Compliance Info", "Steuerkonformitätsinfo")}</h4>
+						<p>
+							<strong>{t("Taxpayer ID:", "Steuerzahler-ID:")}</strong>{" "}
+							{selectedReceipt.taxpayerId || "N/A"}
+						</p>
+						<p>
+							<strong>{t("Jurisdiction:", "Gerichtsbarkeit:")}</strong>{" "}
+							{selectedReceipt.jurisdiction || "N/A"}
+						</p>
+						<p>
+							<strong>{t("VAT Rate:", "MwSt-Satz:")}</strong>{" "}
+							{selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}
+						</p>
+					</div>
+
+					<hr className='dotted' />
+
+					<table className='items-table'>
+						<thead>
+							<tr>
+								<th>{t("Name", "Name")}</th>
+								<th>{t("Qty", "Menge")}</th>
+								<th>{t("Price", "Preis")}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{selectedReceipt.items.map((item, idx) => (
+								<tr key={idx}>
+									<td>{item.name}</td>
+									<td>{item.qty}</td>
+									<td>${(item.price * item.qty).toFixed(2)}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+
+					<hr className='dotted' />
+
+					<div className='summary'>
+						<p>
+							<strong>{t("Sub Total:", "Zwischensumme:")}</strong> $
+							{(selectedReceipt.total - selectedReceipt.tax).toFixed(2)}
+						</p>
+						<p>
+							<strong>{t("Tax:", "Steuer:")}</strong> $
+							{selectedReceipt.tax.toFixed(2)}
+						</p>
+						<p>
+							<strong>{t("Total:", "Gesamt:")}</strong> $
+							{selectedReceipt.total.toFixed(2)}
+						</p>
+						<p>
+							<strong>{t("Cash:", "Bar:")}</strong> $
+							{(selectedReceipt.total + 20).toFixed(2)}
+						</p>
+						<p>
+							<strong>{t("Change:", "Wechselgeld:")}</strong> $20.00
+						</p>
+						<button onClick={() => window.print()}>
+							🖨️ {t("Print Receipt", "Beleg drucken")}
+						</button>
+						<button onClick={handleDownload}>
+							🖨️ {t("Download", "Herunterladen")}
+						</button>
+					</div>
+
+					<hr className='dotted' />
+
+					<div className='barcode'>[||||||||||||||||||||||]</div>
+
+					<div className='thank-you'>
+						<p>{t("THANK YOU!", "DANKE!")}</p>
+						<p>{t("Glad to see you again!", "Schön, Sie wiederzusehen!")}</p>
+					</div>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default ReceiptArchive;
