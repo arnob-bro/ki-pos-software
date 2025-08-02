@@ -144,4 +144,9 @@ contextBridge.exposeInMainWorld("posAPI", {
 		ipcRenderer.invoke("reports:taxBreakdown", startDate, endDate),
 	generateCSVReport: (reportId) =>
 		ipcRenderer.invoke("reports:generateCSV", reportId),
+
+	// Payment Settings
+	getPaymentSettings: () => ipcRenderer.invoke("paymentSettings:get"),
+	updatePaymentSettings: (settings) =>
+		ipcRenderer.invoke("paymentSettings:update", settings),
 });

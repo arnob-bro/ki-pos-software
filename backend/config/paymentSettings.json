@@ -1,0 +1,26 @@
+{
+  "paymentMethods": {
+    "cash": true,
+    "ec": true,
+    "visa": false,
+    "voucher": false
+  },
+  "loyaltyDiscountSettings": {
+    "bronze": {
+      "discountPercentage": 5,
+      "discountType": "percentage"
+    },
+    "silver": {
+      "discountPercentage": 10,
+      "discountType": "percentage"
+    },
+    "gold": {
+      "discountPercentage": 15,
+      "discountType": "percentage"
+    },
+    "platinum": {
+      "discountPercentage": 25,
+      "discountType": "percentage"
+    }
+  }
+}
