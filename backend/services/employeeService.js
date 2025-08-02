@@ -69,11 +69,41 @@ class EmployeeService {
 		}
 
 		// Get total count for pagination
-		const countQuery = query
-			.replace(/SELECT.*FROM/, "SELECT COUNT(*) as total FROM")
-			.replace(/ORDER BY.*LIMIT.*OFFSET.*/, "");
+		// Build count query by reconstructing the base query without ORDER BY, LIMIT, OFFSET
+		let countQuery = `
+      SELECT COUNT(*) as total
+      FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id
+      LEFT JOIN shift_assignments sa ON u.id = sa.user_id
+      LEFT JOIN shifts s ON sa.shift_id = s.id
+      WHERE 1=1
+    `;
+
+		const countParams = [];
+
+		// Apply the same filters to count query
+		if (filters.status && filters.status !== "all") {
+			countQuery += ` AND u.status = ?`;
+			countParams.push(filters.status);
+		}
+
+		if (filters.role && filters.role !== "all") {
+			countQuery += ` AND r.name = ?`;
+			countParams.push(filters.role);
+		}
+
+		if (filters.search) {
+			countQuery += ` AND (
+        u.name LIKE ? OR 
+        u.email LIKE ?
+      )`;
+			const searchTerm = `%${filters.search}%`;
+			countParams.push(searchTerm, searchTerm);
+		}
+
 		const countStmt = this.db.prepare(countQuery);
-		const { total } = countStmt.get(...params.slice(0, -2)); // Remove limit and offset
+		const countResult = countStmt.get(...countParams);
+		const total = countResult ? countResult.total : 0;
 
 		return {
 			employees,

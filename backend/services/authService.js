@@ -178,6 +178,22 @@ class AuthService {
 				};
 			}
 
+			if(user.status == "deleted"){
+				return {
+					success: false,
+					message: "Account is deleted",
+					code: "ACCOUNT_DELETED",
+				};
+			}
+
+			if(user.status == "suspended"){
+				return {
+					success: false,
+					message: "Account is suspended",
+					code: "ACCOUNT_SUSPENDED",
+				};
+			}
+
 			// Verify password
 			const isValidPassword = await comparePassword(
 				password,

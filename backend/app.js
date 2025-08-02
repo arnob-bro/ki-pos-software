@@ -5,6 +5,7 @@ const fs = require("fs");
 const Database = require("better-sqlite3");
 const { runMigrations } = require("./migrations/runner");
 const { hashPassword } = require("./utils/hash");
+const hardwareManager = require("./services/hardwareService");
 
 // Initialize SQLite database
 const dbPath = path.join(__dirname, "pos.db");
@@ -67,5 +68,11 @@ ipcMain.handle("open-file", async (event, filePath) => {
 	}
 });
 console.log("IPC handlers registered successfully");
+
+const initHardware = async () => {
+	const configFile = await hardwareManager.getHardwareConfig();
+	await hardwareManager.initialize(configFile);
+};
+initHardware();
 
 module.exports = { db };

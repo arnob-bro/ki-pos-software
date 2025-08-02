@@ -1,6 +1,8 @@
+const hardwareManager = require("../services/hardwareService");
 class TransactionController {
 	constructor(transactionService) {
 		this.transactionService = transactionService;
+		this.hardwareManager = hardwareManager;
 	}
 
 	async addTransaction(data, currentUser) {
@@ -61,10 +63,15 @@ class TransactionController {
 				"DEBUG: Processed transaction data:",
 				JSON.stringify(processedData, null, 2)
 			);
-			return await this.transactionService.addTransaction(
+
+			const result = await this.transactionService.addTransaction(
 				processedData,
 				currentUser
 			);
+
+			await this.hardwareManager.printReceipt(result);
+
+			return result;
 		} catch (error) {
 			throw new Error(`Failed to add transaction: ${error.message}`);
 		}

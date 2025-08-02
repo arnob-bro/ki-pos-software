@@ -35,6 +35,151 @@ class HardwareDevice {
 	}
 }
 
+// Visa Payment System Class
+class VisaPaymentSystem extends HardwareDevice {
+	constructor(config) {
+		super(config);
+		this.apiEndpoint = config.environment === "production" 
+			? "https://api.visa.com/v1" 
+			: "https://sandbox.api.visa.com/v1";
+		this.isConnected = false;
+	}
+
+	async connect() {
+		if (!this.config.enabled) {
+			throw new Error("Visa payment system is not enabled");
+		}
+
+		try {
+			console.log(`Connecting to Visa payment system: ${this.config.provider}`);
+			
+			// Validate required configuration
+			if (!this.config.merchantId || !this.config.apiKey || !this.config.secretKey) {
+				throw new Error("Missing required Visa configuration: merchantId, apiKey, or secretKey");
+			}
+
+			// Simulate connection to Visa API
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			this.isConnected = true;
+			return true;
+		} catch (error) {
+			throw new Error(`Visa payment system connection failed: ${error.message}`);
+		}
+	}
+
+	async disconnect() {
+		this.isConnected = false;
+	}
+
+	async test() {
+		if (!this.config.enabled) {
+			throw new Error("Visa payment system is not enabled");
+		}
+
+		try {
+			console.log("Testing Visa payment system:", this.config);
+
+			if (!this.isConnected) {
+				await this.connect();
+			}
+
+			// Simulate test transaction
+			if (this.config.testMode) {
+				console.log("Running test Visa transaction...");
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+			}
+
+			this.lastTest = new Date().toISOString();
+			return {
+				success: true,
+				message: "Visa payment system test completed successfully",
+			};
+		} catch (error) {
+			throw new Error(`Visa payment system test failed: ${error.message}`);
+		}
+	}
+
+	async processPayment(amount, paymentMethod = "contactless") {
+		if (!this.isConnected) {
+			await this.connect();
+		}
+
+		try {
+			console.log(`Processing Visa payment of ${amount} with method: ${paymentMethod}`);
+
+			// Simulate payment processing
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+
+			// Calculate fees
+			const processingFee = (amount * parseFloat(this.config.processingFee)) / 100;
+			const transactionFee = parseFloat(this.config.transactionFee);
+			const totalAmount = amount + processingFee + transactionFee;
+
+			return {
+				success: true,
+				transactionId: `VISA_${Date.now()}`,
+				amount: amount,
+				processingFee: processingFee,
+				transactionFee: transactionFee,
+				totalAmount: totalAmount,
+				paymentMethod: paymentMethod,
+				status: "approved",
+				timestamp: new Date().toISOString(),
+				cardType: "visa",
+				currency: this.config.currency,
+			};
+		} catch (error) {
+			throw new Error(`Visa payment processing failed: ${error.message}`);
+		}
+	}
+
+	async refundPayment(transactionId, amount) {
+		if (!this.isConnected) {
+			await this.connect();
+		}
+
+		try {
+			console.log(`Processing Visa refund for transaction ${transactionId}, amount: ${amount}`);
+
+			// Simulate refund processing
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			return {
+				success: true,
+				refundId: `REFUND_${Date.now()}`,
+				originalTransactionId: transactionId,
+				amount: amount,
+				status: "refunded",
+				timestamp: new Date().toISOString(),
+			};
+		} catch (error) {
+			throw new Error(`Visa refund processing failed: ${error.message}`);
+		}
+	}
+
+	async voidPayment(transactionId) {
+		if (!this.isConnected) {
+			await this.connect();
+		}
+
+		try {
+			console.log(`Voiding Visa transaction ${transactionId}`);
+
+			// Simulate void processing
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
+			return {
+				success: true,
+				transactionId: transactionId,
+				status: "voided",
+				timestamp: new Date().toISOString(),
+			};
+		} catch (error) {
+			throw new Error(`Visa void processing failed: ${error.message}`);
+		}
+	}
+}
+
 // EC Terminal Class
 class ECTerminal extends HardwareDevice {
 	constructor(config) {
@@ -439,41 +584,60 @@ class ReceiptPrinter extends HardwareDevice {
 
 	formatReceipt(data) {
 		let receipt = "";
-
+	
+		const lineWidth = 40; // works well for 80mm thermal paper
+		const leftColWidth = 30;
+		const rightColWidth = lineWidth - leftColWidth;
+	
+		const padRight = (str, len) => str.padEnd(len);
+		const padLeft = (str, len) => str.toString().padStart(len);
+	
 		if (this.config.headerText) {
 			receipt += `${this.config.headerText}\n`;
 		}
-
-		receipt += "================================\n";
-		receipt += `Receipt #: ${data.receiptNumber}\n`;
-		receipt += `Date: ${new Date(data.timestamp).toLocaleString()}\n`;
-		receipt += `Cashier: ${data.cashierName}\n`;
-		receipt += "================================\n";
-
+	
+		receipt += "=".repeat(lineWidth) + "\n";
+		receipt += `Receipt #: ${data.id}\n`;
+		receipt += `Date     : ${new Date(data.timestamp || Date.now()).toLocaleString()}\n`;
+		receipt += `Cashier  : ${data.user_id || "Unknown"}\n`;
+		receipt += "=".repeat(lineWidth) + "\n";
+	
 		data.items.forEach((item) => {
-			receipt += `${item.name.padEnd(20)} ${
-				item.quantity
-			}x $${item.price.toFixed(2)}\n`;
-			receipt += `                    $${(item.quantity * item.price).toFixed(
-				2
-			)}\n`;
+			const name = item.product_name || item.product_id || "Unnamed Item";
+			const quantity = item.quantity || 0;
+			const unitPrice = Number(item.unit_price || 0);
+			const lineTotal = (quantity * unitPrice).toFixed(2);
+	
+			// Line 1: Product Name (trim if too long)
+			receipt += `${name.length > leftColWidth ? name.substring(0, leftColWidth) : padRight(name, leftColWidth)}${padLeft(`$${lineTotal}`, rightColWidth)}\n`;
+	
+			// Line 2: Quantity x Unit Price
+			receipt += `${padRight(`${quantity} x $${unitPrice.toFixed(2)}`, leftColWidth)}${"\n"}`;
 		});
-
-		receipt += "================================\n";
-		receipt += `Subtotal: ${" ".repeat(15)}$${data.subtotal.toFixed(2)}\n`;
-		receipt += `Tax: ${" ".repeat(18)}$${data.tax.toFixed(2)}\n`;
-		receipt += `Total: ${" ".repeat(17)}$${data.total.toFixed(2)}\n`;
-		receipt += "================================\n";
-
+	
+		receipt += "=".repeat(lineWidth) + "\n";
+	
+		const subtotal = Number(data.total_amount || 0) - Number(data.vat_amount || 0);
+		const vat = Number(data.vat_amount || 0);
+		const total = Number(data.total_amount || 0);
+	
+		receipt += `${padRight("Subtotal:", leftColWidth)}${padLeft(`$${subtotal.toFixed(2)}`, rightColWidth)}\n`;
+		receipt += `${padRight("Tax:", leftColWidth)}${padLeft(`$${vat.toFixed(2)}`, rightColWidth)}\n`;
+		receipt += `${padRight("Total:", leftColWidth)}${padLeft(`$${total.toFixed(2)}`, rightColWidth)}\n`;
+	
+		receipt += "=".repeat(lineWidth) + "\n";
+	
 		if (this.config.footerText) {
 			receipt += `${this.config.footerText}\n`;
 		}
-
+	
 		receipt += "Thank you for your purchase!\n";
-		receipt += "================================\n\n\n\n";
-
+		receipt += "=".repeat(lineWidth) + "\n\n\n\n";
+	
 		return receipt;
 	}
+	
+	
 }
 
 // Sync Manager Class
@@ -523,6 +687,27 @@ class HardwareManager {
 				terminalId: "",
 				testMode: true,
 			},
+			visaPayment: {
+				enabled: false,
+				provider: "visa",
+				merchantId: "",
+				terminalId: "",
+				apiKey: "",
+				secretKey: "",
+				environment: "sandbox",
+				supportedCards: ["visa", "mastercard", "amex", "discover"],
+				contactless: true,
+				chipCard: true,
+				swipeCard: true,
+				manualEntry: true,
+				timeout: "60",
+				autoCapture: true,
+				testMode: true,
+				currency: "USD",
+				countryCode: "US",
+				processingFee: "2.9",
+				transactionFee: "0.30",
+			},
 			drawer: {
 				enabled: false,
 				port: "",
@@ -553,6 +738,7 @@ class HardwareManager {
 
 		this.devices = {
 			ecTerminal: null,
+			visaPayment: null,
 			drawer: null,
 			printer: null,
 			sync: null,
@@ -563,6 +749,10 @@ class HardwareManager {
 	async initialize(config) {
 		if (config.ecTerminal.enabled) {
 			this.devices.ecTerminal = new ECTerminal(config.ecTerminal);
+		}
+
+		if (config.visaPayment.enabled) {
+			this.devices.visaPayment = new VisaPaymentSystem(config.visaPayment);
 		}
 
 		if (config.drawer.enabled) {
@@ -616,6 +806,14 @@ class HardwareManager {
 		return await this.devices.ecTerminal.test();
 	}
 
+	// Test Visa Payment System
+	async testVisaPayment(config) {
+		if (!this.devices.visaPayment) {
+			this.devices.visaPayment = new VisaPaymentSystem(config);
+		}
+		return await this.devices.visaPayment.test();
+	}
+
 	// Test Drawer
 	async testDrawer(config) {
 		if (!this.devices.drawer) {
@@ -661,6 +859,9 @@ class HardwareManager {
 			ecTerminal: this.devices.ecTerminal
 				? this.devices.ecTerminal.getStatus()
 				: { enabled: false, connected: false, lastTest: null },
+			visaPayment: this.devices.visaPayment
+				? this.devices.visaPayment.getStatus()
+				: { enabled: false, connected: false, lastTest: null },
 			drawer: this.devices.drawer
 				? this.devices.drawer.getStatus()
 				: { enabled: false, connected: false, lastTest: null },
@@ -682,6 +883,30 @@ class HardwareManager {
 		return await this.devices.ecTerminal.processPayment(amount);
 	}
 
+	// Process Visa payment
+	async processVisaPayment(amount, paymentMethod = "contactless") {
+		if (!this.devices.visaPayment) {
+			throw new Error("Visa payment system not configured");
+		}
+		return await this.devices.visaPayment.processPayment(amount, paymentMethod);
+	}
+
+	// Refund Visa payment
+	async refundVisaPayment(transactionId, amount) {
+		if (!this.devices.visaPayment) {
+			throw new Error("Visa payment system not configured");
+		}
+		return await this.devices.visaPayment.refundPayment(transactionId, amount);
+	}
+
+	// Void Visa payment
+	async voidVisaPayment(transactionId) {
+		if (!this.devices.visaPayment) {
+			throw new Error("Visa payment system not configured");
+		}
+		return await this.devices.visaPayment.voidPayment(transactionId);
+	}
+
 	// Open drawer
 	async openDrawer() {
 		if (!this.devices.drawer) {
@@ -692,8 +917,10 @@ class HardwareManager {
 
 	// Print receipt
 	async printReceipt(receiptData) {
+		// const configFile = await this.getHardwareConfig();
 		if (!this.devices.printer) {
 			throw new Error("Receipt printer not configured");
+			
 		}
 		return await this.devices.printer.printReceipt(receiptData);
 	}
@@ -713,4 +940,7 @@ class HardwareManager {
 }
 
 // Export singleton instance
-module.exports = new HardwareManager();
+const hardwareManager = new HardwareManager();
+Object.freeze(hardwareManager);
+module.exports = hardwareManager;
+

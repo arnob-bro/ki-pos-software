@@ -85,6 +85,7 @@ const EmployeeManagement = () => {
 				pagination.limit,
 				filters
 			);
+			console.log(result);
 			setEmployees(result.employees);
 			setPagination((prev) => ({
 				...prev,

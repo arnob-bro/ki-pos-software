@@ -17,6 +17,29 @@ const HardwareConfiguration = () => {
 			testMode: true,
 		},
 
+		// Visa Payment System Settings
+		visaPayment: {
+			enabled: false,
+			provider: "visa",
+			merchantId: "",
+			terminalId: "",
+			apiKey: "",
+			secretKey: "",
+			environment: "sandbox",
+			supportedCards: ["visa", "mastercard", "amex", "discover"],
+			contactless: true,
+			chipCard: true,
+			swipeCard: true,
+			manualEntry: true,
+			timeout: "60",
+			autoCapture: true,
+			testMode: true,
+			currency: "USD",
+			countryCode: "US",
+			processingFee: "2.9",
+			transactionFee: "0.30",
+		},
+
 		// Drawer Control Settings
 		drawer: {
 			enabled: false,
@@ -191,6 +214,30 @@ const HardwareConfiguration = () => {
 		}
 	};
 
+	const testVisaPayment = async () => {
+		try {
+			setMessage({ type: "info", text: "Testing Visa payment system..." });
+			if (!window.posAPI || !window.posAPI.testVisaPayment) {
+				throw new Error("Hardware API not available");
+			}
+
+			const result = await window.posAPI.testVisaPayment(config.visaPayment);
+			if (result.success) {
+				setMessage({
+					type: "success",
+					text: result.message || "Visa payment system test completed successfully!",
+				});
+			} else {
+				setMessage({
+					type: "error",
+					text: result.message || "Visa payment system test failed",
+				});
+			}
+		} catch (error) {
+			setMessage({ type: "error", text: "Visa payment system test failed" });
+		}
+	};
+
 	const testDrawer = async () => {
 		try {
 			setMessage({ type: "info", text: "Testing drawer..." });
@@ -341,6 +388,18 @@ const HardwareConfiguration = () => {
 									"Datensynchronisierung fehlgeschlagen"
 								)
 								.replace("Never", "Nie")
+								.replace(
+									"Testing Visa payment system...",
+									"Visa-Zahlungssystem wird getestet..."
+								)
+								.replace(
+									"Visa payment system test completed successfully!",
+									"Visa-Zahlungssystem-Test erfolgreich abgeschlossen!"
+								)
+								.replace(
+									"Visa payment system test failed",
+									"Visa-Zahlungssystem-Test fehlgeschlagen"
+								)
 						)}
 					</div>
 				)}
@@ -474,6 +533,242 @@ const HardwareConfiguration = () => {
 									className='test-btn'
 								>
 									{t("🧪 Test EC Terminal", "🧪 EC-Terminal testen")}
+								</button>
+							</>
+						)}
+					</fieldset>
+
+					{/* Visa Payment System Configuration */}
+					<fieldset className='config-section'>
+						<legend>
+							{t("💳 Visa Payment System", "💳 Visa-Zahlungssystem")}
+						</legend>
+
+						<div className='form-group'>
+							<label>
+								<input
+									type='checkbox'
+									checked={config.visaPayment.enabled}
+									onChange={(e) =>
+										handleChange("visaPayment", "enabled", e.target.checked)
+									}
+								/>
+								{t("Enable Visa Payment System", "Visa-Zahlungssystem aktivieren")}
+							</label>
+						</div>
+
+						{config.visaPayment.enabled && (
+							<>
+								<div className='form-row'>
+									<div className='form-group'>
+										<label>{t("Merchant ID", "Händler-ID")}</label>
+										<input
+											type='text'
+											value={config.visaPayment.merchantId}
+											onChange={(e) =>
+												handleChange("visaPayment", "merchantId", e.target.value)
+											}
+											placeholder={t(
+												"Enter Visa Merchant ID",
+												"Visa-Händler-ID eingeben"
+											)}
+										/>
+									</div>
+
+									<div className='form-group'>
+										<label>{t("Terminal ID", "Terminal-ID")}</label>
+										<input
+											type='text'
+											value={config.visaPayment.terminalId}
+											onChange={(e) =>
+												handleChange("visaPayment", "terminalId", e.target.value)
+											}
+											placeholder={t(
+												"Enter Terminal ID",
+												"Terminal-ID eingeben"
+											)}
+										/>
+									</div>
+								</div>
+
+								<div className='form-row'>
+									<div className='form-group'>
+										<label>{t("API Key", "API-Schlüssel")}</label>
+										<input
+											type='password'
+											value={config.visaPayment.apiKey}
+											onChange={(e) =>
+												handleChange("visaPayment", "apiKey", e.target.value)
+											}
+											placeholder={t(
+												"Enter Visa API Key",
+												"Visa-API-Schlüssel eingeben"
+											)}
+										/>
+									</div>
+
+									<div className='form-group'>
+										<label>{t("Secret Key", "Geheimschlüssel")}</label>
+										<input
+											type='password'
+											value={config.visaPayment.secretKey}
+											onChange={(e) =>
+												handleChange("visaPayment", "secretKey", e.target.value)
+											}
+											placeholder={t(
+												"Enter Visa Secret Key",
+												"Visa-Geheimschlüssel eingeben"
+											)}
+										/>
+									</div>
+								</div>
+
+								<div className='form-row'>
+									<div className='form-group'>
+										<label>{t("Environment", "Umgebung")}</label>
+										<select
+											value={config.visaPayment.environment}
+											onChange={(e) =>
+												handleChange("visaPayment", "environment", e.target.value)
+											}
+										>
+											<option value='sandbox'>
+												{t("Sandbox (Test)", "Sandbox (Test)")}
+											</option>
+											<option value='production'>
+												{t("Production", "Produktion")}
+											</option>
+										</select>
+									</div>
+
+									<div className='form-group'>
+										<label>{t("Currency", "Währung")}</label>
+										<select
+											value={config.visaPayment.currency}
+											onChange={(e) =>
+												handleChange("visaPayment", "currency", e.target.value)
+											}
+										>
+											<option value='USD'>USD</option>
+											<option value='EUR'>EUR</option>
+											<option value='GBP'>GBP</option>
+											<option value='CAD'>CAD</option>
+											<option value='AUD'>AUD</option>
+										</select>
+									</div>
+								</div>
+
+								<div className='form-row'>
+									<div className='form-group'>
+										<label>
+											{t("Processing Fee (%)", "Verarbeitungsgebühr (%)")}
+										</label>
+										<input
+											type='number'
+											value={config.visaPayment.processingFee}
+											onChange={(e) =>
+												handleChange("visaPayment", "processingFee", e.target.value)
+											}
+											step='0.1'
+											min='0'
+											max='10'
+										/>
+									</div>
+
+									<div className='form-group'>
+										<label>
+											{t("Transaction Fee ($)", "Transaktionsgebühr ($)")}
+										</label>
+										<input
+											type='number'
+											value={config.visaPayment.transactionFee}
+											onChange={(e) =>
+												handleChange("visaPayment", "transactionFee", e.target.value)
+											}
+											step='0.01'
+											min='0'
+										/>
+									</div>
+								</div>
+
+								<div className='form-group'>
+									<label>{t("Supported Payment Methods", "Unterstützte Zahlungsmethoden")}</label>
+									<div className='checkbox-group'>
+										<label>
+											<input
+												type='checkbox'
+												checked={config.visaPayment.contactless}
+												onChange={(e) =>
+													handleChange("visaPayment", "contactless", e.target.checked)
+												}
+											/>
+											{t("Contactless (NFC)", "Kontaktlos (NFC)")}
+										</label>
+										<label>
+											<input
+												type='checkbox'
+												checked={config.visaPayment.chipCard}
+												onChange={(e) =>
+													handleChange("visaPayment", "chipCard", e.target.checked)
+												}
+											/>
+											{t("Chip Card", "Chip-Karte")}
+										</label>
+										<label>
+											<input
+												type='checkbox'
+												checked={config.visaPayment.swipeCard}
+												onChange={(e) =>
+													handleChange("visaPayment", "swipeCard", e.target.checked)
+												}
+											/>
+											{t("Swipe Card", "Karte durchziehen")}
+										</label>
+										<label>
+											<input
+												type='checkbox'
+												checked={config.visaPayment.manualEntry}
+												onChange={(e) =>
+													handleChange("visaPayment", "manualEntry", e.target.checked)
+												}
+											/>
+											{t("Manual Entry", "Manuelle Eingabe")}
+										</label>
+									</div>
+								</div>
+
+								<div className='form-group'>
+									<label>
+										<input
+											type='checkbox'
+											checked={config.visaPayment.testMode}
+											onChange={(e) =>
+												handleChange("visaPayment", "testMode", e.target.checked)
+											}
+										/>
+										{t("Test Mode", "Testmodus")}
+									</label>
+								</div>
+
+								<div className='form-group'>
+									<label>
+										<input
+											type='checkbox'
+											checked={config.visaPayment.autoCapture}
+											onChange={(e) =>
+												handleChange("visaPayment", "autoCapture", e.target.checked)
+											}
+										/>
+										{t("Auto Capture", "Automatische Erfassung")}
+									</label>
+								</div>
+
+								<button
+									type='button'
+									onClick={testVisaPayment}
+									className='test-btn'
+								>
+									{t("🧪 Test Visa Payment", "🧪 Visa-Zahlung testen")}
 								</button>
 							</>
 						)}

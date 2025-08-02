@@ -394,10 +394,10 @@ const ReceiptArchive = () => {
 							<strong>{t("Taxpayer ID:", "Steuerzahler-ID:")}</strong>{" "}
 							{selectedReceipt.taxpayerId || "N/A"}
 						</p>
-						<p>
+						{/* <p>
 							<strong>{t("Jurisdiction:", "Gerichtsbarkeit:")}</strong>{" "}
 							{selectedReceipt.jurisdiction || "N/A"}
-						</p>
+						</p> */}
 						<p>
 							<strong>{t("VAT Rate:", "MwSt-Satz:")}</strong>{" "}
 							{selectedReceipt.vatRate ? `${selectedReceipt.vatRate}%` : "N/A"}
@@ -440,13 +440,7 @@ const ReceiptArchive = () => {
 							<strong>{t("Total:", "Gesamt:")}</strong> $
 							{selectedReceipt.total.toFixed(2)}
 						</p>
-						<p>
-							<strong>{t("Cash:", "Bar:")}</strong> $
-							{(selectedReceipt.total + 20).toFixed(2)}
-						</p>
-						<p>
-							<strong>{t("Change:", "Wechselgeld:")}</strong> $20.00
-						</p>
+						
 						<button onClick={() => window.print()}>
 							🖨️ {t("Print Receipt", "Beleg drucken")}
 						</button>

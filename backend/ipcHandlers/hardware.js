@@ -39,6 +39,20 @@ function setupHardwareHandlers() {
 		}
 	});
 
+	// Test Visa Payment System
+	ipcMain.handle("hardware:testVisaPayment", async (event, config) => {
+		try {
+			const result = await hardwareService.testVisaPayment(config);
+			return {
+				success: true,
+				message: "Visa payment system test completed successfully",
+			};
+		} catch (error) {
+			console.error("Error testing Visa payment system:", error);
+			return { success: false, message: error.message };
+		}
+	});
+
 	// Test Drawer
 	ipcMain.handle("hardware:testDrawer", async (event, config) => {
 		try {
@@ -79,6 +93,39 @@ function setupHardwareHandlers() {
 			return { success: true, ports };
 		} catch (error) {
 			console.error("Error getting available ports:", error);
+			return { success: false, message: error.message };
+		}
+	});
+
+	// Process Visa payment
+	ipcMain.handle("hardware:processVisaPayment", async (event, amount, paymentMethod) => {
+		try {
+			const result = await hardwareService.processVisaPayment(amount, paymentMethod);
+			return { success: true, result };
+		} catch (error) {
+			console.error("Error processing Visa payment:", error);
+			return { success: false, message: error.message };
+		}
+	});
+
+	// Refund Visa payment
+	ipcMain.handle("hardware:refundVisaPayment", async (event, transactionId, amount) => {
+		try {
+			const result = await hardwareService.refundVisaPayment(transactionId, amount);
+			return { success: true, result };
+		} catch (error) {
+			console.error("Error refunding Visa payment:", error);
+			return { success: false, message: error.message };
+		}
+	});
+
+	// Void Visa payment
+	ipcMain.handle("hardware:voidVisaPayment", async (event, transactionId) => {
+		try {
+			const result = await hardwareService.voidVisaPayment(transactionId);
+			return { success: true, result };
+		} catch (error) {
+			console.error("Error voiding Visa payment:", error);
 			return { success: false, message: error.message };
 		}
 	});
