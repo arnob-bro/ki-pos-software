@@ -156,6 +156,15 @@ CREATE TABLE IF NOT EXISTS languages (
   is_default BOOLEAN DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS company_info (
+    id TEXT PRIMARY KEY,
+    companyName TEXT,
+    legalAddress TEXT,
+    vatNumber TEXT,
+    gobdEnabled INTEGER,
+    logoPath TEXT
+);
+
 -- Table: audit_logs
 CREATE TABLE audit_logs (
   id TEXT PRIMARY KEY,

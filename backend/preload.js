@@ -149,4 +149,9 @@ contextBridge.exposeInMainWorld("posAPI", {
 	getPaymentSettings: () => ipcRenderer.invoke("paymentSettings:get"),
 	updatePaymentSettings: (settings) =>
 		ipcRenderer.invoke("paymentSettings:update", settings),
+
+	//companyInfo
+	getCompanyInfo: () => ipcRenderer.invoke("companyInfo:get"),
+	saveCompanyInfo: (companyInfo) =>
+		ipcRenderer.invoke("companyInfo:save", companyInfo),
 });

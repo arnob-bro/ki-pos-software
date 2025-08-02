@@ -239,7 +239,7 @@ function POS() {
 
                         <div>
                             Cashier:{" "}
-                            <span className="cashier-name">John Doe</span>
+                            <span className="cashier-name">{currentUser.name}</span>
                         </div>
                         {/* Queue Button */}
                         <div style={{ position: "relative" }}>

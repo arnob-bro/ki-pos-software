@@ -52,6 +52,7 @@ require("./ipcHandlers/report")(ipcMain, db); // ← Add report IPC handler
 require("./ipcHandlers/dashboard")(ipcMain);
 require("./ipcHandlers/customer")(ipcMain, db);
 require("./ipcHandlers/payment");
+require("./ipcHandlers/companyInfo")(ipcMain,db);
 
 // Register hardware handlers
 const { setupHardwareHandlers } = require("./ipcHandlers/hardware");
