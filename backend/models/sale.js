@@ -9,17 +9,17 @@
  */
 
 const SaleModel = {
-  id: 'number',
-  items: [
-    {
-      id: 'number',
-      name: 'string',
-      price: 'number',
-      qty: 'number',
-    },
-  ],
-  total: 'number',
-  created_at: 'string',
+	id: "number",
+	items: [
+		{
+			id: "number",
+			name: "string",
+			price: "number",
+			qty: "number",
+		},
+	],
+	total: "number",
+	created_at: "string",
 };
 
-module.exports = SaleModel; 
+module.exports = SaleModel;

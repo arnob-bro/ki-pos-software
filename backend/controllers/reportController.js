@@ -1,234 +1,248 @@
 class ReportController {
-  constructor(reportService) {
-    this.reportService = reportService;
-  }
+	constructor(reportService) {
+		this.reportService = reportService;
+	}
 
-  /**
-   * Generate X Report
-   * @param {string} date - Date in YYYY-MM-DD format
-   * @param {string} userId - User ID
-   * @returns {Object} X report result
-   */
-  async generateXReport(date, userId) {
-    try {
-      // Validate date format
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new Error('Invalid date format. Use YYYY-MM-DD');
-      }
+	/**
+	 * Generate X Report
+	 * @param {string} date - Date in YYYY-MM-DD format
+	 * @param {string} userId - User ID
+	 * @returns {Object} X report result
+	 */
+	async generateXReport(date, userId) {
+		try {
+			// Validate date format
+			if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+				throw new Error("Invalid date format. Use YYYY-MM-DD");
+			}
 
-      const report = await this.reportService.generateXReport(date, userId);
-      
-      return {
-        success: true,
-        message: 'X report generated successfully',
-        data: report
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'X_REPORT_ERROR'
-      };
-    }
-  }
+			const report = await this.reportService.generateXReport(date, userId);
 
-  /**
-   * Generate Z Report
-   * @param {string} date - Date in YYYY-MM-DD format
-   * @param {string} userId - User ID
-   * @returns {Object} Z report result
-   */
-  async generateZReport(date, userId) {
-    try {
-      // Validate date format
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new Error('Invalid date format. Use YYYY-MM-DD');
-      }
+			return {
+				success: true,
+				message: "X report generated successfully",
+				data: report,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "X_REPORT_ERROR",
+			};
+		}
+	}
 
-      const report = await this.reportService.generateZReport(date, userId);
-      
-      return {
-        success: true,
-        message: 'Z report generated successfully',
-        data: report
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'Z_REPORT_ERROR'
-      };
-    }
-  }
+	/**
+	 * Generate Z Report
+	 * @param {string} date - Date in YYYY-MM-DD format
+	 * @param {string} userId - User ID
+	 * @returns {Object} Z report result
+	 */
+	async generateZReport(date, userId) {
+		try {
+			// Validate date format
+			if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+				throw new Error("Invalid date format. Use YYYY-MM-DD");
+			}
 
-  /**
-   * Check if Z report exists for a given date
-   * @param {string} date - Date in YYYY-MM-DD format
-   * @param {string} userId - User ID
-   * @returns {Object} Check result
-   */
-  async checkZReportExists(date, userId) {
-    try {
-      const result = await this.reportService.checkZReportExists(date, userId);
-      return result;
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message
-      };
-    }
-  }
+			const report = await this.reportService.generateZReport(date, userId);
 
-  /**
-   * Get all generated reports
-   * @param {number} page - Page number
-   * @param {number} limit - Items per page
-   * @returns {Object} Reports result
-   */
-  async getGeneratedReports(userId, page = 1, limit = 20) {
-    try {
-      const result = await this.reportService.getGeneratedReports(userId, page, limit);
-      return {
-        success: true,
-        message: 'Reports retrieved successfully',
-        data: result
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'GET_REPORTS_ERROR'
-      };
-    }
-  }
+			return {
+				success: true,
+				message: "Z report generated successfully",
+				data: report,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "Z_REPORT_ERROR",
+			};
+		}
+	}
 
-  /**
-   * Export GoBD data
-   * @param {string} startDate - Start date
-   * @param {string} endDate - End date
-   * @returns {Object} Export result
-   */
-  async exportGoBDData(startDate, endDate) {
-    try {
-      // Validate date format
-      if (!startDate || !endDate || 
-          !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || 
-          !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
-        throw new Error('Invalid date format. Use YYYY-MM-DD');
-      }
+	/**
+	 * Check if Z report exists for a given date
+	 * @param {string} date - Date in YYYY-MM-DD format
+	 * @param {string} userId - User ID
+	 * @returns {Object} Check result
+	 */
+	async checkZReportExists(date, userId) {
+		try {
+			const result = await this.reportService.checkZReportExists(date, userId);
+			return result;
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+			};
+		}
+	}
 
-      if (new Date(startDate) > new Date(endDate)) {
-        throw new Error('Start date cannot be after end date');
-      }
+	/**
+	 * Get all generated reports
+	 * @param {number} page - Page number
+	 * @param {number} limit - Items per page
+	 * @returns {Object} Reports result
+	 */
+	async getGeneratedReports(userId, page = 1, limit = 20) {
+		try {
+			const result = await this.reportService.getGeneratedReports(
+				userId,
+				page,
+				limit
+			);
+			return {
+				success: true,
+				message: "Reports retrieved successfully",
+				data: result,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "GET_REPORTS_ERROR",
+			};
+		}
+	}
 
-      const result = await this.reportService.exportGoBDData(startDate, endDate);
-      
-      return {
-        success: true,
-        message: 'GoBD export completed successfully',
-        data: result
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'GOBD_EXPORT_ERROR'
-      };
-    }
-  }
+	/**
+	 * Export GoBD data
+	 * @param {string} startDate - Start date
+	 * @param {string} endDate - End date
+	 * @returns {Object} Export result
+	 */
+	async exportGoBDData(startDate, endDate) {
+		try {
+			// Validate date format
+			if (
+				!startDate ||
+				!endDate ||
+				!/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
+				!/^\d{4}-\d{2}-\d{2}$/.test(endDate)
+			) {
+				throw new Error("Invalid date format. Use YYYY-MM-DD");
+			}
 
-  /**
-   * Generate PDF report
-   * @param {string} reportId - Report ID
-   * @returns {Object} PDF generation result
-   */
-  async generatePDFReport(reportId) {
-    try {
-      if (!reportId) {
-        throw new Error('Report ID is required');
-      }
+			if (new Date(startDate) > new Date(endDate)) {
+				throw new Error("Start date cannot be after end date");
+			}
 
-      const result = await this.reportService.generatePDFReport(reportId);
-      
-      return {
-        success: true,
-        message: 'PDF report generated successfully',
-        data: result
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'PDF_GENERATION_ERROR'
-      };
-    }
-  }
+			const result = await this.reportService.exportGoBDData(
+				startDate,
+				endDate
+			);
 
-  /**
-   * Generate CSV report
-   * @param {string} reportId - Report ID
-   * @returns {Object} CSV generation result
-   */
-  async generateCSVReport(reportId) {
-    try {
-      if (!reportId) {
-        throw new Error('Report ID is required');
-      }
-      const result = await this.reportService.generateCSVReport(reportId);
-      return {
-        success: true,
-        message: 'CSV report generated successfully',
-        data: result
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'CSV_GENERATION_ERROR'
-      };
-    }
-  }
+			return {
+				success: true,
+				message: "GoBD export completed successfully",
+				data: result,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "GOBD_EXPORT_ERROR",
+			};
+		}
+	}
 
-  /**
-   * Get report statistics
-   * @returns {Object} Statistics result
-   */
-  async getReportStats(userId) {
-    try {
-      const stats = await this.reportService.getReportStats(userId);
-      return {
-        success: true,
-        message: 'Report statistics retrieved successfully',
-        data: stats
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        code: 'STATS_ERROR'
-      };
-    }
-  }
+	/**
+	 * Generate PDF report
+	 * @param {string} reportId - Report ID
+	 * @returns {Object} PDF generation result
+	 */
+	async generatePDFReport(reportId) {
+		try {
+			if (!reportId) {
+				throw new Error("Report ID is required");
+			}
 
-  // Manager Reports: Sales by Category
-  async getSalesByCategory(startDate, endDate) {
-    return await this.reportService.getSalesByCategory(startDate, endDate);
-  }
+			const result = await this.reportService.generatePDFReport(reportId);
 
-  // Manager Reports: Sales by Time
-  async getSalesByTime(startDate, endDate, interval) {
-    return await this.reportService.getSalesByTime(startDate, endDate, interval);
-  }
+			return {
+				success: true,
+				message: "PDF report generated successfully",
+				data: result,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "PDF_GENERATION_ERROR",
+			};
+		}
+	}
 
-  // Manager Reports: Sales by Operator
-  async getSalesByOperator(startDate, endDate) {
-    return await this.reportService.getSalesByOperator(startDate, endDate);
-  }
+	/**
+	 * Generate CSV report
+	 * @param {string} reportId - Report ID
+	 * @returns {Object} CSV generation result
+	 */
+	async generateCSVReport(reportId) {
+		try {
+			if (!reportId) {
+				throw new Error("Report ID is required");
+			}
+			const result = await this.reportService.generateCSVReport(reportId);
+			return {
+				success: true,
+				message: "CSV report generated successfully",
+				data: result,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "CSV_GENERATION_ERROR",
+			};
+		}
+	}
 
-  // Manager Reports: Tax/VAT Breakdown
-  async getTaxBreakdown(startDate, endDate) {
-    return await this.reportService.getTaxBreakdown(startDate, endDate);
-  }
+	/**
+	 * Get report statistics
+	 * @returns {Object} Statistics result
+	 */
+	async getReportStats(userId) {
+		try {
+			const stats = await this.reportService.getReportStats(userId);
+			return {
+				success: true,
+				message: "Report statistics retrieved successfully",
+				data: stats,
+			};
+		} catch (error) {
+			return {
+				success: false,
+				message: error.message,
+				code: "STATS_ERROR",
+			};
+		}
+	}
+
+	// Manager Reports: Sales by Category
+	async getSalesByCategory(startDate, endDate) {
+		return await this.reportService.getSalesByCategory(startDate, endDate);
+	}
+
+	// Manager Reports: Sales by Time
+	async getSalesByTime(startDate, endDate, interval) {
+		return await this.reportService.getSalesByTime(
+			startDate,
+			endDate,
+			interval
+		);
+	}
+
+	// Manager Reports: Sales by Operator
+	async getSalesByOperator(startDate, endDate) {
+		return await this.reportService.getSalesByOperator(startDate, endDate);
+	}
+
+	// Manager Reports: Tax/VAT Breakdown
+	async getTaxBreakdown(startDate, endDate) {
+		return await this.reportService.getTaxBreakdown(startDate, endDate);
+	}
 }
 
 module.exports = ReportController;

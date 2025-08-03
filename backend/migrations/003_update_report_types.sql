@@ -1,6 +1,3 @@
--- Migration: Update generated_reports table to support x_report and z_report types
--- This migration adds support for the new report type constraints
-
 -- Update the CHECK constraint to include new report types
 PRAGMA foreign_keys=off;
 

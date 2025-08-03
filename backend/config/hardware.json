@@ -9,6 +9,32 @@
     "terminalId": "wqwq",
     "testMode": true
   },
+  "visaPayment": {
+    "enabled": false,
+    "provider": "visa",
+    "merchantId": "",
+    "terminalId": "",
+    "apiKey": "",
+    "secretKey": "",
+    "environment": "sandbox",
+    "supportedCards": [
+      "visa",
+      "mastercard",
+      "amex",
+      "discover"
+    ],
+    "contactless": true,
+    "chipCard": true,
+    "swipeCard": true,
+    "manualEntry": true,
+    "timeout": "60",
+    "autoCapture": true,
+    "testMode": true,
+    "currency": "USD",
+    "countryCode": "US",
+    "processingFee": "2.9",
+    "transactionFee": "0.30"
+  },
   "drawer": {
     "enabled": true,
     "port": "USB",
