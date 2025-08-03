@@ -207,12 +207,18 @@ class EmployeeService {
   // Delete employee
   async deleteEmployee(id, currentUser) {
     const oldEmployee = await this.getEmployeeById(id);
-    const stmt = this.db.prepare('DELETE FROM users WHERE id = ?');
+    const stmt = this.db.prepare(`
+      UPDATE users SET 
+        status = "deleted"
+      WHERE id = ?
+    `);
     const result = stmt.run(id);
     
     if (result.changes === 0) {
       throw new Error('Employee not found');
     }
+
+    const updatedEmployee = await this.getEmployeeById(id);
     
     // Audit log
     if (currentUser) {
@@ -222,7 +228,7 @@ class EmployeeService {
         table_name: 'users',
         record_id: id,
         old_data: oldEmployee,
-        new_data: null
+        new_data: updatedEmployee
       });
     }
     return { success: true, message: 'Employee deleted successfully' };
