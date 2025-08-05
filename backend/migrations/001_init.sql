@@ -165,6 +165,13 @@ CREATE TABLE IF NOT EXISTS company_info (
     logoPath TEXT
 );
 
+CREATE TABLE IF NOT EXISTS system_settings (
+    id TEXT PRIMARY KEY,
+    backupPath TEXT,
+    vat TEXT,
+    currency TEXT
+);
+
 -- Table: audit_logs
 CREATE TABLE audit_logs (
   id TEXT PRIMARY KEY,
