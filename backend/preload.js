@@ -154,4 +154,9 @@ contextBridge.exposeInMainWorld("posAPI", {
 	getCompanyInfo: () => ipcRenderer.invoke("companyInfo:get"),
 	saveCompanyInfo: (companyInfo) =>
 		ipcRenderer.invoke("companyInfo:save", companyInfo),
+
+	//system settings
+	getSystemSettings: () => ipcRenderer.invoke("systemSettings:get"),
+	updateSystemSettings: (systemSettings) =>
+		ipcRenderer.invoke("systemSettings:update", systemSettings),
 });

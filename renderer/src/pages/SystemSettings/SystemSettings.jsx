@@ -148,9 +148,9 @@ const SystemSettings = () => {
                   >
                     {active ? t("Deactivate", "Deaktivieren") : t("Activate", "Aktivieren")}
                   </button>
-                  <button type="button" onClick={() => removeDiscount(id)}>
+                  {/* <button type="button" onClick={() => removeDiscount(id)}>
                     {t("Delete", "Löschen")}
-                  </button>
+                  </button> */}
                 </li>
               ))}
             </ul>

@@ -1,3 +1,4 @@
+//ki-pos-software\renderer\src\pages\CompanyInfo\CompanyInfo.jsx
 import { useState, useEffect } from "react";
 import "./CompanyInfo.css";
 import Sidebar from "../../components/Sidebar";

@@ -1,3 +1,4 @@
+// ki-pos-software\renderer\src\pages\CustomerManagement\CustomerManagement.jsx	
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import useUserStore from "../../stores/userStore";
